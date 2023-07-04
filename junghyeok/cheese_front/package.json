@@ -1,0 +1,20 @@
+{
+  "name": "cheese_front",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "jquery": "^3.7.0",
+    "next": "13.4.7",
+    "next-auth": "^4.21.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-webcam": "^7.1.1"
+  }
+}
