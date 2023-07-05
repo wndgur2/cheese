@@ -34,8 +34,10 @@ export default function Home() {
       <p>uid : {uid}</p>
       <p>session.status : {session.status}</p>
       { isLocated?
-        <div><p>현재 위치 : {location}</p><button onClick={
-          ()=>{localStorage.removeItem("location")}
+        <div><p>현재 위치 : {location}</p><button onClick={()=>{
+            localStorage.removeItem("location");
+            setIsLocated(false);
+          }
         }>위치 없애기</button></div>:
         <div>현재 위치 없음 : <Link href="/cheese_map">지점을 선택해주세요.</Link><br/></div>
       }

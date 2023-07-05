@@ -80,23 +80,23 @@ export default function CheeseMap() {
     }
     
     // 현재위치 조회, 지도 이동, 지점과 거리 계산
-    // navigator.geolocation.getCurrentPosition((pos) => {
-    //     const current_position = new naver.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-    //     map.morph(current_position, 16);
+    navigator.geolocation.getCurrentPosition((pos) => {
+        const current_position = new naver.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+        map.morph(current_position, 16);
 
-    //     let new_distances = [];
-    //     positions.map((poss)=>{
-    //       let distance = Math.sqrt(
-    //         Math.pow((Math.cos(current_position.lat())*6400*2*3.14/360)*
-    //           Math.abs(current_position.lng() - poss[1]), 2)
-    //         +
-    //         Math.pow(111* Math.abs(current_position.lat() - poss[0]), 2)
-    //       );
-    //       new_distances.push(distance);
-    //     })
-    //     setDistances(new_distances);
-    //   }
-    // );
+        let new_distances = [];
+        positions.map((poss)=>{
+          let distance = Math.sqrt(
+            Math.pow((Math.cos(current_position.lat())*6400*2*3.14/360)*
+              Math.abs(current_position.lng() - poss[1]), 2)
+            +
+            Math.pow(111* Math.abs(current_position.lat() - poss[0]), 2)
+          );
+          new_distances.push(distance);
+        })
+        setDistances(new_distances);
+      }
+    );
   },[]);
 
   return (

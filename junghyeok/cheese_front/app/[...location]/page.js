@@ -8,6 +8,7 @@ export default function Home() {
   const router = useRouter();
   const locations = ["한경대 안성캠퍼스", "중앙대 안성캠퍼스", "평택 스타필드"]
   useEffect(()=>{
+    console.log(pathname);
     const location = locations[pathname.split('/')[2]];
     if(location){
       localStorage.setItem("location", location);
