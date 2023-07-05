@@ -27,19 +27,17 @@ export default function Home() {
     if (localStorage.getItem("uuid") === null)
       localStorage.setItem("uuid", guid());
     setUid(localStorage.getItem("uuid"));
-    
-    console.log("local.uuid:" + localStorage.getItem("uuid"));
-    console.log("local.location:" + localStorage.getItem("location"));
-    console.log(session);
 }, []);
 
   return (
     <div>
-      <p>device id: {uid}</p>
-      <p>session.status = {session.status}</p>
+      <p>uid : {uid}</p>
+      <p>session.status : {session.status}</p>
       { isLocated?
-        <p>현재 위치: {location}</p>:
-        <div><Link href="/cheese_map">지점을 선택해주세요.</Link><br/></div>
+        <div><p>현재 위치 : {location}</p><button onClick={
+          ()=>{localStorage.removeItem("location")}
+        }>위치 없애기</button></div>:
+        <div>현재 위치 없음 : <Link href="/cheese_map">지점을 선택해주세요.</Link><br/></div>
       }
 
       <br/>

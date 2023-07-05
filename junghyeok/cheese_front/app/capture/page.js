@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef} from "react";
-import RTCVideo from './camera';
 
 export default function Home() {
   let localStream;
@@ -9,7 +8,7 @@ export default function Home() {
   const remoteVideoRef = useRef();
   let myPeerConnection;
   const [localUserName, setLocalUserName] = useState();
-  const [localRoom, setLocalRoom] = useState("99");
+  const [localRoom, setLocalRoom] = useState("84");
 
   let socket;
 
@@ -204,7 +203,7 @@ export default function Home() {
   // add MediaStream to local video element and to the Peer
   function getLocalMediaStream(mediaStream) {
       localStream = mediaStream;
-      localVideoRef.current.srcObject = mediaStream;
+      // localVideoRef.current.srcObject = mediaStream;
       localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
   }
 
@@ -338,7 +337,7 @@ export default function Home() {
   return (
     <div>
       <p>take photos. {localUserName}</p>
-      <video ref={localVideoRef} autoPlay playsInline></video>
+      {/* <video ref={localVideoRef} autoPlay playsInline></video> */}
       <video ref={remoteVideoRef} autoPlay playsInline></video>
     </div>
   );

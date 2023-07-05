@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
         <br/>
         <div>
           <Link href="/"> 홈 </Link>
-          <Link href="/edit"> 편집 </Link>
+          <Link href="/edit/ai"> 편집 </Link>
           <Link href="/capture"> 촬영 </Link>
           <Link href="/print"> 인화 </Link>
           <Link href="/my_cheese"> 내치즈 </Link>
