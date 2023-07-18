@@ -1,11 +1,11 @@
-'use client'
-
 import { signOut } from 'next-auth/react';
 
 function LogoutBtn(){
 
     return (
-        <button onClick={()=>{ signOut() }}>logout</button>
+        <button onClick={()=>{ 
+            signOut({callbackUrl: "/home"})
+        }}>logout</button>
     );
 }
 

@@ -6,7 +6,7 @@ export default function Home() {
   let localStream;
   const remoteVideoRef = useRef();
   let myPeerConnection;
-  const localRoom= "3";
+  const localRoom= "1";
 
   // WebRTC STUN servers
   const peerConnectionConfig = {
