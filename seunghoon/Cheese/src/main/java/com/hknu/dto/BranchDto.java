@@ -12,11 +12,13 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class BranchDto {
-	private int branchId;
-	private int address;
-	private int shootingCost;
-	private int printingCost;
-	private int paperAmount;
+	private Integer branchId;
+	private String name;
+	private float latitude;
+	private float longitude;
+	private Integer shootingCost;
+	private Integer printingCost;
+	private Integer paperAmount;
 	private List<FrameDto> frames;
 	private List<StickerDto> stickers;
 	private List<FilterDto> filters;

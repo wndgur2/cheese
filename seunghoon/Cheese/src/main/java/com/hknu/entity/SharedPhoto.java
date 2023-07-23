@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class SharedPhoto {
-	private int shared_photo_id;
-	private int share_id;
-	private int photograph_id;
+	private final Integer shared_photo_id;
+	private final Integer share_id;
+	private final Integer photograph_id;
 }

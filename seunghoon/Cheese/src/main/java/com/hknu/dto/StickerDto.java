@@ -10,6 +10,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class StickerDto {
-	private int stickerId;
+	private Integer stickerId;
+	private Integer branchId;
 	private byte[] stickerImage;
 }

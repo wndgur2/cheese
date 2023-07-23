@@ -12,24 +12,24 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Filter {
-	private final int filter_id;
-	private int branch_id;
-	private final int brightness;
-	private final int exposure;
-	private final int contrast;
-	private final int chroma;
-	private final int temperature;
-	private final int livliness;
-	private final int tint;
-	private final int tone;
-	private final int highlight;
-	private final int shadow;
-	private final int sharpness;
-	private final int grain;
-	private final int vineting;
-	private final int afterImage;
-	private final int dehaze;
-	private final int posterize;
-	private final int blur;
-	private final int mosaic;
+	private final Integer filter_id;
+	private Integer branch_id;
+	private final Integer brightness;
+	private final Integer exposure;
+	private final Integer contrast;
+	private final Integer chroma;
+	private final Integer temperature;
+	private final Integer livliness;
+	private final Integer tint;
+	private final Integer tone;
+	private final Integer highlight;
+	private final Integer shadow;
+	private final Integer sharpness;
+	private final Integer grain;
+	private final Integer vineting;
+	private final Integer afterImage;
+	private final Integer dehaze;
+	private final Integer posterize;
+	private final Integer blur;
+	private final Integer mosaic;
 }

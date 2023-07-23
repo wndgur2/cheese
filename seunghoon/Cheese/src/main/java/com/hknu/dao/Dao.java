@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface Dao<E> {
 	public E createObjectFromResultSet(ResultSet rs) throws SQLException;
-	public E getById(int id);
+	public E getById(Integer id);
 	public List<E> getAll();
-	public int getMaxPkValue();
+	public Integer getMaxPkValue();
 	public void insert(E data);
 	public void update(E data);
-	public void delete(int id);
+	public void delete(Integer id);
 }

@@ -13,8 +13,16 @@ import com.hknu.entity.Customer;
 public class CustomerServiceImpl implements Service<CustomerDto>{
 	@Autowired
 	private CustomerDaoImpl customerDaoImpl;
+	@Autowired
+	private PaymentServiceImpl paymentServiceImpl;
+	@Autowired
+	private PhotographServiceImpl photographServiceImpl;
+	@Autowired
+	private TimelapseServiceImpl timelapseServiceImpl;
+	@Autowired
+	private ShareServiceImpl shareServiceImpl;
 	
-	public CustomerDto getById(int id) {
+	public CustomerDto getById(Integer id) {
 		Customer customer = this.customerDaoImpl.getById(id);
 		CustomerDto customerDto = new CustomerDto(
 				customer.getCustomer_id(),
@@ -22,12 +30,11 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				customer.getPassword(),
 				customer.getCloud_size(), 
 				customer.getNickname(), 
-				null, 
-				null, 
-				null, 
-				null);
-		// test
-		System.out.println(customerDto.toString());
+				this.paymentServiceImpl.getListByCustomerId(id), 
+				this.photographServiceImpl.getListByCustomerId(id), 
+				this.timelapseServiceImpl.getListByCustomerId(id), 
+				this.shareServiceImpl.getListByCustomerId(id));
+
 		return customerDto;
 	}
 	
@@ -43,14 +50,13 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 					customer.getPassword(),
 					customer.getCloud_size(), 
 					customer.getNickname(), 
-					null, 
-					null, 
-					null, 
-					null);
+					this.paymentServiceImpl.getListByCustomerId(customer.getCustomer_id()), 
+					this.photographServiceImpl.getListByCustomerId(customer.getCustomer_id()), 
+					this.timelapseServiceImpl.getListByCustomerId(customer.getCustomer_id()), 
+					this.shareServiceImpl.getListByCustomerId(customer.getCustomer_id()));
 			customerDtoList.add(customerDto);
 		}
-		//test
-		System.out.println(customerDtoList.toString());
+
 		return customerDtoList;
 	}
 	
@@ -74,7 +80,27 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 		this.customerDaoImpl.update(customer);
 	}
 	
-	public void delete(int id) {
+	public void delete(Integer id) {
 		this.customerDaoImpl.delete(id);
+	}
+	
+	public Integer getMaxPkValue() {
+		return this.customerDaoImpl.getMaxPkValue();
+	}
+	
+	public CustomerDto getByEmail(String email) {
+		Customer customer = this.customerDaoImpl.getByEmail(email);
+		CustomerDto customerDto = new CustomerDto(
+				customer.getCustomer_id(),
+				customer.getEmail(), 
+				customer.getPassword(),
+				customer.getCloud_size(), 
+				customer.getNickname(), 
+				this.paymentServiceImpl.getListByCustomerId(customer.getCustomer_id()), 
+				this.photographServiceImpl.getListByCustomerId(customer.getCustomer_id()), 
+				this.timelapseServiceImpl.getListByCustomerId(customer.getCustomer_id()), 
+				this.shareServiceImpl.getListByCustomerId(customer.getCustomer_id()));
+
+		return customerDto;
 	}
 }

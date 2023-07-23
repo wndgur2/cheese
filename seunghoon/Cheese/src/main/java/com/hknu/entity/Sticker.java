@@ -12,7 +12,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Sticker {
-	private final int sticker_id;
-	private int branch_id;
+	private final Integer sticker_id;
+	private Integer branch_id;
 	private final byte[] sticker_image;
 }

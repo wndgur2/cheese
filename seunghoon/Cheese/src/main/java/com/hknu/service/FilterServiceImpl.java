@@ -9,15 +9,17 @@ import com.hknu.dao.FilterDaoImpl;
 import com.hknu.dto.FilterDto;
 import com.hknu.entity.Filter;
 
+
 @org.springframework.stereotype.Service
 public class FilterServiceImpl implements Service<FilterDto>{
 	@Autowired
 	private FilterDaoImpl filterDaoImpl;
 	
-	public FilterDto getById(int id) {
+	public FilterDto getById(Integer id) {
 		Filter filter = this.filterDaoImpl.getById(id);
 		FilterDto filterDto = new FilterDto(
 				filter.getFilter_id(),
+				filter.getBranch_id(),
 				filter.getBrightness(),
 				filter.getExposure(), 
 				filter.getContrast(),
@@ -36,8 +38,7 @@ public class FilterServiceImpl implements Service<FilterDto>{
 				filter.getPosterize(),
 				filter.getBlur(),
 				filter.getMosaic());
-		// test
-		System.out.println(filterDto.toString());
+
 		return filterDto;
 	}
 	
@@ -49,6 +50,7 @@ public class FilterServiceImpl implements Service<FilterDto>{
 			Filter filter = filterList.get(i);
 			FilterDto filterDto = new FilterDto(
 					filter.getFilter_id(),
+					filter.getBranch_id(),
 					filter.getBrightness(),
 					filter.getExposure(), 
 					filter.getContrast(),
@@ -69,14 +71,14 @@ public class FilterServiceImpl implements Service<FilterDto>{
 					filter.getMosaic());
 			filterDtoList.add(filterDto);
 		}
-		//test
-		System.out.println(filterDtoList.toString());
+
 		return filterDtoList;
 	}
 	
 	public void insert(FilterDto fd) {
 		Filter filter = new Filter(
 				fd.getFilterId(),
+				fd.getBranchId(),
 				fd.getBrightness(),
 				fd.getExposure(), 
 				fd.getContrast(),
@@ -101,6 +103,7 @@ public class FilterServiceImpl implements Service<FilterDto>{
 	public void update(FilterDto fd) {
 		Filter filter = new Filter(
 				fd.getFilterId(),
+				fd.getBranchId(),
 				fd.getBrightness(),
 				fd.getExposure(), 
 				fd.getContrast(),
@@ -122,7 +125,48 @@ public class FilterServiceImpl implements Service<FilterDto>{
 		this.filterDaoImpl.update(filter);
 	}
 	
-	public void delete(int id) {
+	public void delete(Integer id) {
 		this.filterDaoImpl.delete(id);
+	}
+
+	public Integer getMaxPkValue() {
+		return this.filterDaoImpl.getMaxPkValue();
+	}
+	
+	public List<FilterDto> getListByBranchId(Integer id) {
+		List<Filter> filterList = this.filterDaoImpl.getListByBranchId(id);
+		List<FilterDto> filterDtoList = new ArrayList<>();
+		
+		if (filterList == null) {
+			return null;
+		}
+		
+		for (int i = 0; i < filterList.size(); i++) {
+			Filter filter = filterList.get(i);
+			FilterDto filterDto = new FilterDto(
+					filter.getFilter_id(),
+					filter.getBranch_id(),
+					filter.getBrightness(),
+					filter.getExposure(), 
+					filter.getContrast(),
+					filter.getChroma(),
+					filter.getTemperature(),
+					filter.getLivliness(),
+					filter.getTint(),
+					filter.getTone(),
+					filter.getHighlight(),
+					filter.getShadow(),
+					filter.getSharpness(),
+					filter.getGrain(),
+					filter.getVineting(),
+					filter.getAfterImage(),
+					filter.getDehaze(),
+					filter.getPosterize(),
+					filter.getBlur(),
+					filter.getMosaic());
+			filterDtoList.add(filterDto);
+		}
+
+		return filterDtoList;
 	}
 }

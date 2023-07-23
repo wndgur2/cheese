@@ -14,16 +14,15 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 	@Autowired
 	private TimelapseDaoImpl timelapseDaoImpl;
 	
-	public TimelapseDto getById(int id) {
+	public TimelapseDto getById(Integer id) {
 		Timelapse timelapse = this.timelapseDaoImpl.getById(id);
 		TimelapseDto timelapseDto = new TimelapseDto(
 				timelapse.getTimelapse_id(),
 				timelapse.getCustomer_id(),
-				null, 
+				timelapse.getBranch_id(), 
 				timelapse.getCreated_at(),
 				timelapse.getVideo());
-		// test
-		System.out.println(timelapseDto.toString());
+
 		return timelapseDto;
 	}
 	
@@ -36,13 +35,12 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 			TimelapseDto timelapseDto = new TimelapseDto(
 					timelapse.getTimelapse_id(),
 					timelapse.getCustomer_id(),
-					null, 
+					timelapse.getBranch_id(), 
 					timelapse.getCreated_at(),
 					timelapse.getVideo());
 			timelapseDtoList.add(timelapseDto);
 		}
-		//test
-		System.out.println(timelapseDtoList.toString());
+
 		return timelapseDtoList;
 	}
 	
@@ -50,6 +48,7 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 		Timelapse timelapse = new Timelapse(
 				td.getTimelapseId(),
 				td.getCustomerId(),
+				td.getBranchId(),
 				td.getCreatedAt(), 
 				td.getVideo());
 		this.timelapseDaoImpl.insert(timelapse);
@@ -59,12 +58,39 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 		Timelapse timelapse = new Timelapse(
 				td.getTimelapseId(),
 				td.getCustomerId(),
+				td.getBranchId(),
 				td.getCreatedAt(), 
 				td.getVideo());
 		this.timelapseDaoImpl.update(timelapse);
 	}
 	
-	public void delete(int id) {
+	public void delete(Integer id) {
 		this.timelapseDaoImpl.delete(id);
+	}
+	
+	public Integer getMaxPkValue() {
+		return this.timelapseDaoImpl.getMaxPkValue();
+	}
+	
+	public List<TimelapseDto> getListByCustomerId(Integer id) {
+		List<Timelapse> timelapseList = this.timelapseDaoImpl.getListByCustomerId(id);
+		List<TimelapseDto> timelapseDtoList = new ArrayList<>();
+		
+		if (timelapseList == null) {
+			return null;
+		}
+		
+		for (int i = 0; i < timelapseList.size(); i++) {
+			Timelapse timelapse = timelapseList.get(i);
+			TimelapseDto timelapseDto = new TimelapseDto(
+					timelapse.getTimelapse_id(),
+					timelapse.getCustomer_id(),
+					timelapse.getBranch_id(), 
+					timelapse.getCreated_at(),
+					timelapse.getVideo());
+			timelapseDtoList.add(timelapseDto);
+		}
+
+		return timelapseDtoList;
 	}
 }

@@ -1,6 +1,6 @@
 package com.hknu.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.HashMap;
 
 import lombok.AllArgsConstructor;
@@ -13,8 +13,9 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class ShareDto {
-	private int shareId;
-	private int customerId;
-	private Date createdAt;
+	private Integer shareId;
+	private Integer customerId;
+	private Integer branchId;
+	private Timestamp createdAt;
 	private HashMap<Integer, PhotographDto> sharedPhotoMap;
 }

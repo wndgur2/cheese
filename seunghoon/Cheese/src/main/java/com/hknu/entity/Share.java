@@ -1,6 +1,6 @@
 package com.hknu.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,8 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class Share {
-	private int share_id;
-	private int customer_id;
-	private Date created_at;
+	private final Integer share_id;
+	private final Integer customer_id;
+	private final Integer branch_id;
+	private final Timestamp created_at;
 }

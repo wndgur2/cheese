@@ -10,6 +10,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class FrameDto {
-	private int frameId;
+	private Integer frameId;
+	private Integer branchId;
 	private byte[] frameImage;
 }

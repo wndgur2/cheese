@@ -12,7 +12,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Frame {
-	private final int frame_id;
-	private int branch_id;
+	private final Integer frame_id;
+	private Integer branch_id;
 	private final byte[] frame_image;
 }

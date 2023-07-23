@@ -10,23 +10,24 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class FilterDto {
-	private int filterId;
-	private int brightness;
-	private int exposure;
-	private int contrast;
-	private int chroma;
-	private int temperature;
-	private int livliness;
-	private int tint;
-	private int tone;
-	private int highlight;
-	private int shadow;
-	private int sharpness;
-	private int grain;
-	private int vineting;
-	private int afterImage;
-	private int dehaze;
-	private int posterize;
-	private int blur;
-	private int mosaic;
+	private Integer filterId;
+	private Integer branchId;
+	private Integer brightness;
+	private Integer exposure;
+	private Integer contrast;
+	private Integer chroma;
+	private Integer temperature;
+	private Integer livliness;
+	private Integer tint;
+	private Integer tone;
+	private Integer highlight;
+	private Integer shadow;
+	private Integer sharpness;
+	private Integer grain;
+	private Integer vineting;
+	private Integer afterImage;
+	private Integer dehaze;
+	private Integer posterize;
+	private Integer blur;
+	private Integer mosaic;
 }

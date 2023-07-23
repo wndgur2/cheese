@@ -30,18 +30,24 @@ public class SharedPhotoDaoImpl extends BaseDao<SharedPhoto> {
 		return sharedPhoto;
 	}
 	
-	public List<SharedPhoto> getListByShareId(int id) {
+	public List<SharedPhoto> getListByShareId(Integer id) {
 		String sql = String.format("SELECT * FROM %s WHERE share_id=?;", tableName);
 		
 		return getJdbcTemplate().query(sql, new ResultSetExtractor<List<SharedPhoto>>() { 
 			public List<SharedPhoto> extractData(ResultSet rs) throws SQLException, DataAccessException {
-				List<SharedPhoto> objectList = new ArrayList<>();
-				while (rs.next()) {
-					SharedPhoto object = createObjectFromResultSet(rs);
-					objectList.add(object);
+				if (rs.next()) {
+					List<SharedPhoto> objectList = new ArrayList<>();
+					SharedPhoto firstObject = createObjectFromResultSet(rs);
+					objectList.add(firstObject);
+
+					while (rs.next()) {
+						SharedPhoto object = createObjectFromResultSet(rs);
+						objectList.add(object);
+					}
+					return objectList;
 				}
-				return objectList;
+				return null;
 			}
-		});
+		}, id);
 	}
 }

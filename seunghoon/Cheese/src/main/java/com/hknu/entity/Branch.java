@@ -12,9 +12,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Branch {
-	private final int branch_id;
-	private final int address;
-	private int shooting_cost;
-	private int printing_cost;
+	private final Integer branch_id;
+	private final String name;
+	private final float latitude;
+	private final float longitude;
+	private Integer shooting_cost;
+	private Integer printing_cost;
 	private final int paper_amount;
 }

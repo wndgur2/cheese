@@ -1,6 +1,6 @@
 package com.hknu.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,11 +14,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Payment {
-	private final int payment_id;
-	private int customer_id;
-	private final int branch_id;
-	private final int cost;
-	private final Date created_at;
-	private final int amount;
+	private final Integer payment_id;
+	private Integer customer_id;
+	private final Integer branch_id;
+	private final Integer cost;
+	private final Timestamp created_at;
+	private final Integer amount;
 	private final boolean photo_or_print;
 }

@@ -2,6 +2,8 @@ package com.hknu.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,9 +12,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor = @__(@JsonCreator))
 public class CustomerDto {
-	private int customerId;
+	private Integer customerId;
 	private String email;
 	private String password;
 	private float cloudSize;

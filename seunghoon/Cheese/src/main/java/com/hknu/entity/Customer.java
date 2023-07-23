@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
-	private int customer_id;
+	private Integer customer_id;
 	private String email;
 	private String password;
 	private float cloud_size;

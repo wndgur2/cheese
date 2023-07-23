@@ -14,13 +14,13 @@ public class StickerServiceImpl implements Service<StickerDto>{
 	@Autowired
 	private StickerDaoImpl stickerDaoImpl;
 	
-	public StickerDto getById(int id) {
+	public StickerDto getById(Integer id) {
 		Sticker sticker = this.stickerDaoImpl.getById(id);
 		StickerDto stickerDto = new StickerDto(
 				sticker.getSticker_id(),
+				sticker.getBranch_id(),
 				sticker.getSticker_image());
-		// test
-		System.out.println(stickerDto.toString());
+
 		return stickerDto;
 	}
 	
@@ -32,17 +32,42 @@ public class StickerServiceImpl implements Service<StickerDto>{
 			Sticker sticker = stickerList.get(i);
 			StickerDto stickerDto = new StickerDto(
 					sticker.getSticker_id(),
+					sticker.getBranch_id(),
 					sticker.getSticker_image());
 			stickerDtoList.add(stickerDto);
 		}
-		//test
-		System.out.println(stickerDtoList.toString());
+
 		return stickerDtoList;
+	}
+	
+	public List<StickerDto> getListByBranchId(Integer id) {
+		List<Sticker> stickerList = this.stickerDaoImpl.getListByBranchId(id);
+		List<StickerDto> stickerDtoList = new ArrayList<>();
+		
+		if (stickerList == null) {
+			return null;
+		}
+		
+		for (int i = 0; i < stickerList.size(); i++) {
+			Sticker sticker = stickerList.get(i);
+			StickerDto stickerDto = new StickerDto(
+					sticker.getSticker_id(),
+					sticker.getBranch_id(),
+					sticker.getSticker_image());
+			stickerDtoList.add(stickerDto);
+		}
+
+		return stickerDtoList;
+	}
+	
+	public Integer getMaxPkValue() {
+		return this.stickerDaoImpl.getMaxPkValue();
 	}
 	
 	public void insert(StickerDto sd) {
 		Sticker sticker = new Sticker(
 				sd.getStickerId(),
+				sd.getBranchId(),
 				sd.getStickerImage());
 		this.stickerDaoImpl.insert(sticker);
 	}
@@ -50,11 +75,12 @@ public class StickerServiceImpl implements Service<StickerDto>{
 	public void update(StickerDto sd) {
 		Sticker sticker = new Sticker(
 				sd.getStickerId(),
+				sd.getBranchId(),
 				sd.getStickerImage());
 		this.stickerDaoImpl.update(sticker);
 	}
 	
-	public void delete(int id) {
+	public void delete(Integer id) {
 		this.stickerDaoImpl.delete(id);
 	}
 }

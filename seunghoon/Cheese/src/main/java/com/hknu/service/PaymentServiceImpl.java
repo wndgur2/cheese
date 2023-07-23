@@ -14,17 +14,17 @@ public class PaymentServiceImpl implements Service<PaymentDto>{
 	@Autowired
 	private PaymentDaoImpl paymentDaoImpl;
 	
-	public PaymentDto getById(int id) {
+	public PaymentDto getById(Integer id) {
 		Payment payment = this.paymentDaoImpl.getById(id);
 		PaymentDto paymentDto = new PaymentDto(
 				payment.getPayment_id(), 
-				null,
+				payment.getCustomer_id(),
+				payment.getBranch_id(),
 				payment.getCost(),
 				payment.getCreated_at(), 
 				payment.getAmount(),
 				payment.isPhoto_or_print());
-		// test
-		System.out.println(paymentDto.toString());
+
 		return paymentDto;
 	}
 	
@@ -36,22 +36,23 @@ public class PaymentServiceImpl implements Service<PaymentDto>{
 			Payment payment = paymentList.get(i);
 			PaymentDto paymentDto = new PaymentDto(
 					payment.getPayment_id(), 
-					null,
+					payment.getCustomer_id(),
+					payment.getBranch_id(),
 					payment.getCost(),
 					payment.getCreated_at(), 
 					payment.getAmount(),
 					payment.isPhoto_or_print());
 			paymentDtoList.add(paymentDto);
 		}
-		//test
-		System.out.println(paymentDtoList.toString());
+
 		return paymentDtoList;
 	}
 	
 	public void insert(PaymentDto pd) {
 		Payment payment = new Payment(
 				pd.getPaymentId(),
-				pd.getBranch().getBranchId(),
+				pd.getCustomerId(),
+				pd.getBranchId(),
 				pd.getCost(), 
 				pd.getCreatedAt(),
 				pd.getAmount(), 
@@ -62,7 +63,8 @@ public class PaymentServiceImpl implements Service<PaymentDto>{
 	public void update(PaymentDto pd) {
 		Payment payment = new Payment(
 				pd.getPaymentId(),
-				pd.getBranch().getBranchId(),
+				pd.getCustomerId(),
+				pd.getBranchId(),
 				pd.getCost(), 
 				pd.getCreatedAt(),
 				pd.getAmount(), 
@@ -70,7 +72,34 @@ public class PaymentServiceImpl implements Service<PaymentDto>{
 		this.paymentDaoImpl.update(payment);
 	}
 	
-	public void delete(int id) {
+	public void delete(Integer id) {
 		this.paymentDaoImpl.delete(id);
+	}
+	
+	public Integer getMaxPkValue() {
+		return this.paymentDaoImpl.getMaxPkValue();
+	}
+	
+	public List<PaymentDto> getListByCustomerId(Integer id) {
+		List<Payment> paymentList = this.paymentDaoImpl.getListByCustomerId(id);
+		List<PaymentDto> paymentDtoList = new ArrayList<>();
+		
+		if (paymentList == null) {
+			return null;
+		}
+		
+		for (int i = 0; i < paymentList.size(); i++) {
+			Payment payment = paymentList.get(i);
+			PaymentDto paymentDto = new PaymentDto(
+					payment.getPayment_id(), 
+					payment.getCustomer_id(),
+					payment.getBranch_id(),
+					payment.getCost(),
+					payment.getCreated_at(), 
+					payment.getAmount(),
+					payment.isPhoto_or_print());
+			paymentDtoList.add(paymentDto);
+		}
+		return paymentDtoList;
 	}
 }

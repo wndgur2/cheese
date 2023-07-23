@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class BaseDao<E> implements Dao<E> {
-	protected JdbcTemplate jdbcTemplate;
+	protected final JdbcTemplate jdbcTemplate;
 	protected final String tableName;
 	protected final String tableId;
 	
@@ -35,7 +35,7 @@ public class BaseDao<E> implements Dao<E> {
 		return null;
 	}
 	
-	public E getById(int id) {
+	public E getById(Integer id) {
 		String sql = String.format("SELECT * FROM %s WHERE %s=?;", tableName, tableId);
 
 		return getJdbcTemplate().query(sql, new ResultSetExtractor<E>() { 
@@ -44,7 +44,7 @@ public class BaseDao<E> implements Dao<E> {
 					E object = createObjectFromResultSet(rs);
 					return object;
 				}
-				return null;
+				throw new NullPointerException("아이디가 존재하지 않습니다.");
 			}
 		}, id);
 	}
@@ -54,17 +54,23 @@ public class BaseDao<E> implements Dao<E> {
 		
 		return getJdbcTemplate().query(sql, new ResultSetExtractor<List<E>>() { 
 			public List<E> extractData(ResultSet rs) throws SQLException, DataAccessException {
-				List<E> objectList = new ArrayList<>();
-				while (rs.next()) {
-					E object = createObjectFromResultSet(rs);
-					objectList.add(object);
+				if (rs.next()) {
+					List<E> objectList = new ArrayList<>();
+					E firstObject = createObjectFromResultSet(rs);
+					objectList.add(firstObject);
+
+					while (rs.next()) {
+						E object = createObjectFromResultSet(rs);
+						objectList.add(object);
+					}
+					return objectList;	
 				}
-				return objectList;
+				throw new NullPointerException("조회할 데이터가 없습니다.");
 			}
 		});
 	}
 	
-	public int getMaxPkValue() {
+	public Integer getMaxPkValue() {
 		String sql = String.format("SELECT MAX(%s) FROM %s;", tableId, tableName);
 
 		return getJdbcTemplate().query(sql, new ResultSetExtractor<Integer>() { 
@@ -93,7 +99,6 @@ public class BaseDao<E> implements Dao<E> {
 	    setSql += ");";
 	    
 	    final String sql = setSql;
-	    System.out.println(sql);
 	    
 	    this.jdbcTemplate.update(new PreparedStatementCreator() {
 	        @Override
@@ -172,7 +177,7 @@ public class BaseDao<E> implements Dao<E> {
 	    });
 	}
 	
-	public void delete(int id) {
+	public void delete(Integer id) {
 		String sql = String.format("DELETE FROM %s WHERE %s=%s;", tableName, tableId, id);
 		
 	    this.jdbcTemplate.update(new PreparedStatementCreator() {

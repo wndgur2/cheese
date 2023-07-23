@@ -1,6 +1,6 @@
 package com.hknu.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,10 +12,9 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class PhotographDto {
-	private int photographId;
-	private int customerId;
-	private BranchDto branch;
-	private Date createdAt;
-	private Date shootedAt;
+	private Integer photographId;
+	private Integer customerId;
+	private Integer branchId;
+	private Timestamp createdAt;
 	private byte[] photoImage;
 }

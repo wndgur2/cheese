@@ -1,6 +1,6 @@
 package com.hknu.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,10 +12,11 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class PaymentDto {
-	private int paymentId;
-	private BranchDto branch;
-	private int cost;
-	private Date createdAt;
-	private int amount;
+	private Integer paymentId;
+	private Integer customerId;
+	private Integer branchId;
+	private Integer cost;
+	private Timestamp createdAt;
+	private Integer amount;
 	private boolean photoOrPrint;
 }

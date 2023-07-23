@@ -1,6 +1,6 @@
 package com.hknu.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,9 +12,9 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class TimelapseDto {
-	private int timelapseId;
-	private int customerId;
-	private BranchDto branch;
-	private Date createdAt;
+	private Integer timelapseId;
+	private Integer customerId;
+	private Integer branchId;
+	private Timestamp createdAt;
 	private byte[] video;
 }

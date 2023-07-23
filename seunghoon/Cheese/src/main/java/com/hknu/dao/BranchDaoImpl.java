@@ -21,7 +21,9 @@ public class BranchDaoImpl extends BaseDao<Branch> {
 	public Branch createObjectFromResultSet(ResultSet rs) throws SQLException {
 		Branch branch = new Branch(
 				rs.getInt("branch_id"),
-				rs.getInt("address"),
+				rs.getString("name"),
+				rs.getFloat("latitude"),
+				rs.getFloat("longitude"),
 				rs.getInt("shooting_cost"),
 				rs.getInt("printing_cost"),
 				rs.getInt("paper_amount"));
