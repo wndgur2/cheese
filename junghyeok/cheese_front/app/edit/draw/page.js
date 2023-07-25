@@ -1,20 +1,23 @@
 'use client';
 
-import EditWrapper from "@/components/EditWrapper";
 import ImageText from "@/components/ImageText";
 import Palette from "@/components/Palette";
 import Range from "@/components/Range";
 import { useState } from "react";
+import drawStyles from './draw.module.css';
+import editStyles from "../edit.module.css";
 
 export default function Draw() {
   const pages = ["pen", "eraser", "bucket"];
   const [page, setPage] = useState(pages[0]);
   const [brushSize, setBrushSize] = useState(12);
+  const [color, setColor] = useState("#000000");
   return (
     <div>
-      <EditWrapper>
+      <div className={editStyles.editWrapper}>
         <div style={{width:"100%"}}>
           <Range
+            color={color}
             disabled={page=="bucket"}
             value={brushSize}
             setValue={setBrushSize}
@@ -23,9 +26,9 @@ export default function Draw() {
           </Range>
         </div>
         <br/>
-          <Palette disabled={page=="eraser"}/>
+          <Palette color={color} setColor={setColor} disabled={page=="eraser"}/>
         <br/>
-      </EditWrapper>
+      </div>
 
       <div style={{
         display:"flex",
@@ -44,8 +47,8 @@ export default function Draw() {
           {pages.map((page_, i)=>
             <div
               key={i}
-              className='navWrapper' 
-              id={page==page_?"selected":""}
+              className={drawStyles.navWrapper}
+              id={page==page_?`${drawStyles.selected}`:""}
               onClick={()=>{ setPage(page_)}}
             >
               <ImageText 

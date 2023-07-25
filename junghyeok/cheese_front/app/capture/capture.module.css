@@ -1,0 +1,54 @@
+#stream{
+    width: 100vw;
+    height: 83vh;
+    background-color: #999;
+    margin-bottom: -1vh;
+}
+
+.functions{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100vw;
+    height: 18vh;
+    background-color: #000;
+}
+
+.functions span{
+    color: #EEE;
+    font-size: 8vw;
+}
+.functions div{
+    transform-origin: center;
+    transform: rotate(90deg);
+}
+
+#shutter{
+    width: 24vw;
+}
+
+.rotate{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26vw;
+}
+
+#rotate{
+    width: 80%;
+}
+
+.timer{
+    width: 10vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#timer{
+    width: 10vw;
+}
+
+.amount{
+    width: 10vw;
+}

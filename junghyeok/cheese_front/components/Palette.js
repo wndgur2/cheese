@@ -1,9 +1,9 @@
 'use client'
 
-function Palette({ disabled }) {
+function Palette({ color, setColor, disabled }) {
     const colors = ["#FF0000", "#AA0000", "#FF00AA",
      "#FFAA00", "#AAFF00", "#00AA00", "#00FFAA", "#AA00FF",
-     "#00AAFF", "#0000FF", "#0000AA", "#FFFFFF", "#000000", "url('/edit/draw/colormap.png')"]
+     "#00AAFF", "#0000FF", "#0000AA", "#FFFFFF", "#000000"]
     return (
         <div style={{
             display:"flex",
@@ -12,29 +12,42 @@ function Palette({ disabled }) {
             margin:"0px 3vw",
             justifyContent:"space-around"
         }}>{   
-            colors.map((color, i)=>
-                disabled?
+            colors.map((c, i)=>
                     <div key={i} style={{
-                        background: "#CCC",
-                        width:"9vw",
-                        height:"9vw",
-                        margin: "1px",
-                        borderRadius:"10vw",
-                    }}/>
-                :
-                    <div key={i} style={{
-                        background: color,
                         width:"9vw",
                         height:"9vw",
                         borderRadius:"10vw",
-                        backgroundSize: "cover",
-                        border: color=="#FFFFFF"? "solid":"",
-                        margin: color=="#FFFFFF"?"":"1px",
-                        borderColor: "#999",
+                        background: disabled? "#CCC": c,
+                        outlineStyle: (c==color||c=="#FFFFFF") && !disabled? "solid":"",
+                        outlineColor: "#666",
+                        outlineWidth: "1.5px",
                     }}
-                />
-            )
-        }</div>
+                        onClick= {disabled ? ()=>{}:()=>setColor(c)}
+                        />
+                        )
+                    }
+                    {disabled? 
+                        <div style={{
+                            width:"9vw",
+                            height:"9vw",
+                            borderRadius:"10vw",
+                            backgroundColor: "#CCC",
+                        }}
+                        />:
+                        <div style={{
+                            width:"9vw",
+                            height:"9vw",
+                            borderRadius:"10vw",
+                            backgroundImage: "url('/edit/draw/colormap.png')",
+                            backgroundSize:"cover",
+                            outlineStyle: ((color=="url('/edit/draw/colormap.png')"))? "solid":"",
+                            outlineColor: "#666",
+                            outlineWidth: "1.5px",
+                        }}
+                            onClick= {()=>setColor("url('/edit/draw/colormap.png')")}
+                        />
+                    }
+        </div>
     )
 }
 export default Palette;

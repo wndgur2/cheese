@@ -1,30 +1,29 @@
 import Link from "next/link";
 
-function TextBtn(props) {
+function TextBtn({color, type, substring, content, href, children}) {
     return (
-        <Link href={props.href} style={{textDecoration: "none", color:"black"}}>
+        <Link href={href} style={{textDecoration: "none", color:"black"}}>
             <div style={{
                 display:"flex",
-                backgroundColor:props.color,
-                borderRadius:"8px",
-                padding: props.type=="big"? "20px" : "12px 20px 12px 20px",
-                margin: props.type=="big"? "30px 0 30px 0" : "20px 0 20px 0",
-                height: "50px",
                 alignItems: "center",
-                boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.10)",
                 justifyContent:"space-between",
+                margin: type=="big"? "3.2vh 0 3.2vh 0" : "2.2vh 0 2.2vh 0",
+                padding: type=="big"? "2.6vh 5vw 2.6vh 5vw" : "1.8vh 4vw 1.8vh 4vw",
+                backgroundColor:color,
+                boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.10)",
+                borderRadius:"8px",
                 }}>
                 <div>
                     <span style={{color: "#212121", fontSize:"18px",
                         marginRight: "10px", fontWeight: 400}}>
-                        {props.children}
+                        {children}
                     </span>
-                    <span style={{color: "#444444", fontSize:"14px",
+                    <span style={{color: "#444", fontSize:"14px",
                         fontWeight: 400}}>
-                        {props.substring}
+                        {substring}
                     </span> <br/>
                     <span style={{fontSize:"16px", fontWeight: 200}}>
-                        {props.content}
+                        {content}
                     </span>
                 </div>
                 <div style={{

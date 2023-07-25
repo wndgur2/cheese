@@ -1,12 +1,10 @@
 'use client';
 
 import BigBtn from '@/components/BigBtn';
-import Title from '@/components/Title';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import './style.css';
+import homeStyles from './home.module.css';
 import TextBtn from '@/components/TextBtn';
-import Subtitle from '@/components/Subtitle';
 import { useRouter } from 'next/navigation';
 
 function guid() {
@@ -36,31 +34,27 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
-      <div style={{display:"flex"}}>
-        <div style={{display:"inline-block", width:"75%"}}>
+    <div className='container'>
+      <div className='alignCenter'>
+        <div style={{width:"100%"}}>
           {isLocated?
             <div>
-              <Title size="28">{location}</Title> <br/>
-              <Subtitle size="20" letterSpacing="1.82">경기도 안성시 중앙로 327</Subtitle>
+              <span className='title'>{location}</span> <br/>
+              <span className='subtitle'>경기도 안성시 중앙로 327</span>
             </div>
             :
             <div>
-              <Title size={28}>치즈한장</Title> <br/>
-              <Subtitle size="18" letterSpacing="1.82">선택된 지점이 없어요.</Subtitle>
+              <span className='title'>치즈한장</span> <br/>
+              <span className='subtitle'>선택된 지점이 없어요.</span>
             </div>}
         </div>
-        <div style={{display:"inline-block", width:"25%", height:"100%"}}>
-          <div style={{display:"flex", justifyContent:"right", alignItems:"center"}}>
-            <BigBtn enabled="true"
-              href="/home/cheese_map"
-              src="/map_x4.png"
-              size="60px"
-              iconWidth="26px"
-              iconHeight="23px"
-            />
-          </div>
-        </div>
+        <BigBtn enabled="true"
+          href="/home/cheese_map"
+          src="/map_x4.png"
+          size="60px"
+          iconWidth="26px"
+          iconHeight="23px"
+        />
       </div>
       {/* <p>session.status : {session.status}</p> */}
       { isLocated?
@@ -68,7 +62,7 @@ export default function Home() {
         style={{
           borderRadius:"5px",
           margin:"20px 0 0 0",
-          maxHeight:"180px",
+          maxHeight:"30vh",
           objectFit: "cover"
         }}/>
         :
@@ -79,9 +73,9 @@ export default function Home() {
         </TextBtn>
       }
 
-      <div className='bigBtnWrapper'>
+      <div className={homeStyles.bigBtnWrapper}>
         <BigBtn enabled={isLocated}
-          href="/access_process/action/capture"
+          href="/access_process/capture"
           src="/cheese_empty_37_30_x4.png"
           size="80px"
           iconWidth="37px"
@@ -89,7 +83,7 @@ export default function Home() {
         >촬영</BigBtn>
         <BigBtn
           enabled={isLocated}
-          href="/access_process/action/print"
+          href="/access_process/print"
           src="/print_x4.png"
           size="80px"
           iconWidth="37px"

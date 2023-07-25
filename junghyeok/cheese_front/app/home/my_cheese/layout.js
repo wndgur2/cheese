@@ -3,70 +3,87 @@
 import { SessionProvider } from "next-auth/react"
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LogoutBtn from "@/components/LogoutBtn";
+import myCheeseStyles from "./myCheese.module.css";
 
 export default function Layout({ children }){
-  let session = useSession({
+  const session = useSession({
     required: true,
     onUnauthenticated() {
-      router.push("/home/signin");
+      router.replace("/home/signin");
     },
   });
-  let router = useRouter();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isMore, setIsMore] = useState(false);
+
+  const handleClickMore = (e)=>{
+    if(e.target.className.split(" ").includes("moreButton")) setIsMore(true);
+    else setIsMore(false);
+  }
 
   useEffect(()=>{
     if(session.status == "unauthenticated") router.replace("/login");
   }, [session.status]);
   return (
-    <div>
-      <p style={{
-        color: "#333",
-        fontSize: "20px",
-        fontWeight: "500",
-        letterSpacing: "0.6px",
-        margin:0
-      }}>{session.data?.user.name}
-      </p>
-
-      <p style={{
-        color: "#333",
-        fontSize: "16px",
-        fontHeight: "300",
-        letterSpacing: "0.48px",
-      }}>{session.data?.user.email}
-      </p>
-
-      <LogoutBtn></LogoutBtn><br/>
-
+    <div onClick={handleClickMore}>
       <div style={{
-        display:"flex",
+        position:"fixed",
+        top:0,
+        left:0,
+        height:"30vh",
         width:"100%",
-        justifyContent:"space-between",
-        alignItems:"center",
-        textAlign:"center",
-        borderRadiusTop:"17px",
-        background: "#FEFBF6",
-        boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.25)",
-        fontSize: "14px"
+        backgroundColor:"#FEFBF6",
       }}>
-        <div style={{borderBottom:"solid", width:"20%"}}>
-          <Link href="/home/my_cheese"> 사진 </Link>
+        <div className={myCheeseStyles.userInfo}>
+          <div>
+            <p className={myCheeseStyles.name}>{session.data?.user.name}
+            </p>
+            <p className={myCheeseStyles.email}>{session.data?.user.email}
+            </p>
+            <br/>
+            <LogoutBtn></LogoutBtn>
+            <br/>
+          </div>
+          <div>
+            {isMore? 
+            <div id={myCheeseStyles.more} className={`${myCheeseStyles.more} moreButton`}>
+              <p className="moreButton">이름 변경</p>
+              <p className="moreButton">비밀번호 변경</p>
+              <p className="moreButton">회원 탈퇴</p>
+            </div>
+            :
+              <img src="/myCheese/more.png" width={"36"}
+                className="moreButton"
+              />
+            }
+          </div>
         </div>
-        <div style={{borderBottom:"solid", width:"20%"}}>
-          <Link href="/home/my_cheese/timelapse"> 타임랩스 </Link>
-        </div>
-        <div style={{borderBottom:"solid", width:"20%"}}>
-          <Link href="/home/my_cheese/share"> 공유사진 </Link>
-        </div>
-        <div style={{borderBottom:"solid", width:"20%"}}>
-          <Link href="/home/my_cheese/payment"> 결제내역 </Link>
+        <div className={myCheeseStyles.navs}>
+          <div className={`${myCheeseStyles.nav} ${pathname.split('/')[3]?"":myCheeseStyles.focused}`}>
+            <Link href="/home/my_cheese"> 사진 </Link>
+          </div>
+          <div className={`${myCheeseStyles.nav} ${pathname.split('/')[3]=="timelapse"?myCheeseStyles.focused:""}`}>
+            <Link href="/home/my_cheese/timelapse"> 타임랩스 </Link>
+          </div>
+          <div className={`${myCheeseStyles.nav} ${pathname.split('/')[3]=="share"?myCheeseStyles.focused:""}`}>
+            <Link href="/home/my_cheese/share"> 공유사진 </Link>
+          </div>
+          <div className={`${myCheeseStyles.nav} ${pathname.split('/')[3]=="payment"?myCheeseStyles.focused:""}`}>
+            <Link href="/home/my_cheese/payment"> 결제내역 </Link>
+          </div>
         </div>
       </div>
-      <SessionProvider>
-      {children}
-      </SessionProvider>
+      <div style={{
+        marginTop:"30vh",
+      }}
+      >
+        <SessionProvider>
+          {children}
+        </SessionProvider>
+      </div>
     </div>
   )
 }

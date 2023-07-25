@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./tilter.module.css";
 
 const length = 183;
 const mid = parseInt(length/2);
-const scrollInitial =  parseInt(length * 3.48);
+let scrollMid = 0;
 
 function Tilter() { //! USE USEREF!!!
-    const [tilter, setTilter] = useState();
+    const tilter = useRef();
     const [scrollLeft, setScrollLeft] = useState(0);
     let iter = new Array(length);
 
@@ -16,38 +16,38 @@ function Tilter() { //! USE USEREF!!!
         iter[i] = i;
     
     useEffect(()=>{
-        setTilter(document.getElementById("tilt"));
+        scrollMid = (tilter.current.scrollWidth-tilter.current.offsetWidth)/2;
+        tilter.current.scrollTo(scrollMid, 0);
+        setScrollLeft(fineTune(tilter.current.scrollLeft));
     }, []);
-
-    useEffect(()=>{
-        if(tilter?.scrollTo){
-            tilter.scrollTo(scrollInitial, 0);
-            setScrollLeft(fineTune(tilter.scrollLeft));
-        }
-    }, [tilter]);
     
     return (
         <div style={{
             width:"100%"
         }}>
-            <div className={styles.tilter} id="tilt" style={{
-                display: "flex",
-                overflowX:"scroll",
-                gap: "7px",
-                alignItems:"center",
-                margin: "2vh 0px 1vh 0px",
-            }} onScroll={(s)=>{
+            <div className={styles.tilter}
+                id="tilt"
+                ref={tilter}
+                style={{
+                    display: "flex",
+                    overflowX:"scroll",
+                    gap: "7px",
+                    alignItems:"center",
+                    margin: "2vh 0px 1vh 0px",
+                }} onScroll={(s)=>{
                 setScrollLeft(fineTune(s.target.scrollLeft))
             }}>
                 {iter.map((v)=>{
                     return (
-                        <img key={v}
+                        <img
+                            className={styles.line}
+                            key={v}
                             src="/edit/trim/line.png"
                             width={2}
                             height={v==mid?28:14}
                             style={{
-                                visibility: `${(v < parseInt(length / 8.8)||
-                                    (v > parseInt(length / 10 * 8.8)))
+                                visibility: `${(v < parseInt(length / 9)||
+                                    (v > parseInt(length / 10 * 9)))
                                     ?"hidden":"visible"}`
                             }}
                         />
@@ -63,7 +63,7 @@ function Tilter() { //! USE USEREF!!!
 }
 
 function fineTune(value){
-    value = parseInt((value - scrollInitial)/7);
+    value = parseInt((value - scrollMid)/7);
     if(value > 90) return 90;
     if(value < -90) return -90;
     return value;

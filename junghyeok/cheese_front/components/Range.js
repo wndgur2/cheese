@@ -1,52 +1,55 @@
 'use client'
 import { Slider } from "@mui/material";
 
-function Range({ value, setValue, children, disabled }) {
-    return (
-      <div style={{
-        display:"flex",
-        justifyContent:"space-between",
-        alignItems:"center",
-        margin:"1vh 5vw"
+function Range({ color, value, setValue, children, disabled, fixThumbSize }) {
+  return (
+    <div style={{
+      display:"flex",
+      justifyContent:"space-between",
+      alignItems:"center",
+      margin:"1vh 3vw"
+    }}>
+      <p style={{
+          width:"24%",
+          margin: "-8px 0px 0px 0px",
+          textAlign:"center",
+          color: disabled?"#BBB":"",
+          fontSize:"18px",
+          fontWeight:500,
       }}>
-        <p style={{
-            width:"18%",
-            margin:0,
-            textAlign:"center",
-            color: disabled?"#BBB":"",
-        }}>
-            {parseInt(value)} {children}
-        </p>
-        <div style={{width:"85%", marginTop:"1vh"}}>
-          <div style={{width:"100%", margin:"0px 2vw"}}>
-            <Slider
-              disabled={disabled}
-              size="small"
-              sx={{
-                '& .MuiSlider-thumb': {
-                  color: disabled?"#BBB":"#FFC121",
-                  width:12+value/4,
-                  height:12+value/4,
-                  '&.Mui-active': {
-                    boxShadow: `0px 0px 0px 12px #FFC12155`,
-                  },
-                },
-                '& .MuiSlider-track':{
-                  color:disabled?"#BBB":"#FFC121"
-                },
-                '& .MuiSlider-rail':{
-                  color:disabled?"#BBB":"#FFC121"
-                },
-              }}
-              value={value}
-              onChange={event =>{
-                setValue(event.target.value)
-              }}
-              defaultValue={value}
-            ></Slider>
-          </div>
-        </div>
+          {parseInt(value)} {children}
+      </p>
+      <div style={{width:"76%", margin:"1vh 3vw"}}>
+        <Slider
+          disabled={disabled}
+          size="small"
+          sx={{
+            '& .MuiSlider-thumb': {
+              color: disabled?"#BBB":color,
+              width: fixThumbSize? 16: 12+value/4,
+              height: fixThumbSize? 16: 12+value/4,
+              boxShadow: "1px 1px 3px 1px rgba(0, 0, 0, 0.16)",
+              '&.Mui-active': {
+                boxShadow: color=="#FFFFFF"?"":`0px 0px 0px 12px ${color}55`,
+              },
+            },
+            '& .MuiSlider-track':{
+              color:disabled?"#BBB":color,
+              boxShadow: "1px 1px 3px 1px rgba(0, 0, 0, 0.16)",
+            },
+            '& .MuiSlider-rail':{
+              color:disabled?"#BBB":color,
+              boxShadow: "1px 1px 3px 1px rgba(0, 0, 0, 0.16)",
+            },
+          }}
+          value={value}
+          onChange={event =>{
+            setValue(event.target.value)
+          }}
+          defaultValue={value}
+        ></Slider>
       </div>
-    )
+    </div>
+  )
 }
 export default Range;

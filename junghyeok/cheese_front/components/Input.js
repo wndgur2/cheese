@@ -1,6 +1,6 @@
 import styles from "./input.module.css";
 
-function Input({ src, children }) {
+function Input({ src, name, type, children }) {
     return (
         <div style={{
             borderRadius:"30px",
@@ -14,6 +14,8 @@ function Input({ src, children }) {
             <img style={{marginLeft:20}} src={src} width={24} height={24} />
             <input className={styles.b}
                 placeholder={children}
+                name = {name}
+                type = {type}
             />
         </div>
     )

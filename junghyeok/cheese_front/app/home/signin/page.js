@@ -2,12 +2,11 @@
 
 import Input from "@/components/Input";
 import LongBtn from "@/components/LongBtn";
-import Title from "@/components/Title";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function Login() {
+export default function SignIn() {
   let session = useSession();
   let router = useRouter();
 
@@ -18,7 +17,7 @@ export default function Login() {
     }
   }, [session.status]);
   return (// rest api : /auth
-    <div>
+    <div className="container">
       <div style={{
         display:"flex",
         alignItems:"center",
@@ -31,7 +30,7 @@ export default function Login() {
           <img src="/cheese_thin.png" width={"64px"}/>
         </div>
         <div>
-          <Title size={30} letterSpacing={"3px"}>치즈한장</Title>
+          <span className="title" style={{letterSpacing:3, fontSize:32}}>치즈한장</span>
         </div>
       </div>
 
@@ -48,7 +47,10 @@ export default function Login() {
           </p>
         </LongBtn>
       </form>
-      <div style={{marginTop:"15px"}}>
+      <div
+        style={{marginTop:"15px"}}
+        onClick={()=>{router.push("/signup")}}
+      >
         <LongBtn colored="true" type="submit">
           <p style={{
             margin:0, fontSize:18, fontWeight:400, letterSpacing:"1.8px",

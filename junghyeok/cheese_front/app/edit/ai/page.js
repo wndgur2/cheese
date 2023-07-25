@@ -1,11 +1,11 @@
-import EditWrapper from "@/components/EditWrapper";
 import ImageText from "@/components/ImageText";
 import LongBtn from "@/components/LongBtn";
+import editStyles from "../edit.module.css";
 
 export default function Ai() {
     return (
       <div>
-        <EditWrapper>
+        <div className={editStyles.editWrapper}>
           <span>자동 편집</span>
           <div style={{
             display:"flex",
@@ -22,7 +22,7 @@ export default function Ai() {
               <ImageText src="/edit/ai/filter.png" width={40}>필터 생성</ImageText>
             </div>
           </div>
-        </EditWrapper>
+        </div>
         <LongBtn>
           <img src="/edit/ai/object.png" width={32} />
           <span style={{

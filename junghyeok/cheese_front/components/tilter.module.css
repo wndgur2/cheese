@@ -7,4 +7,10 @@
 .tilter {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    overflow: auto;
+    scroll-snap-type: x mandatory;
+}
+
+.line{
+    scroll-snap-align: center;
 }

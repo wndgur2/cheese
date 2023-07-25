@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef} from "react";
+import captureStyles from "./capture.module.css";
 
 export default function Home() {
   let localStream;
   const remoteVideoRef = useRef();
   let myPeerConnection;
-  const localRoom= "1";
+  const localRoom= "4";
 
   // WebRTC STUN servers
   const peerConnectionConfig = {
@@ -190,14 +191,14 @@ export default function Home() {
 
     // send ICE candidate to the peer through the server
     function handleICECandidateEvent(event) {
-        if (event.candidate) {
-            sendToServer({
-                from: localStorage.getItem("uuid"),
-                type: 'ice',
-                candidate: event.candidate
-            });
-            console.log('ICE Candidate Event: ICE candidate sent');
-        }
+      if (event.candidate) {
+        sendToServer({
+          from: localStorage.getItem("uuid"),
+          type: 'ice',
+          candidate: event.candidate
+        });
+        console.log('ICE Candidate Event: ICE candidate sent');
+      }
     }
 
     function handleTrackEvent(event) {
@@ -212,19 +213,19 @@ export default function Home() {
     // 3. send the description as an offer on media format, resolution, etc
     function handleNegotiationNeededEvent() {
         myPeerConnection.createOffer().then(function(offer) {
-            return myPeerConnection.setLocalDescription(offer);
+          return myPeerConnection.setLocalDescription(offer);
         })
-            .then(function() {
-                sendToServer({
-                    from: localStorage.getItem("uuid"),
-                    type: 'offer',
-                    sdp: myPeerConnection.localDescription
-                });
-                console.log('Negotiation Needed Event: SDP offer sent');
+          .then(function() {
+              sendToServer({
+                from: localStorage.getItem("uuid"),
+                type: 'offer',
+                sdp: myPeerConnection.localDescription
+              });
+              console.log('Negotiation Needed Event: SDP offer sent');
             })
             .catch(function(reason) {
-                // an error occurred, so handle the failure to connect
-                handleErrorMessage('failure to connect error: ', reason);
+              // an error occurred, so handle the failure to connect
+              handleErrorMessage('failure to connect error: ', reason);
             });
     }
 
@@ -324,9 +325,23 @@ export default function Home() {
 
   return (
     <div>
-      <p>사진촬영.</p>
       {/* <video ref={localVideoRef} autoPlay playsInline></video> */}
-      <video ref={remoteVideoRef} autoPlay playsInline></video>
+      <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
+      <div className={captureStyles.functions}>
+        <div className={captureStyles.rotate}>
+          <img id={captureStyles.rotate} src="/capture/rotate.png" />
+        </div>
+        <div className={captureStyles.shutter} onClick={()=>{}}>
+          <img id={captureStyles.shutter} src="/capture/shutter.png" />
+        </div>
+        <div className={captureStyles.timer}>
+          <img id={captureStyles.timer} src="/capture/timer.png" />
+          <span>5</span>
+        </div>
+        <div className={captureStyles.amount}>
+          <span>1/5</span>
+        </div>
+      </div>
     </div>
   );
 }

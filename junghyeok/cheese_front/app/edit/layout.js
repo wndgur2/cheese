@@ -1,15 +1,20 @@
 'use client';
 
 import NavBtn from "@/components/NavBtn";
-import "./styles.css";
+import editStyles from "./edit.module.css";
 import { usePathname, useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 export default function EditLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  let i =0;
-  let images = ["/sample.jpeg", "/sample.jpeg", "/sample.jpeg", "/sample.jpeg", "/sample.jpeg"];
+  const [preview, setPreview] = useState(0);
+  const [fileObjs, setFileObjs] = useState([]);
+  const [hideNavbar, setHideNavbar] = useState(false);
+  const [top, setTop] = useState(0);
+
+  const addButton = useRef();
 
   const navs = [
     ["ai", "AI"],
@@ -22,89 +27,115 @@ export default function EditLayout({ children }) {
     ["adjust", "조정"],
   ];
 
+  const handleBodyScroll = (curTop)=>{
+    if(curTop > top){
+      setHideNavbar(true);
+    } else{
+      setHideNavbar(false);
+    }
+    setTop(curTop);
+  }
+
+  const handleInputChange = (files)=>{
+    let newFileObjs = [...fileObjs];
+    for(let file of files){
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        newFileObjs.push(e.target.result);
+      }
+      reader.onloadend = () => {
+        setFileObjs([...newFileObjs]);
+      }
+      reader.readAsDataURL(file);
+    };
+  }
+
+  const handleCopyPage = (index)=>{
+    let newFileObjs = [...fileObjs];
+    newFileObjs.push(newFileObjs[index]);
+    setFileObjs([...newFileObjs])
+  }
+
+  const handleDeletePage = (index)=>{
+    let newFileObjs = [...fileObjs];
+    newFileObjs = newFileObjs.filter(
+      (v, i)=>{
+        return (i != index);
+      }
+    )
+    setFileObjs([...newFileObjs])
+  }
+
   return (
     <div>
-      <div style={{
-        backgroundColor:"#F9F7F6",
-        height:"calc(100vh - 64px)",
-      }}>
-        <div style={{
-          display:"flex",
-          gap:"10px",
-          overflowX:"scroll",
-          padding: "1vh 2vw",
-          height: "8vh",
-        }}>
-         <img src="/edit/add.png" width={60} />
-          {images.map((src)=>{
-            i++;
-            return <img key={i} src={src} width={"32%"} />
+      <div className={editStyles.topContainer}>
+        <div id={editStyles.album}>
+          <img id={editStyles.add} src="/edit/add.png"
+            onClick={()=>{addButton.current.click();}}
+          />
+          <input
+              type="file" multiple
+              style={{display:"none"}}
+              ref={addButton}
+              onChange={(e)=>{handleInputChange(e.target.files)}}
+              accept="image/png, image/jpeg"
+          />
+
+          {fileObjs.map((src, i)=>{
+            return (
+              i==preview?
+                <div id={editStyles.curWrapper} key={i}>
+                  <img id={editStyles.curPage} src={src}/>
+                  <div id={editStyles.pageControlWrapper}>
+                    <div id={editStyles.pageControl}>
+                      <img className={editStyles.control} src="/edit/copy.png"
+                        onClick={()=>{handleCopyPage(i)}}
+                      />
+                      <img className={editStyles.control} src="/edit/delete.png"
+                        onClick={()=>{handleDeletePage(i)}}
+                      />
+                    </div>
+                  </div>
+                </div>
+              :
+                <img
+                  className={editStyles.page}
+                  key={i}
+                  src={src}
+                  onClick={()=>{setPreview(i)}}
+                />
+            )
           })}
         </div>
         
-        <div style={{
-          backgroundColor: "#000",
-          height:"35vh",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}>
-          <img src="/sample.jpeg" width={"100%"}/>
+        <div id={editStyles.preview}>
+          { preview==null?
+            <></>:
+            <img id={editStyles.previewImage} src={fileObjs[preview]} width={"100%"}/>
+          }
         </div>
         
-        <div style={{
-          padding:"0px 2vw"
-        }}>
-
-          <div className="alignCenter" style={{
-            width:"100%", height:"48px",
-            justifyContent:"space-between",
-            margin: "1vh 0px"
-          }}>
-            <div className="alignCenter" style={{
-              gap:10,
-            }}>
+        <div>
+          <div className="alignCenter" id={editStyles.functionBar}>
+            <div className="alignCenter" style={{ gap:10 }}>
               <div className="alignCenter">
-                <div className="alignCenter" style={{
-                  backgroundColor:"#FEFBF6",
-                  width:"60px", height:"48px",
-                  borderRadius:"30px 0px 0px 30px",
-                  borderRightColor: "#CCCCCC",
-                  borderRightWidth: "0.5px",
-                  borderRightStyle: "solid",
-                  boxShadow: "1px 1px 3px 1px rgba(0, 0, 0, 0.05)",
-                  justifyContent:"center",
-                }}>
-                  <div className="alignCenter">
-                    <img src="/edit/undo.png" width={24} />
-                  </div>
+                <div className="alignCenter" id={editStyles.undoWrapper}>
+                  <img src="/edit/undo.png" width={24} />
                 </div>
-                <div className="alignCenter" style={{
-                  backgroundColor:"#FEFBF6",
-                  width:"60px",
-                  height:"48px",
-                  borderRadius:"0px 30px 30px 0px",
-                  boxShadow: "1px 1px 3px 1px rgba(0, 0, 0, 0.05)",
-                  justifyContent:"center",
-                }}>
-                  <div className="alignCenter">
-                    <img src="/edit/redo.png" width={24} />
-                  </div>
+                <div className="alignCenter" id={editStyles.doWrapper}>
+                  <img src="/edit/redo.png" width={24} />
                 </div>
               </div>
 
               <div className="alignCenter">
                 <img src="/edit/reset.png" width={60} />
               </div>
-              
             </div>
 
             <div className="alignCenter" style={{gap:10}}>
               <div className="alignCenter">
                 <img src="/edit/save.png" width={60} />
               </div>
-
               <div className="alignCenter"
                 onClick={()=>{
                   router.push("/home");
@@ -114,33 +145,24 @@ export default function EditLayout({ children }) {
             </div>
           </div>
 
-          <div style={{
-            overflowY:"scroll",
-            overflowX:"visible",
-            height:"calc(55vh - 112px)"
-          }}>
+          <div
+            className={editStyles.editBody}
+            onScroll={(e)=>{handleBodyScroll(e.target.scrollTop)}}
+          >
             {children}
+            <br/>
+            <br/>
+            <br/>
+            <br/>
             <br/>
           </div>
         </div>
       </div>
-      
-      <div style={{
-        position: "absolute",
-        display:"flex",
-        gap: 12,
-        alignItems:"center",
-        width:"100%",
-        height:"64px",
-        bottom:"0px",
-        left:"0px",
-        fontSize: "12px",
-        fontWeight: 350,
-        letterSpacing: "0.6px",
-        backgroundColor:"#FEFBF6",
-        boxShadow: "0px -1px 5px 1px rgba(0, 0, 0, 0.05)",
-        overflowX: "scroll"
-      }}>
+      <div
+        id={editStyles.navBar}
+        style={{
+          bottom:hideNavbar?"-64px":"0px",
+        }}>
         {navs.map((name, i)=>{
           return (
             <NavBtn

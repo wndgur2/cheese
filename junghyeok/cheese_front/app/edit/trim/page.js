@@ -1,12 +1,12 @@
 import BigBtn from "@/components/BigBtn";
-import EditWrapper from "@/components/EditWrapper";
 import ImageText from "@/components/ImageText";
 import Tilter from "@/components/Tilter";
+import editStyles from "../edit.module.css";
 
 export default function Trim() {
   return (
     <div>
-      <EditWrapper>
+      <div className={editStyles.editWrapper}>
         <span style={{
           width:"100%",
           textAlign:"center"
@@ -23,11 +23,11 @@ export default function Trim() {
           <ImageText src="/edit/trim/16_9.png" width="30vw" size={"17vw"}>16:9</ImageText>
           <ImageText src="/edit/trim/16_10.png" width="30vw" size={"17vw"}>16:10</ImageText>
         </div>
-      </EditWrapper>
-      <EditWrapper>
+      </div>
+      <div className={editStyles.editWrapper}>
         <span>회전</span>
         <Tilter />
-      </EditWrapper>
+      </div>
       <div style={{
         display:"flex",
         justifyContent:"space-between",

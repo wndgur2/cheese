@@ -10,6 +10,10 @@
     width: 100%;
 }
 
+.b::placeholder{
+    color: #AAA;
+}
+
 .b :focus{
     color: #212121;
     outline: none;

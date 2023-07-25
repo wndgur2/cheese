@@ -1,17 +1,19 @@
 'use client';
 
 import './globals.css'
-import { Inter } from 'next/font/google'
+import { Noto_Sans_KR } from 'next/font/google'
 import Script from 'next/script'
 import { SessionProvider } from 'next-auth/react';
 
-const inter = Inter({ subsets: ['latin'] })
+const noto_Sans_KR = Noto_Sans_KR({
+  subsets: ['latin'],
+  weight:['300', '400', '500', '700']
+})
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet" />
       <Script
         strategy="beforeInteractive"
         src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_MAP_KEY}`}
@@ -21,12 +23,9 @@ export default function RootLayout({ children }) {
         integrity="sha384-70k0rrouSYPWJt7q9rSTKpiTfX6USlMYjZUtr1Du+9o4cGvhPAWxngdtVZDdErlh" crossorigin="anonymous">
       </Script>
       </head>
-      <body className={inter.className} style={{
-        margin:"0px",
-        overflow:"hidden",
-      }}>
+      <body className={noto_Sans_KR.className}>
         <SessionProvider>
-          {children}
+          {children} 
         </SessionProvider>
       </body>
     </html>

@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import TextBtn from "@/components/TextBtn";
-import Title from "@/components/Title";
-import Subtitle from "@/components/Subtitle";
 
 export default function CheeseMap() {
   // view에 사용될 변수들
@@ -47,7 +45,7 @@ export default function CheeseMap() {
     for (const [key, value] of Object.entries(locations)){
       const contentString = 
         `<div style="padding:8px; border-radius:20px; background-color:#FFFFFF;">
-          <a href="/locations/${i}" style="color: black; text-decoration: none;">
+          <a href="/location/${i}" style="color: black; text-decoration: none;">
             ${Object.keys(locations)[i]}
           </a>
         </div>`;
@@ -101,14 +99,14 @@ export default function CheeseMap() {
   },[]);
 
   return (
-    <div>
-      <Title size="26">치즈맵</Title> <br/>
-      <Subtitle size="18">지점을 선택하고 현장 기능을 이용하세요.</Subtitle>
+    <div className="container">
+      <span className="title" style={{fontSize:30}}>치즈맵</span> <br/>
+      <span className="subtitle" style={{letterSpacing:0}}>지점을 선택하고 현장 기능을 이용하세요.</span>
       <div id="map" style={{
         width:"100%", height:"300px",
         borderRadius: 10,
         boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
-        margin: "20px 0px 0px 0px",
+        margin: "5vh 0px 5vh 0px",
       }}></div>
 
       {Object.keys(locations).map((location, i)=>{
@@ -136,6 +134,6 @@ function distanceToString(distance){
     distance *= 1000;
     p = 'm';
   }
-  distance = parseFloat(distance.toFixed(2));
+  distance = parseFloat(distance.toFixed(0));
   return distance.toString() + p
 }
