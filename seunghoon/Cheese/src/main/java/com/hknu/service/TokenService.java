@@ -11,9 +11,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.hknu.controller.exception.InValidTokenException;
 import com.hknu.dao.TokenDao;
 import com.hknu.dto.response.ResponseDto;
+import com.hknu.exception.CustomException;
+import com.hknu.exception.InValidTokenException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -114,7 +115,8 @@ public class TokenService {
 		return false;
 	}
 	
-	public <T> ResponseEntity<ResponseDto<T>> validateAndGenerateToken(String accessToken, String refreshToken) {
+	public <T> ResponseEntity<ResponseDto<T>> validateAndGenerateToken(String accessToken, 
+																	   String refreshToken) {
 		if (accessToken == null && refreshToken == null) {
 			throw new IllegalArgumentException();
 		}
@@ -146,9 +148,10 @@ public class TokenService {
 		}
 	}
 	
-	public <T> ResponseEntity<ResponseDto<List<T>>> validateAndGenerateTokenReturnList(String accessToken, String refreshToken) {
+	public <T> ResponseEntity<ResponseDto<List<T>>> validateAndGenerateTokenReturnList(String accessToken, 
+																					   String refreshToken) {
 		if (accessToken == null && refreshToken == null) {
-			throw new IllegalArgumentException();
+			throw new CustomException("권한이 필요합니다.");
 		}
 		else if (accessToken != null) {
 			if (!validateAccessToken(accessToken)) {
@@ -178,7 +181,8 @@ public class TokenService {
 		}
 	}
 	
-	public <E, T> ResponseEntity<ResponseDto<Map<E, T>>> validateAndGenerateTokenReturnMap(String accessToken, String refreshToken) {
+	public <E, T> ResponseEntity<ResponseDto<Map<E, T>>> validateAndGenerateTokenReturnMap(String accessToken, 
+																						   String refreshToken) {
 		if (accessToken == null && refreshToken == null) {
 			throw new IllegalArgumentException();
 		}

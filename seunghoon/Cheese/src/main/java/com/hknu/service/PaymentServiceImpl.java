@@ -1,18 +1,61 @@
 package com.hknu.service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.hknu.dao.PaymentDaoImpl;
 import com.hknu.dto.PaymentDto;
+import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Payment;
 
 @org.springframework.stereotype.Service
 public class PaymentServiceImpl implements Service<PaymentDto>{
 	@Autowired
 	private PaymentDaoImpl paymentDaoImpl;
+	@Autowired
+	private TokenService tokenService;
+	
+
+	public ResponseEntity<ResponseDto<Null>> insertPayment(Integer branchId, 
+														   Integer customerId,
+														   Integer cost,
+														   Integer amount,
+														   boolean photo_or_print) {
+		Timestamp date = new Timestamp(System.currentTimeMillis() + (9 * 60 * 60 * 1000));
+		PaymentDto paymentDto = new PaymentDto(
+				getMaxPkValue(), 
+				customerId, 
+				branchId, 
+				cost, 
+				date, 
+				amount, 
+				photo_or_print);
+		insert(paymentDto);
+
+		return new ResponseEntity<>(
+				ResponseDto.of("성공적으로 결제내역을 추가했습니다."), 
+				HttpStatus.OK);
+	}
+	
+	public ResponseEntity<ResponseDto<List<PaymentDto>>> getCustomerPayments(Integer customerId, 
+																			 String accessToken,
+																			 String refreshToken) {
+		ResponseEntity<ResponseDto<List<PaymentDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
+		
+		if (responseEntity != null) {
+			return responseEntity;
+		}
+
+		return new ResponseEntity<>(
+				ResponseDto.of("성공적으로 모든 결제내역을 가져왔습니다.", getListByCustomerId(customerId)),
+				HttpStatus.OK);
+	}
 	
 	public PaymentDto getById(Integer id) {
 		Payment payment = this.paymentDaoImpl.getById(id);

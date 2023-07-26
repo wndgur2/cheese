@@ -14,11 +14,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import com.hknu.util.Parser;
+
 import jakarta.servlet.MultipartConfigElement;
 
 // 프로젝트 작업 시 사용할 bean을 정의하는 클래스
 @Configuration
-@ComponentScan({"com.hknu.controller.exception", "com.hknu.service", "com.hknu.dao"})
+@ComponentScan({"com.hknu.exception", "com.hknu.service", "com.hknu.dao"})
 @PropertySource("classpath:application.properties")
 public class RootAppContext {
 	@Autowired
@@ -61,5 +63,10 @@ public class RootAppContext {
     	redisTemplate.setKeySerializer(new StringRedisSerializer());
     	redisTemplate.setValueSerializer(new StringRedisSerializer());
     	return redisTemplate;
+    }
+    
+    @Bean
+    public Parser parser() {
+    	return new Parser();
     }
 }

@@ -1,18 +1,116 @@
 package com.hknu.service;
 
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hknu.dao.PhotographDaoImpl;
 import com.hknu.dto.PhotographDto;
+import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Photograph;
+import com.hknu.exception.CustomException;
+import com.hknu.exception.DoNotMatchImageTypeException;
 
 @org.springframework.stereotype.Service
 public class PhotographServiceImpl implements Service<PhotographDto>{
 	@Autowired
 	private PhotographDaoImpl photographDaoImpl;
+	@Autowired
+	private TokenService tokenService;
+	
+	// 이미지 파일 여부 확인
+	private boolean isImageFile(String contentType) {
+	    return contentType != null && (contentType.startsWith("image/jpeg") ||
+	                                   contentType.startsWith("image/png") ||
+	                                   contentType.startsWith("image/bmp") ||
+	                                   contentType.startsWith("image/tiff"));
+	}
+	
+	public ResponseEntity<ResponseDto<List<PhotographDto>>> getCustomerCloudData(Integer customerId, 
+																				 String accessToken,
+																				 String refreshToken) {
+		ResponseEntity<ResponseDto<List<PhotographDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
+		
+		if (responseEntity != null) {
+			return responseEntity;
+		}
+		
+		List<PhotographDto> photographDtoList = getListByCustomerId(customerId);
+		
+		return new ResponseEntity<>(
+				ResponseDto.of("성공적으로 모든 사진을 가져왔습니다.", photographDtoList),
+				HttpStatus.OK);
+	}
+
+	public ResponseEntity<ResponseDto<Null>> insertCustomerCloudData(Integer customerId, 
+										  							 MultipartFile data, 
+										  							 Integer branchId,
+										  							 String accessToken, 
+										  							 String refreshToken) {
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		
+		if (responseEntity != null) {
+			return responseEntity;
+		}
+		
+		if (!data.isEmpty()) {
+			byte[] byteData = null;
+			
+			try {
+				byteData = data.getBytes();
+				Timestamp date = new Timestamp(System.currentTimeMillis() + (9 * 60 * 60 * 1000));
+				
+				if (isImageFile(data.getContentType())) {
+					PhotographDto photographDto = new PhotographDto(
+							getMaxPkValue(), 
+							customerId, 
+							branchId,
+							date, 	
+							byteData);
+					insert(photographDto);
+				}
+				else {
+					throw new DoNotMatchImageTypeException();
+				}
+			}
+			catch (IOException e) {
+				return new ResponseEntity<>(
+						ResponseDto.of("클라우드에 사진을 추가하는 중에 오류가 발생했습니다."),
+						HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+		return new ResponseEntity<>(
+				ResponseDto.of("성공적으로 클라우드에 사진을 추가했습니다."),
+				HttpStatus.OK);
+	}
+	
+	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudPhotograph(Integer customerId, 
+																		   Integer photoId,
+																		   String accessToken,
+																		   String refreshToken) {
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		
+		if (responseEntity != null) {
+			return responseEntity;
+		}
+		
+		PhotographDto photographDto = getById(photoId);
+		
+		if (photographDto.getCustomerId().equals(customerId)) {
+			delete(photoId);
+			return new ResponseEntity<>(
+					ResponseDto.of("성공적으로 클라우드에 사진을 삭제했습니다."),
+					HttpStatus.OK);
+		}
+		throw new CustomException("사진과 회원 정보가 일치하지 않습니다.");
+	}
 	
 	public PhotographDto getById(Integer id) {
 		Photograph photograph = this.photographDaoImpl.getById(id);

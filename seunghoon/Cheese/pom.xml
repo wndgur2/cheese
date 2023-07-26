@@ -30,6 +30,7 @@
 		<org.apache.logging.log4j-api-version>2.20.0</org.apache.logging.log4j-api-version>
 		<jakarta.servlet-version>6.0.0</jakarta.servlet-version>
 		<org.springframework-webmvc-version>6.0.5</org.springframework-webmvc-version>
+		<org.springframework-websocket-version>6.0.11</org.springframework-websocket-version>
 		<org.springframework-jdbc-version>6.0.9</org.springframework-jdbc-version>
 		<org.springframework-data-redis-version>3.1.2</org.springframework-data-redis-version>
 		<io.lettuce-core-version>6.2.4.RELEASE</io.lettuce-core-version>
@@ -77,6 +78,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>${org.springframework-webmvc-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-websocket -->
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-websocket</artifactId>
+    		<version>${org.springframework-websocket-version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
 		<dependency>

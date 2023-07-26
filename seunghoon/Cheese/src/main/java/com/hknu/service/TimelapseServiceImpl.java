@@ -3,16 +3,68 @@ package com.hknu.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.hknu.dao.TimelapseDaoImpl;
 import com.hknu.dto.TimelapseDto;
+import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Timelapse;
+import com.hknu.exception.CustomException;
 
 @org.springframework.stereotype.Service
 public class TimelapseServiceImpl implements Service<TimelapseDto>{
 	@Autowired
 	private TimelapseDaoImpl timelapseDaoImpl;
+	@Autowired
+	private TokenService tokenService;
+	
+	// 타임랩스 파일 여부 확인
+//	private boolean isVideoFile(String contentType) {
+//	    return contentType != null && (contentType.startsWith("video/mp4") ||			// MP4
+//	                                   contentType.startsWith("video/x-msvideo") ||		// AVI
+//	                                   contentType.startsWith("video/quicktime"));		// MOV
+//	                                   contentType.startsWith("video/x-matroska") ||	// MKV
+//	                                   contentType.startsWith("video/x-flv") ||			// FLV
+//	                                   contentType.startsWith("video/webm") ||			// WebM
+//	}
+	
+	public ResponseEntity<ResponseDto<List<TimelapseDto>>> getCustomerCloudData(Integer customerId,
+									   											String accessToken, 
+									   											String refreshToken) {
+		ResponseEntity<ResponseDto<List<TimelapseDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
+		
+		if (responseEntity != null) {
+			return responseEntity;
+		}
+		
+		return new ResponseEntity<>(
+				ResponseDto.of("성공적으로 모든 타입랩스를 가져왔습니다.", getListByCustomerId(customerId)),
+				HttpStatus.OK);
+	}
+	
+	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(Integer customerId, 
+																		  Integer timelapseId,
+																		  String accessToken,
+																		  String refreshToken) {
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		
+		if (responseEntity != null) {
+			return responseEntity;
+		}
+		
+		TimelapseDto timelapseDto = getById(timelapseId);
+		
+		if (timelapseDto.getCustomerId().equals(customerId)) {
+			delete(timelapseId);
+			return new ResponseEntity<>(
+					ResponseDto.of("성공적으로 클라우드에 타입랩스를 삭제했습니다."),
+					HttpStatus.OK);
+		}
+		throw new CustomException("타입랩스와 회원 정보가 일치하지 않습니다.");
+	}
 	
 	public TimelapseDto getById(Integer id) {
 		Timelapse timelapse = this.timelapseDaoImpl.getById(id);
