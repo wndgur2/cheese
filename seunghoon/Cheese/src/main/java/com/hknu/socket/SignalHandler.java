@@ -43,7 +43,9 @@ public class SignalHandler extends TextWebSocketHandler {
     private static final String MSG_TYPE_LEAVE = "leave";
 
     @Override
-    public void afterConnectionClosed(final WebSocketSession session, final CloseStatus status) {
+    public void afterConnectionClosed(
+    		final WebSocketSession session, 
+    		final CloseStatus status) {
         System.out.println(String.format("[ws] Session has been closed with status {}", status));
         sessionIdToRoomMap.remove(session.getId());
     }
@@ -57,7 +59,9 @@ public class SignalHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(final WebSocketSession session, final TextMessage textMessage) {
+    protected void handleTextMessage(
+    		final WebSocketSession session, 
+    		final TextMessage textMessage) {
         // a message has been received
         try {
             WebSocketMessage message = objectMapper.readValue(textMessage.getPayload(), WebSocketMessage.class);
@@ -139,7 +143,9 @@ public class SignalHandler extends TextWebSocketHandler {
         }
     }
 
-    private void sendMessage(WebSocketSession session, WebSocketMessage message) {
+    private void sendMessage(
+    		WebSocketSession session, 
+    		WebSocketMessage message) {
         try {
             String json = objectMapper.writeValueAsString(message);
             session.sendMessage(new TextMessage(json));

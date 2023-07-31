@@ -25,38 +25,41 @@ public class FrameController {
 	
 	// 프레임 추가하기
 	@PostMapping(value = "/item/frame", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ResponseDto<Null>> insertFrame(@RequestParam(required = false) Integer branchId, 
-														 @RequestParam MultipartFile image,
-														 @RequestHeader(required = false, value = "Authorization") String accessToken,
-														 @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> insertFrame(
+			@RequestParam(required = false) Integer branchId, 
+			@RequestParam MultipartFile image,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.frameServiceImpl.insertFrame(branchId, image, accessToken, refreshToken);
 	}
 	
 	// 프레임 삭제하기
 	@DeleteMapping(value = "/item/frame/{frameId}")
-	public ResponseEntity<ResponseDto<Null>> deleteFrame(@PathVariable Integer frameId, 
-														 @RequestHeader(required = false, value = "Authorization") String accessToken,
-														 @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteFrame(
+			@PathVariable Integer frameId, 
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.frameServiceImpl.deleteFrame(frameId, accessToken, refreshToken);
 	}
 	
 	// 프레임 가져오기
 	@GetMapping(value = "/item/frame")
-	public ResponseEntity<ResponseDto<List<FrameDto>>> getListFrames(@RequestParam(required = false) Integer branchId, 
-																     @RequestHeader(required = false, value = "Authorization") String accessToken,
-																     @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<List<FrameDto>>> getListFrames(
+			@RequestParam(required = false) Integer branchId, 
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.frameServiceImpl.getListFrames(branchId, accessToken, refreshToken);
 	}
 	
-	public String getFrameById(Integer id) {
-		return null;
-	}
-	
-	public String getAllFrames() {
-		return null;
-	}
-	
-	public String updateFrame(FrameDto fd) {
-		return null;
-	}
+//	public String getFrameById(Integer id) {
+//		return null;
+//	}
+//	
+//	public String getAllFrames() {
+//		return null;
+//	}
+//	
+//	public String updateFrame(FrameDto fd) {
+//		return null;
+//	}
 }

@@ -39,17 +39,17 @@ public class ManagerService {
 					ResponseDto.of("성공적으로 로그인 했습니다."), 
 					headers, 
 					HttpStatus.OK) ;
-		}
-		else {
+		} else {
 			return new ResponseEntity<>(
 					ResponseDto.of("비밀번호가 일치하지 않습니다."), 
 					HttpStatus.BAD_REQUEST);
 		}
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> updateManager(String password,
-														   String accessToken,
-														   String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> updateManager(
+			String password,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -76,8 +76,7 @@ public class ManagerService {
 				scanner.close();
 				return managerPassword;
 			}
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			System.out.println(String.format("manager file read error, %s", e));
 		}
 		return null;
@@ -88,8 +87,7 @@ public class ManagerService {
 			FileWriter fileWriter = new FileWriter(new File(manager_file_location), false);
 			fileWriter.write(password);
 			fileWriter.close();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new CustomException("비밀번호 수정 중에 오류가 발생했습니다.");
 		}
 	}

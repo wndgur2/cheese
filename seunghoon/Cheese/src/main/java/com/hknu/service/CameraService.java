@@ -29,14 +29,14 @@ public class CameraService {
     	if (cameraStatus.get(Integer.parseInt(branchId)) == null) {
     		cameraStatus.put(Integer.parseInt(branchId), true);
     		return true;
-    	}
-    	else {
+    	} else {
     		return cameraStatus.get(Integer.parseInt(branchId));
     	}
     }
     
-    private void setCameraStatus(String branchId, 
-    							 Boolean status) {
+    private void setCameraStatus(
+    		String branchId, 
+    		Boolean status) {
     	cameraStatus.put(Integer.parseInt(branchId), status);
     }
     
@@ -49,8 +49,9 @@ public class CameraService {
     	}
     }
     
-    public ResponseEntity<ResponseDto<Null>> enterRoom(String branchId, 
-    												   String device) {	
+    public ResponseEntity<ResponseDto<Null>> enterRoom(
+    		String branchId, 
+    		String device) {	
         if (parser.parseId(branchId).isPresent()) {
         	this.branchServiceImpl.getById(Integer.parseInt(branchId));
         	
@@ -75,16 +76,16 @@ public class CameraService {
             				HttpStatus.OK);
             	}
             	throw new CustomException(String.format("[%s번 지점] %s 사용자님의 차례가 아닙니다.", branchId, device));
-            }
-            else {
+            } else {
                 throw new CustomException("Device가 주어지지 않았습니다.");
             }
         }
         throw new CustomException("지점 아이디가 주어지지 않았습니다.");
     }
 
-    public ResponseEntity<ResponseDto<Null>> exitRoom(String branchId, 
-    												  String device) {
+    public ResponseEntity<ResponseDto<Null>> exitRoom(
+    		String branchId, 
+    		String device) {
     	Integer integerBranchId = Integer.parseInt(branchId);
     	this.branchServiceImpl.getById(integerBranchId);
     	

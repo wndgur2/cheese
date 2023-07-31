@@ -22,11 +22,12 @@ public class PaymentServiceImpl implements Service<PaymentDto>{
 	private TokenService tokenService;
 	
 
-	public ResponseEntity<ResponseDto<Null>> insertPayment(Integer branchId, 
-														   Integer customerId,
-														   Integer cost,
-														   Integer amount,
-														   boolean photo_or_print) {
+	public ResponseEntity<ResponseDto<Null>> insertPayment(
+			Integer branchId, 
+			Integer customerId,
+			Integer cost,
+			Integer amount,
+			boolean photo_or_print) {
 		Timestamp date = new Timestamp(System.currentTimeMillis() + (9 * 60 * 60 * 1000));
 		PaymentDto paymentDto = new PaymentDto(
 				getMaxPkValue(), 
@@ -43,9 +44,10 @@ public class PaymentServiceImpl implements Service<PaymentDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<List<PaymentDto>>> getCustomerPayments(Integer customerId, 
-																			 String accessToken,
-																			 String refreshToken) {
+	public ResponseEntity<ResponseDto<List<PaymentDto>>> getCustomerPayments(
+			Integer customerId, 
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<PaymentDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
 		
 		if (responseEntity != null) {

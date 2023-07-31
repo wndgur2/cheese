@@ -15,6 +15,6 @@ public class Customer {
 	private Integer customer_id;
 	private String email;
 	private String password;
-	private float cloud_size;
+	private double cloud_size;
 	private String nickname;
 }

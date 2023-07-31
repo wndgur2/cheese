@@ -26,34 +26,38 @@ public class ShareController {
 
 	// 사진 공유하기
 	@PostMapping(value = "/share/{customerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ResponseDto<Null>> insertShare(@PathVariable Integer customerId, 
-							  							 @RequestParam List<MultipartFile> photo,
-							  							 @RequestHeader(required = false, value = "Authorization") String accessToken,
-							  							 @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> insertShare(
+			@PathVariable Integer customerId, 
+			@RequestParam List<MultipartFile> photo,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.shareServiceImpl.insertShare(customerId, photo, accessToken, refreshToken);
 	}
 	
 	// 사진 공유 글 삭제하기
 	@DeleteMapping(value = "/share/{customerId}/{shareId}")
-	public ResponseEntity<ResponseDto<Null>> deleteShare(@PathVariable Integer customerId, 
-														 @PathVariable Integer shareId, 
-														 @RequestHeader(required = false, value = "Authorization") String accessToken,
-														 @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteShare(
+			@PathVariable Integer customerId,
+			@PathVariable Integer shareId,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.shareServiceImpl.deleteShare(customerId, shareId, accessToken, refreshToken);
 	}
 	
 	// 내가 공유한 사진 공유 글 조회하기
 	@GetMapping(value = "/share/{customerId}")
-	public ResponseEntity<ResponseDto<List<ShareDto>>> getShareByCustomerId(@PathVariable Integer customerId, 
-																			@RequestHeader(required = false, value = "Authorization") String accessToken, 
-																			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<List<ShareDto>>> getShareByCustomerId(
+			@PathVariable Integer customerId, 
+			@RequestHeader(required = false, value = "Authorization") String accessToken, 
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.shareServiceImpl.getShareByCustomerId(customerId, accessToken, refreshToken);
 	}
 	
 	// 사진 공유 글 조회하기, 지점별 사진 공유 글 조회하기
 	@GetMapping(value = "/share/page/{index}")
-	public ResponseEntity<ResponseDto<List<ShareDto>>> getListShares(@PathVariable Integer index, 
-																	 @RequestParam(required = false) Integer branchId) {
+	public ResponseEntity<ResponseDto<List<ShareDto>>> getListShares(
+			@PathVariable Integer index, 
+			@RequestParam(required = false) Integer branchId) {
 		return this.shareServiceImpl.getListShares(index, branchId);
 	}
 	

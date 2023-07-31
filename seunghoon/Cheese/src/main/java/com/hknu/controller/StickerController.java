@@ -26,26 +26,29 @@ public class StickerController {
 	
 	// 스티커 추가하기
 	@PostMapping(value = "/item/sticker", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ResponseDto<Null>> insertSticker(@RequestParam(required = false) Integer branchId, 
-														   @RequestParam MultipartFile image,
-														   @RequestHeader(required = false, value = "Authorization") String accessToken,
-														   @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> insertSticker(
+			@RequestParam(required = false) Integer branchId, 
+			@RequestParam MultipartFile image,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.stickerServiceImpl.insertSticker(branchId, image, accessToken, refreshToken);
 	}
 	
 	// 스티커 삭제하기
 	@DeleteMapping(value = "/item/sticker/{stickerId}")
-	public ResponseEntity<ResponseDto<Null>> deleteSticker(@PathVariable Integer stickerId, 
-														   @RequestHeader(required = false, value = "Authorization") String accessToken,
-														   @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteSticker(
+			@PathVariable Integer stickerId, 
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.stickerServiceImpl.deleteSticker(stickerId, accessToken, refreshToken);
 	}
 	
 	// 스티커 가져오기
 	@GetMapping(value = "/item/sticker")
-	public ResponseEntity<ResponseDto<List<StickerDto>>> getListStickers(@RequestParam(required = false) Integer branchId,
-																	     @RequestHeader(required = false, value = "Authorization") String accessToken,
-																	     @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<List<StickerDto>>> getListStickers(
+			@RequestParam(required = false) Integer branchId,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.stickerServiceImpl.getListStickers(branchId, accessToken, refreshToken);
 	}
 	

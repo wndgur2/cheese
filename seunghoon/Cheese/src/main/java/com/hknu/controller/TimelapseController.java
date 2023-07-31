@@ -22,18 +22,20 @@ public class TimelapseController {
 	
 	// 클라우드 타임랩스 가져오기
 	@GetMapping(value = "/cloud/{customerId}/timelapse")
-	public ResponseEntity<ResponseDto<List<TimelapseDto>>> getCustomerCloudData(@PathVariable Integer customerId,
-									   											@RequestHeader(required = false, value = "Authorization") String accessToken, 
-									   											@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<List<TimelapseDto>>> getCustomerCloudData(
+			@PathVariable Integer customerId,
+			@RequestHeader(required = false, value = "Authorization") String accessToken, 
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.timelapseServiceImpl.getCustomerCloudData(customerId, accessToken, refreshToken);
 	}
 	
 	// 클라우드 타임랩스 삭제하기
 	@DeleteMapping(value = "/cloud/{customerId}/timelapse/{timelapseId}")
-	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(@PathVariable Integer customerId, 
-																		  @PathVariable Integer timelapseId,
-																		  @RequestHeader(required = false, value = "Authorization") String accessToken,
-																		  @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(
+			@PathVariable Integer customerId, 
+			@PathVariable Integer timelapseId,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.timelapseServiceImpl.deleteCustomerCloudTimelapse(customerId, timelapseId, accessToken, refreshToken);
 	}
 	

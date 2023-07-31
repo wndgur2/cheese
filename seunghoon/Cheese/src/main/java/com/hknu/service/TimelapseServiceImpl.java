@@ -22,18 +22,19 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 	private TokenService tokenService;
 	
 	// 타임랩스 파일 여부 확인
-//	private boolean isVideoFile(String contentType) {
-//	    return contentType != null && (contentType.startsWith("video/mp4") ||			// MP4
-//	                                   contentType.startsWith("video/x-msvideo") ||		// AVI
-//	                                   contentType.startsWith("video/quicktime"));		// MOV
-//	                                   contentType.startsWith("video/x-matroska") ||	// MKV
-//	                                   contentType.startsWith("video/x-flv") ||			// FLV
-//	                                   contentType.startsWith("video/webm") ||			// WebM
-//	}
+	private boolean isVideoFile(String contentType) {
+	    return contentType != null && (contentType.startsWith("video/mp4") ||			// MP4
+	                                   contentType.startsWith("video/x-msvideo") ||		// AVI
+	                                   contentType.startsWith("video/quicktime")) ||	// MOV
+	                                   contentType.startsWith("video/x-matroska") ||	// MKV
+	                                   contentType.startsWith("video/x-flv") ||			// FLV
+	                                   contentType.startsWith("video/webm");			// WebM
+	}
 	
-	public ResponseEntity<ResponseDto<List<TimelapseDto>>> getCustomerCloudData(Integer customerId,
-									   											String accessToken, 
-									   											String refreshToken) {
+	public ResponseEntity<ResponseDto<List<TimelapseDto>>> getCustomerCloudData(
+			Integer customerId,
+			String accessToken, 
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<TimelapseDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -45,10 +46,11 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(Integer customerId, 
-																		  Integer timelapseId,
-																		  String accessToken,
-																		  String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(
+			Integer customerId, 
+			Integer timelapseId,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {

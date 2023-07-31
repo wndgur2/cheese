@@ -5,13 +5,13 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hknu.dao.PhotographDaoImpl;
+import com.hknu.dto.CustomerDto;
 import com.hknu.dto.PhotographDto;
 import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Photograph;
@@ -23,6 +23,8 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 	@Autowired
 	private PhotographDaoImpl photographDaoImpl;
 	@Autowired
+	private CustomerServiceImpl customerServiceImpl;
+	@Autowired
 	private TokenService tokenService;
 	
 	// 이미지 파일 여부 확인
@@ -33,9 +35,10 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 	                                   contentType.startsWith("image/tiff"));
 	}
 	
-	public ResponseEntity<ResponseDto<List<PhotographDto>>> getCustomerCloudData(Integer customerId, 
-																				 String accessToken,
-																				 String refreshToken) {
+	public ResponseEntity<ResponseDto<List<PhotographDto>>> getCustomerCloudData(
+			Integer customerId, 
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<PhotographDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -49,16 +52,19 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 				HttpStatus.OK);
 	}
 
-	public ResponseEntity<ResponseDto<Null>> insertCustomerCloudData(Integer customerId, 
-										  							 MultipartFile data, 
-										  							 Integer branchId,
-										  							 String accessToken, 
-										  							 String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+	public ResponseEntity<ResponseDto<CustomerDto>> insertCustomerCloudData(
+			Integer customerId, 
+			MultipartFile data, 
+			Integer branchId,
+			String accessToken, 
+			String refreshToken) {
+		ResponseEntity<ResponseDto<CustomerDto>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;
 		}
+		
+		CustomerDto customerDto = null;
 		
 		if (!data.isEmpty()) {
 			byte[] byteData = null;
@@ -75,38 +81,47 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 							date, 	
 							byteData);
 					insert(photographDto);
-				}
-				else {
+					
+					double dataSizeToGB = (double) data.getSize() / 1024 / 1024 / 1024;
+					customerDto = this.customerServiceImpl.getById(customerId);
+					customerDto.setCloudSize(customerDto.getCloudSize() + dataSizeToGB);
+					this.customerServiceImpl.update(customerDto);
+				} else {
 					throw new DoNotMatchImageTypeException();
 				}
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				return new ResponseEntity<>(
 						ResponseDto.of("클라우드에 사진을 추가하는 중에 오류가 발생했습니다."),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 		return new ResponseEntity<>(
-				ResponseDto.of("성공적으로 클라우드에 사진을 추가했습니다."),
+				ResponseDto.of("성공적으로 클라우드에 사진을 추가했습니다.", customerDto),
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudPhotograph(Integer customerId, 
-																		   Integer photoId,
-																		   String accessToken,
-																		   String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+	public ResponseEntity<ResponseDto<CustomerDto>> deleteCustomerCloudPhotograph(
+			Integer customerId, 
+			Integer photoId,
+			String accessToken,
+			String refreshToken) {
+		ResponseEntity<ResponseDto<CustomerDto>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;
 		}
 		
+		CustomerDto customerDto = null;
 		PhotographDto photographDto = getById(photoId);
 		
 		if (photographDto.getCustomerId().equals(customerId)) {
 			delete(photoId);
+			double dataSizeToGB = (double) photographDto.getPhotoImage().length / 1024 / 1024 / 1024;
+			customerDto = this.customerServiceImpl.getById(customerId);
+			customerDto.setCloudSize(customerDto.getCloudSize() - dataSizeToGB);
+			this.customerServiceImpl.update(customerDto);
 			return new ResponseEntity<>(
-					ResponseDto.of("성공적으로 클라우드에 사진을 삭제했습니다."),
+					ResponseDto.of("성공적으로 클라우드에 사진을 삭제했습니다.", customerDto),
 					HttpStatus.OK);
 		}
 		throw new CustomException("사진과 회원 정보가 일치하지 않습니다.");

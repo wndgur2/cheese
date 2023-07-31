@@ -15,7 +15,7 @@ public class CustomerDto {
 	private Integer customerId;
 	private String email;
 	private String password;
-	private float cloudSize;
+	private double cloudSize;
 	private String nickname;
 	private List<PaymentDto> payments;
 	private List<PhotographDto> photographs;

@@ -26,10 +26,11 @@ public class StickerServiceImpl implements Service<StickerDto>{
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<Null>> insertSticker(Integer branchId, 
-														   MultipartFile image,
-														   String accessToken,
-														   String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> insertSticker(
+			Integer branchId, 
+			MultipartFile image,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -48,8 +49,7 @@ public class StickerServiceImpl implements Service<StickerDto>{
 							branchId, 
 							byteImage);
 					insert(stickerDto);
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					return new ResponseEntity<>(
 							ResponseDto.of("스티커를 추가하는 중에 오류가 발생했습니다."),
 							HttpStatus.INTERNAL_SERVER_ERROR);
@@ -62,9 +62,10 @@ public class StickerServiceImpl implements Service<StickerDto>{
 		throw new CustomException("관리자 권한이 필요합니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteSticker(Integer stickerId, 
-														   String accessToken,
-														   String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteSticker(
+			Integer stickerId, 
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -81,9 +82,10 @@ public class StickerServiceImpl implements Service<StickerDto>{
 		throw new CustomException("관리자 권한이 필요합니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<List<StickerDto>>> getListStickers(Integer branchId,
-																	     String accessToken,
-																	     String refreshToken) {
+	public ResponseEntity<ResponseDto<List<StickerDto>>> getListStickers(
+			Integer branchId,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<StickerDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
 		
 		if (responseEntity != null) {

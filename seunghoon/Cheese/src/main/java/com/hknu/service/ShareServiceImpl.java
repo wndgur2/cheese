@@ -42,10 +42,11 @@ public class ShareServiceImpl implements Service<ShareDto>{
 		                               contentType.startsWith("image/tiff"));
 	}
 		
-	public ResponseEntity<ResponseDto<Null>> insertShare(Integer customerId, 
-								  						 List<MultipartFile> photo,
-								  						 String accessToken,
-								  						 String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> insertShare(
+			Integer customerId, 
+			List<MultipartFile> photo,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -73,15 +74,13 @@ public class ShareServiceImpl implements Service<ShareDto>{
 						
 						if (i == 0) {
 							firstBranchIdFromPhotograph = photographDto.getBranchId();
-						}
-						else {
+						} else {
 							if (photographDto.getBranchId() != firstBranchIdFromPhotograph) {
 								throw new CustomException("사진 간의 지점 정보가 일치하지 않습니다.");
 							}
 						}
 						sharedPhotoMap.put(sharedPhotoMaxPkValue + i, photographDto);
-					}
-					else {
+					} else {
 						throw new DoNotMatchImageTypeException();
 					}
 				}
@@ -94,8 +93,7 @@ public class ShareServiceImpl implements Service<ShareDto>{
 					date, 
 					sharedPhotoMap);
 			insert(shareDto);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			return new ResponseEntity<>(
 					ResponseDto.of("사진 공유 글을 게시하는 중에 오류가 발생했습니다."),
 					HttpStatus.INTERNAL_SERVER_ERROR);
@@ -106,10 +104,11 @@ public class ShareServiceImpl implements Service<ShareDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Null>> deleteShare(Integer customerId, 
-														 Integer shareId, 
-														 String accessToken,
-														 String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteShare(
+			Integer customerId, 
+			Integer shareId, 
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -126,9 +125,10 @@ public class ShareServiceImpl implements Service<ShareDto>{
 		throw new CustomException("사진 공유 글과 회원 정보가 일치하지 않습니다.");
 	}
 		
-	public ResponseEntity<ResponseDto<List<ShareDto>>> getShareByCustomerId(Integer customerId, 
-																			String accessToken, 
-																			String refreshToken) {
+	public ResponseEntity<ResponseDto<List<ShareDto>>> getShareByCustomerId(
+			Integer customerId, 
+			String accessToken, 
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<ShareDto>>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -142,8 +142,9 @@ public class ShareServiceImpl implements Service<ShareDto>{
 				HttpStatus.OK);
 	}
 		
-	public ResponseEntity<ResponseDto<List<ShareDto>>> getListShares(Integer index, 
-																 	 Integer branchId) {
+	public ResponseEntity<ResponseDto<List<ShareDto>>> getListShares(
+			Integer index, 
+			Integer branchId) {
 		if (index < 1) {
 			throw new CustomException("인덱스 값은 1 이상이어야 합니다.");
 		}

@@ -25,27 +25,28 @@ public class FilterServiceImpl implements Service<FilterDto>{
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<Null>> insertFilter(Integer branchId,
-				   										  Integer brightness,
-				   										  Integer exposure,
-				   										  Integer contrast,
-				   										  Integer chroma,
-				   										  Integer temperature,
-				   										  Integer livliness,
-				   										  Integer tint,
-				   										  Integer tone,
-				   										  Integer highlight,
-				   										  Integer shadow,
-				   										  Integer sharpness,
-				   										  Integer grain,
-				   										  Integer vineting,
-				   										  Integer afterImage,
-				   										  Integer dehaze,
-				   										  Integer posterize,
-				   										  Integer blur,
-				   										  Integer mosaic,
-				   										  String accessToken,
-				   										  String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> insertFilter(
+			Integer branchId,
+			Integer brightness,
+			Integer exposure,
+			Integer contrast,
+			Integer chroma,
+			Integer temperature,
+			Integer livliness,
+			Integer tint,
+			Integer tone,
+			Integer highlight,
+			Integer shadow,
+			Integer sharpness,
+			Integer grain,
+			Integer vineting,
+			Integer afterImage,
+			Integer dehaze,
+			Integer posterize,
+			Integer blur,
+			Integer mosaic,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
@@ -83,9 +84,10 @@ public class FilterServiceImpl implements Service<FilterDto>{
 		throw new CustomException("관리자 권한이 필요합니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteFilter(Integer filterId,
-														  String accessToken,
-														  String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteFilter(
+			Integer filterId,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -103,9 +105,10 @@ public class FilterServiceImpl implements Service<FilterDto>{
 	}
 	
 	
-	public ResponseEntity<ResponseDto<List<FilterDto>>> getListFilters(Integer branchId,
-																	   String accessToken,
-																	   String refreshToken) {
+	public ResponseEntity<ResponseDto<List<FilterDto>>> getListFilters(
+			Integer branchId,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<FilterDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
 		
 		if (responseEntity != null) {

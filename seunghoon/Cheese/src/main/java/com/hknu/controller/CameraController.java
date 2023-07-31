@@ -26,15 +26,17 @@ public class CameraController {
 
 	// 미러링 시작하기
 	@PostMapping(value = "/branch/{branchId}/stream")
-    public ResponseEntity<ResponseDto<Null>> enterRoom(@PathVariable String branchId, 
-    												   @RequestParam String device) {
+    public ResponseEntity<ResponseDto<Null>> enterRoom(
+    		@PathVariable String branchId, 
+    		@RequestParam String device) {
         return this.cameraService.enterRoom(branchId, device);
     }
 	
 	// 미러링 종료하기
 	@DeleteMapping("/branch/{branchId}/stream")
-	public ResponseEntity<ResponseDto<Null>> exitRoom(@PathVariable String branchId, 
-													  @RequestParam String device) {
+	public ResponseEntity<ResponseDto<Null>> exitRoom(
+			@PathVariable String branchId, 
+			@RequestParam String device) {
 	    return this.cameraService.exitRoom(branchId, device);
 	}
 }

@@ -26,48 +26,54 @@ public class CustomerController {
 
 	// 회원 정보 가져오기
 	@GetMapping(value = "/customer/{customerId}")
-	public ResponseEntity<ResponseDto<CustomerDto>> getCustomerById(@PathVariable Integer customerId, 
-																	@RequestHeader(required = false, value = "Authorization") String accessToken,
-																	@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {	
+	public ResponseEntity<ResponseDto<CustomerDto>> getCustomerById(
+			@PathVariable Integer customerId, 
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {	
 		return this.customerServiceImpl.getCustomerById(customerId, accessToken, refreshToken);
 	}
 	
 	// 모든 회원 정보 가져오기
 	@GetMapping(value = "/customer")
-	public ResponseEntity<ResponseDto<List<CustomerDto>>> getAllCustomers(@RequestHeader(required = false, value = "Authorization") String accessToken,
-																		  @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<List<CustomerDto>>> getAllCustomers(
+			@RequestHeader(required = false, value = "Authorization") String accessToken, 
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.customerServiceImpl.getAllCustomers(accessToken, refreshToken);
 	}
 	
 	//회원가입
 	@PostMapping(value = "/customer")
-	public ResponseEntity<ResponseDto<Null>> insertCustomer(@RequestParam String email, 
-															@RequestParam String password, 
-															@RequestParam String nickname) {
+	public ResponseEntity<ResponseDto<Null>> insertCustomer(
+			@RequestParam String email, 
+			@RequestParam String password, 
+			@RequestParam String nickname) {
 		return this.customerServiceImpl.insertCustomer(email, password, nickname);
 	}
 	
 	// 사용자 비밀번호 수정하기
 	@PutMapping(value = "/customer/{customerId}")
-	public ResponseEntity<ResponseDto<Null>> updateCustomerPassword(@PathVariable Integer customerId, 
-														    		@RequestParam String password,
-														    		@RequestHeader(required = false, value = "Authorization") String accessToken,
-														    		@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> updateCustomerPassword(
+			@PathVariable Integer customerId, 
+			@RequestParam String password,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.customerServiceImpl.updateCustomerPassword(customerId, password, accessToken, refreshToken);
 	}
 	
 	// 회원 탈퇴하기
 	@DeleteMapping(value = "/customer/{customerId}")
-	public ResponseEntity<ResponseDto<Null>> deleteCustomer(@PathVariable Integer customerId, 
-								 							@RequestHeader(required = false, value = "Authorization") String accessToken,
-								 							@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteCustomer(
+			@PathVariable Integer customerId, 
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.customerServiceImpl.deleteCustomer(customerId, accessToken, refreshToken);
 	}
 	
 	// 사용자 로그인
 	@PostMapping(value = "/auth")
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> loginCustomer(@RequestParam String email,
-																		   @RequestParam String password) {
+	public ResponseEntity<ResponseDto<Map<String, Integer>>> loginCustomer(
+			@RequestParam String email,
+			@RequestParam String password) {
 		return this.customerServiceImpl.loginCustomer(email, password);
 	}
 	

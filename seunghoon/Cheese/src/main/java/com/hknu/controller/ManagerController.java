@@ -25,9 +25,10 @@ public class ManagerController {
 	
 	// 관리자 비밀번호 수정하기
 	@PutMapping(value = "/manager")
-	public ResponseEntity<ResponseDto<Null>> updateManager(@RequestParam String password,
-														   @RequestHeader(required = false, value = "Authorization") String accessToken,
-														   @RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> updateManager(
+			@RequestParam String password,
+			@RequestHeader(required = false, value = "Authorization") String accessToken,
+			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.managerService.updateManager(password, accessToken, refreshToken);
 	}
 }

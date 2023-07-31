@@ -45,9 +45,10 @@ public class RoomService {
                 .orElse(Collections.emptyMap());
     }
 
-    public WebSocketSession addClient(final Room room, 
-    								  final String name, 
-    								  final WebSocketSession session) {
+    public WebSocketSession addClient(
+    		final Room room, 
+    		final String name, 
+    		final WebSocketSession session) {
         return room.getClients().put(name, session);
     }
 

@@ -25,7 +25,7 @@ public class CustomerDaoImpl extends BaseDao<Customer> {
 				rs.getInt("customer_id"),
 				rs.getString("email"),
 				rs.getString("password"),
-				rs.getFloat("cloud_size"),
+				rs.getDouble("cloud_size"),
 				rs.getString("nickname"));
 		return customer;
 	}

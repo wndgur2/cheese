@@ -115,8 +115,9 @@ public class TokenService {
 		return false;
 	}
 	
-	public <T> ResponseEntity<ResponseDto<T>> validateAndGenerateToken(String accessToken, 
-																	   String refreshToken) {
+	public <T> ResponseEntity<ResponseDto<T>> validateAndGenerateToken(
+			String accessToken, 
+			String refreshToken) {
 		if (accessToken == null && refreshToken == null) {
 			throw new IllegalArgumentException();
 		}
@@ -148,8 +149,9 @@ public class TokenService {
 		}
 	}
 	
-	public <T> ResponseEntity<ResponseDto<List<T>>> validateAndGenerateTokenReturnList(String accessToken, 
-																					   String refreshToken) {
+	public <T> ResponseEntity<ResponseDto<List<T>>> validateAndGenerateTokenReturnList(
+			String accessToken, 
+			String refreshToken) {
 		if (accessToken == null && refreshToken == null) {
 			throw new CustomException("권한이 필요합니다.");
 		}
@@ -181,8 +183,9 @@ public class TokenService {
 		}
 	}
 	
-	public <E, T> ResponseEntity<ResponseDto<Map<E, T>>> validateAndGenerateTokenReturnMap(String accessToken, 
-																						   String refreshToken) {
+	public <E, T> ResponseEntity<ResponseDto<Map<E, T>>> validateAndGenerateTokenReturnMap(
+			String accessToken, 
+			String refreshToken) {
 		if (accessToken == null && refreshToken == null) {
 			throw new IllegalArgumentException();
 		}

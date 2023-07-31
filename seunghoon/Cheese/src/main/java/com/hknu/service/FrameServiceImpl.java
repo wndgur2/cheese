@@ -26,10 +26,11 @@ public class FrameServiceImpl implements Service<FrameDto>{
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<Null>> insertFrame(Integer branchId, 
-			 											 MultipartFile image,
-			 											 String accessToken,
-			 											 String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> insertFrame(
+			Integer branchId, 
+			MultipartFile image,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
@@ -48,8 +49,7 @@ public class FrameServiceImpl implements Service<FrameDto>{
 							branchId,
 							byteImage);
 					insert(frameDto);
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					return new ResponseEntity<>(
 							ResponseDto.of("프레임을 추가하는 중에 오류가 발생했습니다."),
 							HttpStatus.INTERNAL_SERVER_ERROR);
@@ -63,9 +63,10 @@ public class FrameServiceImpl implements Service<FrameDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Null>> deleteFrame(Integer frameId, 
-			 											 String accessToken,
-			 											 String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteFrame(
+			Integer frameId, 
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
@@ -82,9 +83,10 @@ public class FrameServiceImpl implements Service<FrameDto>{
 		throw new CustomException("관리자 권한이 필요합니다.");
 	}
 		
-	public ResponseEntity<ResponseDto<List<FrameDto>>> getListFrames(Integer branchId, 
-		     														 String accessToken,
-		     														 String refreshToken) {
+	public ResponseEntity<ResponseDto<List<FrameDto>>> getListFrames(
+			Integer branchId, 
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<FrameDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
 
 		if (responseEntity != null) {

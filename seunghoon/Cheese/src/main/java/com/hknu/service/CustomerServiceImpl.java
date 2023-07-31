@@ -35,9 +35,10 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<CustomerDto>> getCustomerById(Integer customerId,
-																    String accessToken, 
-																    String refreshToken) {	
+	public ResponseEntity<ResponseDto<CustomerDto>> getCustomerById(
+			Integer customerId,
+			String accessToken, 
+			String refreshToken) {	
 		ResponseEntity<ResponseDto<CustomerDto>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -49,8 +50,9 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				HttpStatus.OK) ;
 		}
 		
-	public ResponseEntity<ResponseDto<List<CustomerDto>>> getAllCustomers(String accessToken,
-																		  String refreshToken) {
+	public ResponseEntity<ResponseDto<List<CustomerDto>>> getAllCustomers(
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<List<CustomerDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
@@ -67,14 +69,15 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Null>> insertCustomer(String email, 
-															String password, 
-															String nickname) {
+	public ResponseEntity<ResponseDto<Null>> insertCustomer(
+			String email, 
+			String password, 
+			String nickname) {
 		CustomerDto customerDto = new CustomerDto(
 				getMaxPkValue(), 
 				email, 
 				password, 
-				0, 
+				0.0, 
 				nickname, 
 				null, 
 				null, 
@@ -87,10 +90,11 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				HttpStatus.OK);
 	}
 		
-	public ResponseEntity<ResponseDto<Null>> updateCustomerPassword(Integer customerId, 
-		    														String password,
-		    														String accessToken,
-		    														String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> updateCustomerPassword(
+			Integer customerId, 
+			String password,
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
@@ -105,11 +109,11 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				ResponseDto.of("성공적으로 비밀번호를 수정했습니다."),
 				HttpStatus.OK);
 	}
-		
 
-	public ResponseEntity<ResponseDto<Null>> deleteCustomer(Integer customerId, 
-															String accessToken,
-															String refreshToken) {
+	public ResponseEntity<ResponseDto<Null>> deleteCustomer(
+			Integer customerId, 
+			String accessToken,
+			String refreshToken) {
 		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
@@ -123,8 +127,9 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> loginCustomer(String email, 
-																		   String password) {
+	public ResponseEntity<ResponseDto<Map<String, Integer>>> loginCustomer(
+			String email, 
+			String password) {
 		CustomerDto customerDto = getByEmail(email);
 
 		if (password.equals(customerDto.getPassword())) {
@@ -142,8 +147,7 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 					ResponseDto.of("성공적으로 로그인 했습니다.", data), 
 					headers, 
 					HttpStatus.OK) ;
-		}
-		else {
+		} else {
 			return new ResponseEntity<>(
 					ResponseDto.of("비밀번호가 일치하지 않습니다."), 
 					HttpStatus.BAD_REQUEST);
