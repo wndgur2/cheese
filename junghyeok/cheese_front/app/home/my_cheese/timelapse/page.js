@@ -81,9 +81,7 @@ export default function Timelapse() {
     return result;
   }
   return (
-    <div
-    onScroll={(e)=>{console.log("SCROLL")}}
-    >
+    <div>
       <table cellSpacing={0} cellPadding={0}
       style={{
         width:"100%",

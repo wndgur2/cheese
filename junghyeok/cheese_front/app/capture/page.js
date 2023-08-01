@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef} from "react";
+import { useEffect, useRef, useState} from "react";
 import captureStyles from "./capture.module.css";
+import { useRouter } from "next/navigation";
+import LongBtn from "@/components/LongBtn";
+import TextBtn from "@/components/TextBtn";
 
 export default function Home() {
-  let localStream;
   const remoteVideoRef = useRef();
+  let localStream;
   let myPeerConnection;
   const localRoom= "4";
 
@@ -323,6 +326,9 @@ export default function Home() {
   //   return response; // JSON 응답을 네이티브 JavaScript 객체로 파싱
   // }
 
+  const [capturedAmount, setCapturedAmount] = useState(0);
+  const router = useRouter();
+
   return (
     <div>
       {/* <video ref={localVideoRef} autoPlay playsInline></video> */}
@@ -331,7 +337,12 @@ export default function Home() {
         <div className={captureStyles.rotate}>
           <img id={captureStyles.rotate} src="/capture/rotate.png" />
         </div>
-        <div className={captureStyles.shutter} onClick={()=>{}}>
+        <div className={captureStyles.shutter} 
+          onClick={
+            ()=>{
+              if(capturedAmount < 5){ setCapturedAmount(capturedAmount+1);}
+            }
+          }>
           <img id={captureStyles.shutter} src="/capture/shutter.png" />
         </div>
         <div className={captureStyles.timer}>
@@ -339,9 +350,21 @@ export default function Home() {
           <span>5</span>
         </div>
         <div className={captureStyles.amount}>
-          <span>1/5</span>
+          <span>{capturedAmount+1 <= 5 ? capturedAmount+1:5}/5</span>
         </div>
       </div>
+      {capturedAmount ==5 &&
+        <div className={captureStyles.alertWrapper}>
+          <div className={captureStyles.alert}>
+            <span className='title'>촬영이 끝났어요.</span> <br/>
+            <span className='subtitle'>사진을 기기에 저장할게요.</span> <br/><br/>
+            <TextBtn href={"home"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
+            <TextBtn href={"home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
+            <TextBtn href={"home"} color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn>
+            <TextBtn href={"home"} color="#FEFBF6">홈으로</TextBtn>
+          </div>
+        </div>
+      }
     </div>
   );
 }

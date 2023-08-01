@@ -5,6 +5,7 @@ import NavBtn from '@/components/NavBtn';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import homeStyles from "./home.module.css";
+import Link from 'next/link';
 
 export default function HomeLayout({ children }) {
   const pathname = usePathname();
@@ -51,13 +52,14 @@ export default function HomeLayout({ children }) {
       >
         {navs.map((nav)=>{
           return(
-            <NavBtn key={nav.name}
-              accentColor={"#EEE"}
-              active={pathname.split("/")[pathname.split("/").length-1]==nav.active}
-              src={nav.src} width={nav.width}
-              href={nav.href}>
-                {nav.name}
+            <Link href={nav.href} key={nav.name}>
+              <NavBtn
+                accentColor={"#EEE"}
+                active={pathname.split("/")[pathname.split("/").length-1]==nav.active}
+                src={nav.src} width={nav.width}>
+                  {nav.name}
               </NavBtn>
+            </Link>
           )
         })}
       </div>

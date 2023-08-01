@@ -57,19 +57,17 @@
     object-fit: cover;
 }
 
-#preview{
+.preview{
+    overflow: hidden;
     background-color: #000;
-    height:35vh;
+    height: 35vh;
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-#previewImage{
-    max-height: 35vh;
-    object-fit: cover;
-    max-width: 100%;
+.preview canvas{
+    height: 35vh;
+    width: 100%;
+    position: absolute;
 }
 
 #functionBar{

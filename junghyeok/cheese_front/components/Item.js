@@ -1,14 +1,16 @@
 'use client';
 
-function Item({src}){
+function Item({src, handleClick}){
     return (
         <td style={{
             padding: "2px 4px",
             width: "33%",
         }}>
-            <div style={{
-                display:"flex",
-                justifyContent:"center",
+            <div
+                onClick={handleClick}
+                style={{
+                    display:"flex",
+                    justifyContent:"center",
             }}>
                 <img src={src} width="100%" style={{
                     border:"solid",

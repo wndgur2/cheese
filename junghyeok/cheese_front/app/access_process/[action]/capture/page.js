@@ -45,7 +45,7 @@ export default function Amount(props) {
             <img src='/back.png' width={28}/>
         </div>
 
-        <span className='title'>{location}에서</span>
+        <span className='title'>{location}</span>
         <span className='subtitle'>에서</span>
         
         <div className={captureStyles.inputAmount}>

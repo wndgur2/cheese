@@ -7,9 +7,8 @@ const length = 183;
 const mid = parseInt(length/2);
 let scrollMid = 0;
 
-function Tilter() { //! USE USEREF!!!
+function Tilter({value, setValue}) {
     const tilter = useRef();
-    const [scrollLeft, setScrollLeft] = useState(0);
     let iter = new Array(length);
 
     for(let i=0; i<length; i++)
@@ -18,13 +17,11 @@ function Tilter() { //! USE USEREF!!!
     useEffect(()=>{
         scrollMid = (tilter.current.scrollWidth-tilter.current.offsetWidth)/2;
         tilter.current.scrollTo(scrollMid, 0);
-        setScrollLeft(fineTune(tilter.current.scrollLeft));
+        setValue(fineTune(tilter.current.scrollLeft));
     }, []);
     
     return (
-        <div style={{
-            width:"100%"
-        }}>
+        <div style={{width:"100%"}}>
             <div className={styles.tilter}
                 id="tilt"
                 ref={tilter}
@@ -35,7 +32,7 @@ function Tilter() { //! USE USEREF!!!
                     alignItems:"center",
                     margin: "2vh 0px 1vh 0px",
                 }} onScroll={(s)=>{
-                setScrollLeft(fineTune(s.target.scrollLeft))
+                    setValue(fineTune(s.target.scrollLeft))
             }}>
                 {iter.map((v)=>{
                     return (
@@ -54,10 +51,6 @@ function Tilter() { //! USE USEREF!!!
                     )
                 })}
             </div>
-            <p style={{
-                textAlign:"center",
-                margin:"0px",
-            }}>{scrollLeft}°</p>
         </div>
     )
 }
@@ -67,6 +60,10 @@ function fineTune(value){
     if(value > 90) return 90;
     if(value < -90) return -90;
     return value;
+}
+
+function valueToScroll(value){
+    return value * 7 + scrollMid;
 }
 
 export default Tilter;

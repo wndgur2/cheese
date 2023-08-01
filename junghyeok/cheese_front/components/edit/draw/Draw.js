@@ -3,17 +3,31 @@
 import ImageText from "@/components/ImageText";
 import Palette from "@/components/Palette";
 import Range from "@/components/Range";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import drawStyles from './draw.module.css';
 import editStyles from "../edit.module.css";
+import { cancelCrop, handlePenTouchStart, handleDrawTouchMove, handleEraserTouchStart, handleBucketTouchStart } from "@/app/edit/edit.module";
 
 export default function Draw() {
   const pages = ["pen", "eraser", "bucket"];
   const [page, setPage] = useState(pages[0]);
   const [brushSize, setBrushSize] = useState(12);
   const [color, setColor] = useState("#000000");
+
+  useEffect(()=>{
+    cancelCrop();
+  }, [])
+
   return (
     <div>
+      <div className={drawStyles.drawCanvas}
+        onTouchStart= {
+          page == "pen"? (e)=>{handlePenTouchStart(e, color, brushSize*2)}
+          : page == "eraser"? (e)=>{handleEraserTouchStart(e, brushSize*2)}
+          : (e)=>{handleBucketTouchStart(e, color)}
+        }
+        onTouchMove={handleDrawTouchMove}
+      />
       <div className={editStyles.editWrapper}>
         <div style={{width:"100%"}}>
           <Range
@@ -22,7 +36,7 @@ export default function Draw() {
             value={brushSize}
             setValue={setBrushSize}
           >
-              px
+            px
           </Range>
         </div>
         <br/>

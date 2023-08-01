@@ -17,7 +17,7 @@ function Range({ color, value, setValue, children, disabled, fixThumbSize }) {
           fontSize:"18px",
           fontWeight:500,
       }}>
-          {parseInt(value)} {children}
+          {parseInt(value)*2} {children}
       </p>
       <div style={{width:"76%", margin:"1vh 3vw"}}>
         <Slider
