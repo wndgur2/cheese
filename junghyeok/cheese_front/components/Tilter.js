@@ -7,7 +7,7 @@ const length = 183;
 const mid = parseInt(length/2);
 let scrollMid = 0;
 
-function Tilter({value, setValue}) {
+function Tilter({value, setValue, page, signal}) {
     const tilter = useRef();
     let iter = new Array(length);
 
@@ -17,8 +17,13 @@ function Tilter({value, setValue}) {
     useEffect(()=>{
         scrollMid = (tilter.current.scrollWidth-tilter.current.offsetWidth)/2;
         tilter.current.scrollTo(scrollMid, 0);
-        setValue(fineTune(tilter.current.scrollLeft));
+        setValue(scrollToValue(tilter.current.scrollLeft));
     }, []);
+
+    useEffect(()=>{
+        if(page)
+            tilter.current.scrollTo(valueToScroll(page.rotation), 0);
+    }, [page, signal]);
     
     return (
         <div style={{width:"100%"}}>
@@ -32,7 +37,7 @@ function Tilter({value, setValue}) {
                     alignItems:"center",
                     margin: "2vh 0px 1vh 0px",
                 }} onScroll={(s)=>{
-                    setValue(fineTune(s.target.scrollLeft))
+                    setValue(scrollToValue(s.target.scrollLeft))
             }}>
                 {iter.map((v)=>{
                     return (
@@ -55,11 +60,11 @@ function Tilter({value, setValue}) {
     )
 }
 
-function fineTune(value){
-    value = parseInt((value - scrollMid)/7);
-    if(value > 90) return 90;
-    if(value < -90) return -90;
-    return value;
+function scrollToValue(scrollLeft){
+    scrollLeft = parseInt((scrollLeft - scrollMid)/7);
+    if(scrollLeft > 90) return 90;
+    if(scrollLeft < -90) return -90;
+    return scrollLeft;
 }
 
 function valueToScroll(value){

@@ -9,7 +9,7 @@ function Palette({ color, setColor, disabled }) {
             display:"flex",
             flexWrap: "wrap",
             gap: "calc(2vw - 2px)",
-            margin:"0px 4vw",
+            margin:"2vh 4vw",
             justifyContent:"space-around"
         }}>{   
             colors.map((c, i)=>

@@ -1,9 +1,8 @@
 'use client'
-import { setFrame } from "@/app/edit/edit.module";
 import Item from "@/components/Item";
 import ItemList from "@/components/ItemList";
 
-export default function Frame() {
+export default function Frame({page}) {
     const frames = [
         "/edit/frame/frame_1.png",
         "/edit/frame/frame_2.png",
@@ -27,7 +26,7 @@ export default function Frame() {
     function renderRow(i){
         let el = [];
         frames.slice(i*3, (i+1)*3).forEach((src)=>{
-            el.push(<Item key={src} src={src} handleClick={()=>{setFrame(src)}} />)
+            el.push(<Item key={src} src={src} handleClick={()=>{page?.setFrame(src);}} />)
         })
         return el;
     }

@@ -1,7 +1,7 @@
 'use client'
 import { Slider } from "@mui/material";
 
-function Range({ color, value, setValue, children, disabled, fixThumbSize }) {
+function Range({ min, color, value, setValue, children, disabled, fixThumbSize }) {
   return (
     <div style={{
       display:"flex",
@@ -17,7 +17,7 @@ function Range({ color, value, setValue, children, disabled, fixThumbSize }) {
           fontSize:"18px",
           fontWeight:500,
       }}>
-          {parseInt(value)*2} {children}
+          {min? parseInt(value) + min : parseInt(value)} {children}
       </p>
       <div style={{width:"76%", margin:"1vh 3vw"}}>
         <Slider

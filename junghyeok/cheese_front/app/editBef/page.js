@@ -4,6 +4,7 @@ import NavBtn from "@/components/NavBtn";
 import editStyles from "../../components/edit/edit.module.css";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { addPage, hideCurrentCanvas, deletePage, initCanvas, loadPage } from "./edit.module";
 import Trim from "../../components/edit/trim/Trim";
 import Ai from "../../components/edit/ai/Ai";
 import Sticker from "../../components/edit/sticker/Sticker";
@@ -12,18 +13,17 @@ import Draw from "../../components/edit/draw/Draw";
 import Filter from "../../components/edit/filter/Filter";
 import Adjust from "../../components/edit/adjust/Adjust";
 import Text from "../../components/edit/text/Text";
-import { Page } from "./edit.module";
-
-import JSZip from "jszip"
 
 export default function Edit() {
   const router = useRouter();
+  const canvas = useRef();
 
   const [nav, setNav] = useState("Ai");
-  const [scrollTop, setScrollTop] = useState(0);
-  const [hideNavbar, setHideNavbar] = useState(false);
+
   const [pageIndex, setPageIndex] = useState(-1);
-  const [pages, setPages] = useState([]);
+  const [fileObjs, setFileObjs] = useState([]);
+  const [hideNavbar, setHideNavbar] = useState(false);
+  const [top, setTop] = useState(0);
 
   const addButton = useRef();
 
@@ -41,126 +41,94 @@ export default function Edit() {
   const renderChild = ()=>{
     switch (nav) {
       case "Ai":
-        return <Ai page = {pages[pageIndex]} />
+        return <Ai pageIndex={pageIndex} />
       case "Trim":
-        return <Trim page = {pages[pageIndex]} />
+        return <Trim pageIndex={pageIndex} />
       case "Draw":
-        return <Draw page = {pages[pageIndex]} />
+        return <Draw pageIndex={pageIndex} />
       case "Frame":
-        return <Frame page = {pages[pageIndex]} />
+        return <Frame pageIndex={pageIndex} />
       case "Sticker":
-        return <Sticker page = {pages[pageIndex]} />
+        return <Sticker pageIndex={pageIndex} />
       case "Text":
-        return <Text page = {pages[pageIndex]} />
+        return <Text pageIndex={pageIndex} />
       case "Filter":
-        return <Filter page = {pages[pageIndex]} />
+        return <Filter pageIndex={pageIndex} />
       case "Adjust":
-        return <Adjust page = {pages[pageIndex]} />
+        return <Adjust pageIndex={pageIndex} />
       default:
         break;
     }
   }
 
-  const save = async ()=>{
-    console.log("Save");
-    let files = [];
-
-    const promises = pages.map(async (p) => {
-      const imageBlob = await fetch(p.save()).then(response => response.blob());
-      files.push(new File([imageBlob], 'filename.jpg'));
-      console.log(files);
-    });
-
-    await Promise.all(promises);
-
-    const zip = new JSZip();
-
-    files.forEach((file, i)=>{
-      zip.file("photo" + i + ".png", file, { base64: true });
-    })
-    zip.generateAsync({ type: 'blob' }).then(function(content) {
-      saveAs(content, 'Cheese.zip');
-    });
+  const handlePageClick = (i)=>{
+    setPageIndex(i);
   }
 
-  // event handlers
   const handleBodyScroll = (curTop)=>{
-    if(curTop > scrollTop) setHideNavbar(true);
+    if(curTop > top) setHideNavbar(true);
     else setHideNavbar(false);
-    setScrollTop(curTop);
+    setTop(curTop);
   }
 
-  const handleFileChange = (files)=>{ // 이미지들로 각 page를 생성
-    let newPages = [...pages];
+  const handleInputChange = (files)=>{
+    let newFileObjs = [...fileObjs];
     for(let file of files){
       const reader = new FileReader();
-
       reader.onload = (e) => {
-        newPages.push(new Page(e.target.result));
+        newFileObjs.push(e.target.result);
+        addPage(e.target.result);
       }
       reader.onloadend = () => {
-        setPages([...newPages]);
+        setFileObjs([...newFileObjs]);
       }
-
       reader.readAsDataURL(file);
     };
   }
 
-  const handlePageCopy = ()=>{
-    let newPages = [...pages];
-    newPages.push(pages[pageIndex].copy());
-    setPages([...newPages])
+  const handleCopyPage = (index)=>{
+    let newFileObjs = [...fileObjs];
+    newFileObjs.push(newFileObjs[index]);
+    setFileObjs([...newFileObjs])
+    addPage(newFileObjs[index]);
   }
 
-  const handlePageDelete = ()=>{
-    let newPages = [...pages];
-    newPages[pageIndex].delete();
-    
-    if(pages.length == 1) setPageIndex(-1);
-    else if(pages.length-1 > pageIndex) pages[pageIndex+1].show();
-    else if(pages.length >= 2) setPageIndex(pageIndex-1);
-
-    newPages = newPages.filter((v, i)=> (i != pageIndex))
-    setPages([...newPages])
+  const handleDeletePage = (index)=>{
+    let newFileObjs = [...fileObjs];
+    newFileObjs = newFileObjs.filter((v, i)=> (i != index))
+    setFileObjs([...newFileObjs])
+    deletePage(index);
   }
-
-  const handlePageClick = (i)=>{
-    pages[pageIndex]?.hide();
-    setPageIndex(i);
-    pages[i].show();
-  }
-
-  // useEffects
 
   useEffect(()=>{
-    Page.init();
+    initCanvas(canvas);
+    setFileObjs([]);
+    setPageIndex(-1);
   }, [])
 
   useEffect(()=>{
-    switch(nav){
-      case "Trim":
-        Page.disableTouchLayer();
-        break;
-      case "Draw":
-        Page.setTouchLayer(pages[pageIndex], "pen");
-        break;
-      case "Sticker":
-        Page.setTouchLayer(pages[pageIndex], "sticker");
-        break;
-      case "Text":
-        Page.setTouchLayer(pages[pageIndex], "text");
-        break;
-
-      default:
-        Page.setTouchLayer(pages[pageIndex], "");
-        break;
+    if(pageIndex==-1 && fileObjs.length>0){ // case: first page added
+      setPageIndex(0);
+      return;
     }
-  }, [nav])
+    
+    if(fileObjs.length>0){
+      if(pageIndex>=fileObjs.length){ // case: delete last page
+        setPageIndex(fileObjs.length-1);
+        return;
+      }
+      loadPage(pageIndex); // case: normal add/delete
+    } else{ // case: at first / all pages deleted
+      setPageIndex(-1);
+    }
+  }, [fileObjs])
 
   useEffect(()=>{
-    if(pageIndex >= 0){
-      pages[pageIndex].show();
+    if(pageIndex == -1){
+      hideCurrentCanvas();
+      return;
     }
+    loadPage(pageIndex);
   }, [pageIndex])
 
   return (
@@ -175,33 +143,33 @@ export default function Edit() {
               style={{display:"none"}}
               ref={addButton}
               onChange={(e)=>{
-                handleFileChange(e.target.files);
+                handleInputChange(e.target.files);
                 e.target.value = '';
               }}
               accept="image/png, image/jpeg"
           />
 
-          {pages.map((page, i)=>{
+          {fileObjs.map((src, i)=>{
             return (
               i==pageIndex?
                 <div id={editStyles.curWrapper} key={i}>
-                  <img id={editStyles.curPage} src={page.src}/>
+                  <img id={editStyles.curPage} src={src}/>
                   <div id={editStyles.pageControlWrapper}>
                     <div id={editStyles.pageControl}>
                       <img className={editStyles.control} src="/edit/copy.png"
-                        onClick={()=>{handlePageCopy()}}
+                        onClick={()=>{handleCopyPage(i)}}
                       />
                       <img className={editStyles.control} src="/edit/delete.png"
-                        onClick={()=>{handlePageDelete()}}
+                        onClick={()=>{handleDeletePage(i)}}
                       />
                     </div>
                   </div>
                 </div>
               :
                 <img
-                  className={editStyles.page} 
+                  className={editStyles.page}
                   key={i}
-                  src={page.src}
+                  src={src}
                   onClick={()=>{handlePageClick(i)}}
                 />
             )
@@ -209,6 +177,7 @@ export default function Edit() {
         </div>
         
         <div className={editStyles.preview} id="preview">
+          <canvas ref={canvas}/>
         </div>
         
         <div>
@@ -229,8 +198,8 @@ export default function Edit() {
             </div>
 
             <div className="alignCenter" style={{gap:10}}>
-              <div className="alignCenter" onClick={save}>
-                <img src="/edit/save.png" width={60} /><a id="link"></a>
+              <div className="alignCenter">
+                <img src="/edit/save.png" width={60} />
               </div>
               <div className="alignCenter"
                 onClick={()=>{

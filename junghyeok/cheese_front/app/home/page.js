@@ -74,6 +74,14 @@ export default function Home() {
       }
 
       <div className={homeStyles.bigBtnWrapper}>
+        <BigBtn
+          enabled={true}
+          href="/edit"
+          src="/edit_x4.png"
+          size="80px"
+          iconWidth="37px"
+          iconHeight="30px"
+        >편집</BigBtn>
         <BigBtn enabled={isLocated}
           href="/access_process/capture"
           src="/cheese_empty_37_30_x4.png"
@@ -89,14 +97,6 @@ export default function Home() {
           iconWidth="37px"
           iconHeight="32px"
         >인화</BigBtn>
-        <BigBtn
-          enabled={true}
-          href="/edit"
-          src="/edit_x4.png"
-          size="80px"
-          iconWidth="37px"
-          iconHeight="30px"
-        >편집</BigBtn>
       </div>
       
       <TextBtn content="사진 아이디어를 얻어보세요." href="/home/share">

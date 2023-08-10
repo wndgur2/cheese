@@ -6,34 +6,22 @@ export default function Timelapse() {
 
   const photographs = [
     {
-      src:"/samples/불상.jpeg",
+      src:"/samples/대만.jpeg",
       branch: "한경대 안성캠점",
       createdAt: "2023년 3월 9일 18:19"
     }, {
-      src:"/samples/불상.jpeg",
+      src:"/samples/당진.jpeg",
       branch: "중앙대 안성캠점",
       createdAt: "2022년 12월 8일 17:00"
     }, {
-      src:"/samples/불상.jpeg",
+      src:"/samples/알고리즘.jpeg",
       branch: "한경대 안성캠점",
       createdAt: "2023년 3월 9일 18:19"
     }, {
-      src:"/samples/불상.jpeg",
+      src:"/samples/여름이.jpeg",
       branch: "중앙대 안성캠점",
       createdAt: "2022년 12월 8일 17:00"
-    }, {
-      src:"/samples/불상.jpeg",
-      branch: "한경대 안성캠점",
-      createdAt: "2023년 3월 9일 18:19"
-    }, {
-      src:"/samples/불상.jpeg",
-      branch: "중앙대 안성캠점",
-      createdAt: "2022년 12월 8일 17:00"
-    }, {
-      src:"/samples/불상.jpeg",
-      branch: "한경대 안성캠점",
-      createdAt: "2023년 3월 9일 18:19"
-    },
+    }
   ];
 
   const [selected, setSelected] = useState([]);
@@ -50,36 +38,49 @@ export default function Timelapse() {
     }
     setSelected([...newSelected]);
   }
+  
+  const renderRow = (i)=>{
+    let result = [];
+    result.push(
+      <td key={i} className={myCheeseStyles.td}
+        onClick={()=>{handleImageClick(i)}}>
+        <img
+          className={
+            `${selected.includes(i)?myCheeseStyles.selected:""}
+            ${myCheeseStyles.image}`
+          }
+          src={photographs[i].src} />
+      </td>
+    );
+    if(photographs[i+1]){
+      result.push(
+        <td key={i+1} className={myCheeseStyles.td}
+          onClick={()=>{handleImageClick(i+1)}}>
+          <img
+            className={
+              `${selected.includes(i+1)?myCheeseStyles.selected:""}
+              ${myCheeseStyles.image}`
+            }
+            src={photographs[i+1].src} />
+        </td>
+      )
+    }
+
+    return result;
+  }
+
   const renderImages = ()=>{
     const result = [];
     for(let i=0; i<photographs.length; i+=2){
       result.push(
         <tr key={i} className={myCheeseStyles.tr}>
-          <td className={myCheeseStyles.td}
-            onClick={()=>{handleImageClick(i)}}>
-            <img
-              className={
-                `${selected.includes(i)?myCheeseStyles.selected:""}
-                ${myCheeseStyles.image}`
-              }
-              src={photographs[i].src} />
-          </td>
-          {photographs[i+1] &&
-            <td className={myCheeseStyles.td}
-              onClick={()=>{handleImageClick(i+1)}}>
-              <img
-                className={
-                  `${selected.includes(i+1)?myCheeseStyles.selected:""}
-                  ${myCheeseStyles.image}`
-                }
-                src={photographs[i+1].src} />
-            </td>
-          }
+          {renderRow(i)}
         </tr>
       )
     }
     return result;
   }
+
   return (
     <div>
       <table cellSpacing={0} cellPadding={0}

@@ -65,6 +65,7 @@
 }
 
 .image{
+    z-index: 1;
     width: calc(100% - 4px);
     height: 100%;
 
@@ -118,4 +119,13 @@
     font-size: 15px;
     font-weight: 400;
     line-height: 3vh;
+}
+
+.play{
+    z-index: 2;
+    margin-bottom:-5vw;
+    width: 20vw;
+    height: 20vw;
+    background-color: black;
+    border-radius: 100px;
 }

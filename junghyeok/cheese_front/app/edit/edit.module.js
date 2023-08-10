@@ -1,444 +1,803 @@
-/** @type {Element} */
-let canvasDom;
-/** @type {Page} */
-let currentPage;
-/** @type {Array.<Page>} */
-let pages = [];
-/** @type {Element} */
-let canvasWrapper;
+const MARGIN = 1.1;
+const LINE_WIDTH = 0.003;
+const HITBOX_SIZE = 0.12;
 
-const CANVAS_MARGIN = 1.08;
-
-function createNewLayer(type=""){
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-    canvasWrapper.appendChild(canvas);
-
-    return {canvas:canvas, ctx:ctx, type:type};
-}
-
-function cloneCanvas(oldCanvas) {
-    let newCanvas = document.createElement('canvas');
-    let ctx = newCanvas.getContext('2d');
-
-    newCanvas.width = oldCanvas.width;
-    newCanvas.height = oldCanvas.height;
-
-    ctx.drawImage(oldCanvas, 0, 0);
-
-    return newCanvas;
+function convertXY(width, height, inputX, inputY){
+    let x = Math.round(inputX * width/Layer.preview.offsetWidth);
+    let y = Math.round(inputY * height/Layer.preview.offsetHeight);
+    return {x, y};
 }
 
 class Page{
-    constructor(src){
-        this.state = [];
-        this.rotation = 0;
-        this.rotateOffset = 0;
-
-        this.pen = {x:0, y:0};
-
-        this.image = new Image();
-        this.image.src = src;
-
-        this.baseLayer = createNewLayer("base");
-        this.baseLayer.canvas.style.visibility = 'hidden';
-
-        this.layers = [this.baseLayer];
-
-        this.image.onload = ()=>{
-            this.setCanvas(this.baseLayer.canvas);
-            this.baseLayer.ctx.drawImage(this.image, this.imageX, this.imageY);
-        }
+    static setBrushColor(color){
+        this.brushColor = color;
+    }
+    static setBrushSize(size){
+        this.brushSize = size;
     }
 
-    setCanvas(canvas){
-        const canvasRatio = canvasDom.offsetHeight/canvasDom.offsetWidth;
-        if(this.image.width * canvasRatio > this.image.height){
-            canvas.width = this.image.width * CANVAS_MARGIN;
-            canvas.height = canvasDom.offsetHeight * CANVAS_MARGIN * this.image.width/canvasDom.offsetWidth;
-        } else{
-            canvas.height = this.image.height * CANVAS_MARGIN;
-            canvas.width = canvasDom.offsetWidth * CANVAS_MARGIN * this.image.height/canvasDom.offsetHeight;
-        }
+    static init(){
+        Layer.init();
+        this.touchLayer = new Layer("hitbox"); // to draw hitbox && listen touch events
+        this.touchLayer.canvas.style.zIndex = 3;
+        this.touchLayer.canvas.style.pointerEvents="none";
+        this.touchLayer.canvas.style.visibility="hidden";
+    }
+
+    static disableTouchLayer(){
+        console.log("disable touchlayer");
+        this.touchLayer.canvas.style.pointerEvents="none";
+        this.touchLayer.canvas.style.visibility="hidden";
+    }
+
+    static setTouchLayer(page_, type){
+        if(!page_) return;
+        if(!type) this.disableTouchLayer();
+        console.log("setTouchLayer", type);
+        this.touchLayer.canvas.style.pointerEvents="auto";
+        this.touchLayer.canvas.style.visibility="visible";
+        this.touchLayer.canvas.width = page_.width;
+        this.touchLayer.canvas.height = page_.height;
+        this.touchLayer.ctx.lineWidth = page_.lineWidth;
+        this.state = type;
+
+        switch (type) {
+            case "crop":
+                const imageLayer = page_.getLayer("image");
+                this.touchLayer.x = imageLayer.x;
+                this.touchLayer.y = imageLayer.y;
+                this.touchLayer.width = imageLayer.image.width;
+                this.touchLayer.height = imageLayer.image.height;
+                this.touchLayer.lineLength = page_.lineWidth * 10;
+                this.drawCropBox();
+
+                this.touchLayer.canvas.ontouchstart = (e)=>{page_.handleCropTouchStart(e)};
+                this.touchLayer.canvas.ontouchmove = (e)=>{page_.handleCropTouchMove(e)};
+                break;
         
-        this.lineWidth = (canvas.width > canvas.height? canvas.width:canvas.height)/200;
-        this.imageX = canvas.width/2 - this.image.width/2;
-        this.imageY = canvas.height/2 - this.image.height/2;
-    }
-
-    hide(){
-        this.layers.map((layer)=>{
-            layer.canvas.style.visibility = 'hidden';
-        })
-    }
-
-    startCrop(ratio){
-        this.cropBoxLayer = createNewLayer("crop");
-        this.cropBoxLayer.canvas.addEventListener('touchstart', handleCropBoxTouchStart);
-        this.cropBoxLayer.canvas.addEventListener('touchmove', handleCropBoxTouchMove);
-        this.cropBoxLayer.canvas.style.zIndex = this.layers.length;
-        this.layers.push(this.cropBoxLayer);
-        this.setCanvas(this.cropBoxLayer.canvas);
-
-        this.cropBox = {
-            x: this.imageX,
-            y: this.imageY,
-            width: this.image.width,
-            height: this.image.height
-        };
-
-        this.drawCropBox();
-    }
-
-    crop(){
-        if(!this.state.includes("crop")) return;
-        this.layers.forEach(({canvas, ctx, type}, i) =>{
-            switch(type){
-                case "draw":
-                    this.baseLayer.ctx.drawImage(canvas, 0, 0)
-                    break;
-                default:
-                    break;
-            }
-        })
-
-        // 기존 layer 에서 자를 부분 이미지 추출하기
-        let croppedCanvas = document.createElement('canvas');
-        let croppedCtx = croppedCanvas.getContext('2d');
-        croppedCanvas.width = this.cropBox.width;
-        croppedCanvas.height = this.cropBox.height;
-        croppedCtx.drawImage(
-            this.baseLayer.canvas,
-            this.cropBox.x,
-            this.cropBox.y,
-            this.cropBox.width,
-            this.cropBox.height,
-            0, 0, this.cropBox.width, this.cropBox.height
-        );
-        this.image = new Image();
-        this.image.src = croppedCanvas.toDataURL();
-
-        // 기존 layer clear하고 cropped image 그리기
-        this.baseLayer.ctx.clearRect(0, 0, this.baseLayer.canvas.width, this.baseLayer.canvas.height);
-
-        this.image.onload = ()=>{
-            // this.setCanvas(this.baseLayer.canvas);
-            this.layers.slice(0, this.layers.length).forEach((v)=>{this.setCanvas(v.canvas)})
-            this.baseLayer.ctx.drawImage(this.image, this.imageX, this.imageY);
-        }
-
-        //cropbox layer 제거
-        this.cropBoxLayer.canvas.remove();
-        this.layers = this.layers.filter((v, i)=>i!=this.layers.length-1);
-        this.state = this.state.filter((v)=>v!="crop");
-    }
-
-    cancelCrop(){
-        if(this.state.includes("crop")){
-            this.layers[this.layers.length-1].canvas.remove();
-            this.layers = this.layers.filter((v, i)=>i!=this.layers.length-1);
-            this.state = this.state.filter((v)=>v!="crop");
+            case "pen" || "eraser" || "bucket":
+                this.touchLayer.canvas.ontouchstart = (e)=>{page_.handleDrawTouchStart(e)};
+                this.touchLayer.canvas.ontouchmove = (e)=>{page_.handleDrawTouchMove(e)};
+                this.touchLayer.canvas.ontouchend = ()=>{page_.handleDrawTouchEnd()};
+                break;
+            
+            case "sticker":
+                this.touchLayer.canvas.ontouchstart = (e)=>{page_.handleStickerTouchStart(e)};
+                this.touchLayer.canvas.ontouchmove = (e)=>{page_.handleStickerTouchMove(e)};
+                this.touchLayer.canvas.ontouchend = ()=>{page_.handleStickerTouchEnd()};
+                break;
+            
+            case "text":
+                this.touchLayer.canvas.ontouchstart = (e)=>{page_.handleTextTouchStart(e)};
+                this.touchLayer.canvas.ontouchmove = (e)=>{page_.handleTextTouchMove(e)};
+                this.touchLayer.canvas.ontouchend = ()=>{page_.handleTextTouchEnd()};
+                break;
+            
+            default:
+                break;
         }
     }
 
-    drawCropBox(){
-        let ctx = this.cropBoxLayer.ctx;
+    static drawCropBox(){
+        // x, y에 width,height만큼 cropbox 그리기
+        const canvas = this.touchLayer.canvas;
+        const ctx = this.touchLayer.ctx;
+        const lineLength = this.touchLayer.lineLength;
+
+        const x = this.touchLayer.x;
+        const y = this.touchLayer.y;
+        const width = this.touchLayer.width;
+        const height = this.touchLayer.height;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.fillStyle = "#0000004A";
-        ctx.fillRect(0, 0, this.layers[0].canvas.width, this.layers[0].canvas.height);
-        ctx.clearRect(this.cropBox.x,this.cropBox.y,this.cropBox.width,this.cropBox.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(x, y, width, height);
     
         ctx.strokeStyle = "#FFF";
-        ctx.lineWidth = this.lineWidth;
-        let lineLength = this.lineWidth * 10;
+        ctx.lineWidth = this.touchLayer.lineWidth;
 
         ctx.beginPath();
     
-        ctx.moveTo(this.cropBox.x + lineLength, this.cropBox.y);
-        ctx.lineTo(this.cropBox.x, this.cropBox.y);
-        ctx.lineTo(this.cropBox.x, this.cropBox.y + lineLength);
+        ctx.moveTo(x + lineLength, y);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x, y + lineLength);
     
-        ctx.moveTo(this.cropBox.x + lineLength, this.cropBox.y + this.cropBox.height);
-        ctx.lineTo(this.cropBox.x, this.cropBox.y + this.cropBox.height);
-        ctx.lineTo(this.cropBox.x, this.cropBox.y + this.cropBox.height - lineLength);
+        ctx.moveTo(x + lineLength, y + height);
+        ctx.lineTo(x, y + height);
+        ctx.lineTo(x, y + height - lineLength);
     
-        ctx.moveTo(this.cropBox.x + this.cropBox.width - lineLength, this.cropBox.y);
-        ctx.lineTo(this.cropBox.x + this.cropBox.width, this.cropBox.y);
-        ctx.lineTo(this.cropBox.x + this.cropBox.width, this.cropBox.y + lineLength);
+        ctx.moveTo(x + width - lineLength, y);
+        ctx.lineTo(x + width, y);
+        ctx.lineTo(x + width, y + lineLength);
     
-        ctx.moveTo(this.cropBox.x + this.cropBox.width - lineLength, this.cropBox.y + this.cropBox.height);
-        ctx.lineTo(this.cropBox.x + this.cropBox.width, this.cropBox.y + this.cropBox.height);
-        ctx.lineTo(this.cropBox.x + this.cropBox.width, this.cropBox.y + this.cropBox.height - lineLength);
+        ctx.moveTo(x + width - lineLength, y + height);
+        ctx.lineTo(x + width, y + height);
+        ctx.lineTo(x + width, y + height - lineLength);
     
         ctx.stroke();
     }
 
-    handleCropTouchStart(xy){
-        this.touchedXY = xy;
-        const hitBoxSize = this.lineWidth * 40;
-        
-        let isResize = false;
+    static drawBox(layer){
+        // const centerX = layer.width / 2;
+        // const centerY = layer.height / 2;
 
-        [
-            {x: this.cropBox.x, y: this.cropBox.y},
-            {x: this.cropBox.x, y: this.cropBox.y+this.cropBox.height},
-            {x: this.cropBox.x+this.cropBox.width, y: this.cropBox.y},
-            {x: this.cropBox.x+this.cropBox.width, y: this.cropBox.y+this.cropBox.height},
-        ]
-        .map((v, i)=>{
-            if(xy.x > v.x-hitBoxSize/2 && xy.x < v.x+hitBoxSize/2){
-                if(xy.y > v.y-hitBoxSize/2 && xy.y < v.y+hitBoxSize/2){
-                    this.touchState = "resize";
-                    this.cropBox.resizing_i = i;
-                    isResize = true;
-                    return;
-                }
+        // this.touchLayer.ctx.save();
+        // this.touchLayer.ctx.translate(centerX, centerY);
+        // this.touchLayer.ctx.rotate((layer.rotation + layer.baseRotation) * Math.PI/180);
+        // this.touchLayer.ctx.translate(-centerX, -centerY);
+
+        this.touchLayer.clear();
+        this.touchLayer.ctx.strokeStyle = "#FFC121"
+        this.touchLayer.ctx.strokeRect(
+            layer.x,
+            layer.y,
+            layer.width,
+            layer.height,
+        );
+        // this.touchLayer.ctx.restore();
+    }
+
+    // static stopDraw(){
+    //     console.log("stopDraw");
+    // }
+
+    /** @param {Page} page */
+    constructor(src, page){
+        if(page) console.log("page copy construction.")
+        this.src = src;
+        this.state = "";
+        this.touched = {x:0, y:0};
+        this.layers = [];
+        this.rotation = page? page.rotation:0;
+        this.width = page?page.width : 0;
+        this.height = page?page.height : 0;
+        this.lineWidth = page?page.lineWidth : 10;
+        this.filter = {
+            brightness: 100,
+            contrast: 100,
+            blur: 0,
+            grayscale: 0,
+            saturate: 100
+        }
+        
+        let image = new Image();
+        image.src = src
+        image.onload = ()=>{
+            if(page) {
+                this.layers.push(...page.layers.map((layer)=>layer.copy()));
             }
-        })
-        if(!isResize){
-            if(xy.x > this.cropBox.x && xy.x < this.cropBox.x + this.cropBox.width){
-                if(xy.y > this.cropBox.y && xy.y < this.cropBox.y + this.cropBox.height){
-                    this.touchState = "move";
-                    return;
-                }
+            else{
+                this.createImageLayer(image);
+                /** @type {Array{Layer}} */
             }
-            this.touchState = "";
+            this.hide();
+            this.draw();
         }
     }
 
-    handleCropTouchMove(xy){
-        let lastLayer = this.layers[this.layers.length-1];
-        lastLayer.ctx.clearRect(0, 0, lastLayer.canvas.width, lastLayer.canvas.height);
+    /** @returns {Layer} */
+    getLayer(type){
+        if(!type) console.log("getLayer: No type");
+        let resultLayer;
+        this.layers.forEach((layer)=>{
+            if(layer.type==type) resultLayer = layer;
+        })
+        return resultLayer;
+    }
 
-        switch (this.touchState) {
+    /** @returns {Array{Layer}} */
+    getLayers(type){
+        if(!type) console.log("getLayer: No type");
+        let resultLayers = [];
+        this.layers.forEach((layer)=>{
+            if(layer.type==type) resultLayers.push(layer);
+        })
+        return resultLayers;
+    }
+
+    createImageLayer(image){
+        if(image.width * Layer.preview.offsetHeight / Layer.preview.offsetWidth > image.height){
+            this.width = image.width;
+            this.height = image.width * Layer.preview.offsetHeight / Layer.preview.offsetWidth;
+        } else{
+            this.width = image.height * Layer.preview.offsetWidth / Layer.preview.offsetHeight;
+            this.height = image.height;
+        }
+        this.width *= MARGIN;
+        this.height *= MARGIN;
+        this.lineWidth = parseInt((this.width + this.height) * LINE_WIDTH);
+
+        this.layers=[new Layer("image", this.src, this.width, this.height, 0, 0, image.width, image.height)];
+    }
+
+    draw(){
+        this.layers.forEach((layer)=>{layer.draw()});
+    }
+
+    show(){
+        this.layers.forEach((layer, i)=>{
+            layer.canvas.style.visibility = "visible";
+        })
+    }
+
+    hide(){
+        this.layers.forEach((layer, i)=>{
+            layer.canvas.style.visibility = "hidden";
+        })
+        Page.touchLayer.canvas.style.pointerEvents="none";
+        Page.touchLayer.canvas.style.visibility = "hidden";
+    }
+    
+    copy(){
+        let clone = new Page(this.src, this);
+        return clone;
+    }
+
+    delete(){
+        this.hide();
+        this.layers.forEach((layer)=>{
+            layer.canvas.remove();
+        })
+        return;
+    }
+
+    crop(){
+        this.layers.sort((a, b)=>{
+            console.log(a.type, b.type);
+            const a_z = a.canvas.style.zIndex;
+                const b_z = b.canvas.style.zIndex;
+                if(a_z > b_z) return 1;
+                else if(a_z < b_z) return -1;
+                else return 0;
+            }
+        )
+        const baseLayer = this.layers[0];
+        this.layers.slice(1, ).forEach((layer) =>{
+            baseLayer.ctx.drawImage(layer.canvas, 0, 0);
+            layer.canvas.remove();
+        })
+        
+        // 기존 layer에서 부분 이미지 추출하기
+        let croppedCanvas = document.createElement('canvas');
+        let croppedCtx = croppedCanvas.getContext('2d');
+        croppedCanvas.width = Page.touchLayer.width;
+        croppedCanvas.height = Page.touchLayer.height;
+        croppedCtx.drawImage(
+            baseLayer.canvas,
+            Page.touchLayer.x,
+            Page.touchLayer.y,
+            Page.touchLayer.width,
+            Page.touchLayer.height,
+            0, 0, Page.touchLayer.width, Page.touchLayer.height
+        );
+        baseLayer.canvas.remove();
+
+        // imagelayer 세팅
+        let image = new Image();
+        this.src = croppedCanvas.toDataURL();
+        image.src = this.src;
+
+        image.onload = ()=>{
+            this.createImageLayer(image, this.src);
+        }
+
+        this.rotation = 0;
+        this.draw();
+        croppedCanvas.remove();
+        Page.disableTouchLayer();
+    }
+
+    rotate(d, fix=false){
+        console.log("rotate");
+        this.layers.forEach((layer)=>{
+            if(layer.type == "image" || layer.type == "draw")
+                layer.rotate(d - this.rotation, fix);
+        })
+        if(!fix) this.rotation = d;
+        this.draw();
+    }
+
+    setFrame(src){
+        let frameLayer = this.getLayer("frame");
+        if(!frameLayer){
+            console.log("frameLayer created")
+            frameLayer = new Layer("frame", src, this.width, this.height, 0, 0, this.width, this.height, 0, 0, 0);
+            this.layers.push(frameLayer);
+        } else{
+            frameLayer.src = src;
+            frameLayer.draw();
+        }
+    }
+
+    addSticker(src){
+        console.log("stickerLayer created")
+        const image = new Image();
+        image.src = src;
+        image.onload = ()=>{
+            const stickerLayer = new Layer("sticker", src, this.width, this.height, 0, 0, image.width, image.height, 0, 0, 2);
+            this.layers.push(stickerLayer);
+        }
+    }
+
+    addText(text, bold, strike, underline, font, color, size){
+        console.log("textLayer created")
+        const textLayer = new Layer(
+            "text",
+            text,
+            this.width,
+            this.height,
+            this.getLayer("image").width/2,
+            this.getLayer("image").height/2,
+            0,
+            size*2,
+            0, 0, 2
+        );
+        textLayer.drawText(text, bold, strike, underline, font, color);
+        this.layers.push(textLayer);
+    }
+
+    /** @param {{brightness, contrast, blur, saturate, grayscale}}  filter */
+    setFilter(filter){
+        this.filter = filter;
+        const filterString = `
+            blur(${filter.blur}px)
+            brightness(${filter.brightness/100})
+            contrast(${filter.contrast/100})
+            saturate(${filter.saturate/100})
+            grayscale(${filter.grayscale/100})`
+        console.log(filterString);
+        this.layers.forEach(layer =>{
+            layer.ctx.filter = filterString;
+        })
+        this.draw();
+    }
+
+    save(){
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = this.width;
+        canvas.height = this.height;
+
+        this.layers.sort((a, b)=>{
+            const a_z = a.canvas.style.zIndex;
+                const b_z = b.canvas.style.zIndex;
+                if(a_z > b_z) return 1;
+                else if(a_z < b_z) return -1;
+                else return 0;
+            }
+        )
+
+        this.layers.forEach(layer=>{
+            ctx.drawImage(layer.canvas, 0, 0);
+        })
+        const url = canvas.toDataURL("image/png");
+        return url;
+    }
+
+    handleCropTouchStart(e){
+        const {x, y} = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+        this.touched.x = x;
+        this.touched.y = y;
+        this.state = "";
+        const hitBoxSize = this.width * HITBOX_SIZE;
+        [
+            {x: Page.touchLayer.x, y: Page.touchLayer.y},
+            {x: Page.touchLayer.x, y: Page.touchLayer.y+Page.touchLayer.height},
+            {x: Page.touchLayer.x+Page.touchLayer.width, y: Page.touchLayer.y},
+            {x: Page.touchLayer.x+Page.touchLayer.width, y: Page.touchLayer.y+Page.touchLayer.height},
+        ].map((edge, i)=>{
+            if(x > edge.x-hitBoxSize/2  &&  x < edge.x+hitBoxSize/2
+            && y > edge.y-hitBoxSize/2  &&  y < edge.y+hitBoxSize/2){
+                this.state = "resize";
+                this.edge = i;
+                return;
+            }
+        })
+
+        if(this.state != "resize"){
+            if(x > Page.touchLayer.x  &&  x < Page.touchLayer.x + Page.touchLayer.width){
+                if(y > Page.touchLayer.y  &&  y < Page.touchLayer.y + Page.touchLayer.height){
+                    this.state = "move";
+                    return;
+                }
+            }
+            this.state = "";
+        }
+    }
+
+    handleCropTouchMove(e){
+        const {x, y} = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+
+        switch (this.state) {
             case "resize":
-                switch (this.cropBox.resizing_i) {
+                switch (this.edge) {
                     case 0:
-                        this.cropBox.x += xy.x - this.touchedXY.x;
-                        this.cropBox.y += xy.y - this.touchedXY.y;
-                        this.cropBox.width -= xy.x - this.touchedXY.x;
-                        this.cropBox.height -= xy.y - this.touchedXY.y;
+                        Page.touchLayer.x += x - this.touched.x;
+                        Page.touchLayer.y += y - this.touched.y;
+                        Page.touchLayer.width -= x - this.touched.x;
+                        Page.touchLayer.height -= y - this.touched.y;
                         break;
                     case 1:
-                        this.cropBox.x += xy.x - this.touchedXY.x;
-                        this.cropBox.width -= xy.x - this.touchedXY.x;
-                        this.cropBox.height += xy.y - this.touchedXY.y;
+                        Page.touchLayer.x += x - this.touched.x;
+                        Page.touchLayer.width -= x - this.touched.x;
+                        Page.touchLayer.height += y - this.touched.y;
                         break;
                     case 2:
-                        this.cropBox.y += xy.y - this.touchedXY.y;
-                        this.cropBox.width += xy.x - this.touchedXY.x;
-                        this.cropBox.height -= xy.y - this.touchedXY.y;
+                        Page.touchLayer.y += y - this.touched.y;
+                        Page.touchLayer.width += x - this.touched.x;
+                        Page.touchLayer.height -= y - this.touched.y;
                         break;
                     case 3:
-                        this.cropBox.width += xy.x - this.touchedXY.x;
-                        this.cropBox.height += xy.y - this.touchedXY.y;
+                        Page.touchLayer.width += x - this.touched.x;
+                        Page.touchLayer.height += y - this.touched.y;
                         break;
                 
                     default:
                         break;
                 }
-                this.touchedXY = xy;
+                this.touched = {x:x, y:y};
                 break;
             
             case "move":
-                this.cropBox.x += xy.x - this.touchedXY.x;
-                this.cropBox.y += xy.y - this.touchedXY.y;
-                this.touchedXY = xy;
+                Page.touchLayer.x += x - this.touched.x;
+                Page.touchLayer.y += y - this.touched.y;
+                this.touched = {x:x, y:y};
                 break;
         
             default:
                 break;
         }
 
-        this.drawCropBox();
+        Page.drawCropBox();
     }
 
-    handleDrawTouchStart(xy, color, strokeWidth){
-        if(!this.state.includes("draw")) {
-            this.state.push("draw");
-            this.drawLayer = createNewLayer("draw");
-            this.setCanvas(this.drawLayer.canvas);
-            this.drawLayer.canvas.style.zIndex = this.layers.length;
-            this.layers.push(this.drawLayer);
+    handleDrawTouchStart(e){
+        this.touched = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+
+        let drawLayer = this.getLayer("draw");
+        if(!drawLayer){
+            console.log("drawLayer created.");
+            drawLayer = new Layer("draw", "", this.width, this.height, 0, 0, this.width, this.height, this.rotation);
+            this.layers.push(drawLayer);
         }
+        drawLayer.ctx.lineCap = 'round';
+        drawLayer.ctx.strokeStyle = Page.brushColor;
+        drawLayer.ctx.lineWidth = Page.brushSize;
 
-        this.drawLayer.ctx.lineCap = 'round';
-        this.drawLayer.ctx.lineWidth = strokeWidth;
-        if(color){
-            this.drawLayer.ctx.globalCompositeOperation="source-over";
-            this.drawLayer.ctx.strokeStyle = color;
+        switch (Page.state) {
+            case "pen":
+                drawLayer.ctx.globalCompositeOperation="source-over";
+                break;
+            case "eraser":
+                drawLayer.ctx.globalCompositeOperation="destination-out";
+                break;
+            case "bucket":
+                break;
+        
+            default:
+                break;
         }
-        else this.drawLayer.ctx.globalCompositeOperation="destination-out";
-
-        this.pen.x = xy.x;
-        this.pen.y = xy.y;
     }
 
-    handleDrawTouchMove(xy){
-        this.drawLayer.ctx.beginPath();
+    handleDrawTouchMove(e){
+        // draw layer xy에 그림.
+        const {x, y} = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+        const drawLayer = this.getLayer("draw");
+        drawLayer.ctx.beginPath();
       
-        this.drawLayer.ctx.moveTo(this.pen.x, this.pen.y);
-        this.drawLayer.ctx.lineTo(xy.x, xy.y);
-        this.pen.x = xy.x;
-        this.pen.y = xy.y;
+        drawLayer.ctx.moveTo(this.touched.x, this.touched.y);
+        drawLayer.ctx.lineTo(x, y);
+        this.touched.x = x;
+        this.touched.y = y;
       
-        this.drawLayer.ctx.stroke();
+        drawLayer.ctx.stroke();
     }
 
-    handleBucketTouch(xy, color){
-        console.log("startBucket");
+    handleDrawTouchEnd(){
+        const drawLayer = this.getLayer("draw");
+        if(!drawLayer) return;
+        drawLayer.ctx.globalCompositeOperation="source-over";
+        drawLayer.src = drawLayer.canvas.toDataURL();
+        drawLayer.baseRotation = -drawLayer.rotation;
     }
 
-    rotate(d, fix=false){
-        if(d==this.rotation) return;
-        if(!this.state.includes("rotate")) this.state.push("rotate");
-        this.layers.forEach(({canvas, ctx})=>{
-            ctx.save();
-            ctx.translate(canvas.width/2, canvas.height/2);
-            ctx.rotate((d-(this.rotation)) * Math.PI/180);
-            ctx.translate(-canvas.width/2, -canvas.height/2);
-            
-            let tmpCanvas = cloneCanvas(canvas);
-            ctx.clearRect(-canvas.width, -canvas.height, canvas.width*3, canvas.height*3);
-            ctx.drawImage(tmpCanvas, 0, 0);
-            ctx.restore();
-            tmpCanvas.remove();
-        })
+    handleStickerTouchStart(e){
+        console.log("sticker touch");
+        this.touched = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+        const {x, y} = this.touched;
+        const hitBoxSize = this.width * HITBOX_SIZE;
+        const stickerLayers = this.getLayers("sticker");
+        let exitFunction = false;
 
-        if(!fix) this.rotation = d;
-    }
-
-    setFrame(src){
-        if(!this.state.includes("frame")){
-            this.state.push("frame");
-            let newLayer = createNewLayer("frame");
-            this.setCanvas(newLayer.canvas);
-            this.frameLayer = newLayer;
-            this.layers.splice(0, 0, newLayer);
-            this.layers.forEach((v, i)=>{
-                v.canvas.style.zIndex = i;
+        if(this.selectedSticker){
+            [
+                {x: this.selectedSticker.x, y: this.selectedSticker.y},
+                {x: this.selectedSticker.x, y: this.selectedSticker.y+this.selectedSticker.height},
+                {x: this.selectedSticker.x+this.selectedSticker.width, y: this.selectedSticker.y},
+                {x: this.selectedSticker.x+this.selectedSticker.width, y: this.selectedSticker.y + this.selectedSticker.height},
+            ].map( (edge, i)=>{ // selected sticker의 모서리 클릭인지
+                if(x > edge.x-hitBoxSize/2 && x < edge.x+hitBoxSize/2){
+                    if(y > edge.y-hitBoxSize/2 && y < edge.y+hitBoxSize/2){
+                        this.state = "resize";
+                        this.edge = i;
+                        exitFunction = true;
+                        return;
+                    }
+                }
             })
         }
-        
-        // drawFrame
-        let newImage = new Image();
-        newImage.src = src;
-        newImage.onload = ()=>{
-            console.log(this.layers);
-            this.frameLayer.ctx.drawImage(newImage, 0, 0, this.frameLayer.canvas.width, this.frameLayer.canvas.height);
+        if(exitFunction) return;
+
+        stickerLayers.forEach((sticker)=>{
+            if(x > sticker.x && x < sticker.x+sticker.width){
+                if(y > sticker.y && y < sticker.y+ sticker.height){
+                    this.state = "move";
+                    this.selectedSticker = sticker;
+                    Page.drawBox(this.selectedSticker);
+                    exitFunction = true;
+                }
+            }
+        });
+        if(exitFunction) return;
+        if(this.selectedSticker){
+            Page.touchLayer.clear();
+            this.selectedSticker = null;
         }
     }
-}
 
-function initCanvas(canvas_){
-    canvasDom = canvas_.current;
-    canvasWrapper = document.getElementById("preview")
-}
+    handleStickerTouchMove(e){
+        if(!this.selectedSticker) return;
+        const {x, y} = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+        
+        switch (this.state) {
+            case "resize":
+                switch (this.edge) {
+                    case 0:
+                        this.selectedSticker.x += x - this.touched.x;
+                        this.selectedSticker.y += y - this.touched.y;
+                        this.selectedSticker.width -= x - this.touched.x;
+                        this.selectedSticker.height -= y - this.touched.y;
+                        break;
+                    case 1:
+                        this.selectedSticker.x = this.selectedSticker.x + x - this.touched.x;
+                        this.selectedSticker.width -= x - this.touched.x;
+                        this.selectedSticker.height += y - this.touched.y;
+                        break;
+                    case 2:
+                        this.selectedSticker.y = this.selectedSticker.y + y - this.touched.y;
+                        this.selectedSticker.width += x - this.touched.x;
+                        this.selectedSticker.height -= y - this.touched.y;
+                        break;
+                    case 3:
+                        this.selectedSticker.width += x - this.touched.x;
+                        this.selectedSticker.height += y - this.touched.y;
+                        break;
+                
+                    default:
+                        break;
+                }
+                break;
+            
+            case "move":
+                this.selectedSticker.x += x - this.touched.x;
+                this.selectedSticker.y += y - this.touched.y;
+                break;
+        
+            default:
+                break;
+        }
 
-function addPage(src){
-    let newPage = new Page(src);
-    pages.push(newPage);
-}
+        // draw sticker
+        this.selectedSticker.clear();
+        this.selectedSticker.draw();
+        
+        // draw sticker box
+        Page.drawBox(this.selectedSticker);
 
-function deletePage(pageIdx){
-    pages[pageIdx].hide();
-    pages = pages.filter((v, i)=>i!=pageIdx);
-}
-
-function loadPage(pageIdx){
-    cancelCrop();
-    currentPage?.hide();
-
-    currentPage = pages[pageIdx];
-    let page = pages[pageIdx];
-    if(!page){
-        console.log("drawPage no page.");
-        return;
+        this.touched = {x, y};
     }
 
-    page.layers.map((layer)=>{
-        layer.canvas.style.visibility = 'visible';
-    })
-}
+    handleStickerTouchEnd(){
+    }
 
-function cropStart(ratio) {
-    if(!currentPage || pages.length==0){ return;}
-    if(!currentPage.state.includes("crop")){
-        currentPage.startCrop(ratio);
-        currentPage.state.push("crop");
+    handleTextTouchStart(e){
+        console.log("text touch");
+        this.touched = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+        const {x, y} = this.touched;
+        const textLayers = this.getLayers("text");
+        let exitFunction = false;
+        
+        // const hitBoxSize = this.width * HITBOX_SIZE;
+        // if(this.selectedText){
+        //     [
+        //         {x: this.selectedText.x, y: this.selectedText.y},
+        //         {x: this.selectedText.x, y: this.selectedText.y+this.selectedText.height},
+        //         {x: this.selectedText.x+this.selectedText.width, y: this.selectedText.y},
+        //         {x: this.selectedText.x+this.selectedText.width, y: this.selectedText.y + this.selectedText.height},
+        //     ].map( (edge, i)=>{ // selected sticker의 모서리 클릭인지
+        //         if(x > edge.x-hitBoxSize/2 && x < edge.x+hitBoxSize/2){
+        //             if(y > edge.y-hitBoxSize/2 && y < edge.y+hitBoxSize/2){
+        //                 this.state = "resize";
+        //                 this.edge = i;
+        //                 exitFunction = true;
+        //                 return;
+        //             }
+        //         }
+        //     })
+        // }
+        // if(exitFunction) return;
+
+        textLayers.forEach((sticker)=>{
+            if(x > sticker.x && x < sticker.x+sticker.width){
+                if(y > sticker.y && y < sticker.y+ sticker.height){
+                    this.state = "move";
+                    this.selectedText = sticker;
+                    Page.drawBox(this.selectedText);
+                    exitFunction = true;
+                }
+            }
+        });
+        if(exitFunction) return;
+        if(this.selectedText){
+            Page.touchLayer.clear();
+            this.selectedText = null;
+        }
+    }
+
+    handleTextTouchMove(e){
+        if(!this.selectedText) return;
+        const {x, y} = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+        
+        // switch (this.state) {
+        //     case "resize":
+        //         switch (this.edge) {
+        //             case 0:
+        //                 this.selectedText.x += x - this.touched.x;
+        //                 this.selectedText.y += y - this.touched.y;
+        //                 this.selectedText.width -= x - this.touched.x;
+        //                 this.selectedText.height -= y - this.touched.y;
+        //                 break;
+        //             case 1:
+        //                 this.selectedText.x = this.selectedText.x + x - this.touched.x;
+        //                 this.selectedText.width -= x - this.touched.x;
+        //                 this.selectedText.height += y - this.touched.y;
+        //                 break;
+        //             case 2:
+        //                 this.selectedText.y = this.selectedText.y + y - this.touched.y;
+        //                 this.selectedText.width += x - this.touched.x;
+        //                 this.selectedText.height -= y - this.touched.y;
+        //                 break;
+        //             case 3:
+        //                 this.selectedText.width += x - this.touched.x;
+        //                 this.selectedText.height += y - this.touched.y;
+        //                 break;
+                
+        //             default:
+        //                 break;
+        //         }
+        //         break;
+            
+            // case "move":
+                this.selectedText.x += x - this.touched.x;
+                this.selectedText.y += y - this.touched.y;
+        //         break;
+        
+        //     default:
+        //         break;
+        // }
+
+        // draw sticker
+        this.selectedText.clear();
+        this.selectedText.draw();
+        
+        // draw sticker box
+        Page.drawBox(this.selectedText);
+
+        this.touched = {x, y};
+    }
+
+    handleTextTouchEnd(){
     }
 }
 
-function hideCurrentCanvas(){
-    currentPage?.hide();
+class Layer{
+    static init(){
+        this.preview = document.getElementById("preview");
+    }
+
+    constructor(type_, src_, canvasWidth_=0, canvasHeight_=0, x_=0, y_=0, width_=0, height_=0, rotation_=0, rightAngle_=0, zIndex_=1){
+        this.type = type_;
+        this.src = src_;
+        this.x = x_;
+        this.y = y_;
+        this.width = width_;
+        this.height = height_;
+        this.rotation = rotation_;
+        this.baseRotation = rightAngle_;
+
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = canvasWidth_;
+        this.canvas.height = canvasHeight_;
+        this.canvas.style.pointerEvents="none";
+        this.canvas.style.zIndex=zIndex_;
+        this.ctx = this.canvas.getContext('2d');
+        if(type_ == "text"){
+            this.text = src_;
+        }
+        else if(src_){
+            let image = new Image();
+            image.src = src_;
+            image.onload = ()=>{
+                this.image = image;
+                // this.width = image.width;
+                // this.height = image.height;
+                this.x = (this.canvas.width - this.width) / 2;
+                this.y = (this.canvas.height - this.height) / 2;
+                this.draw();
+            }
+        }
+        
+        Layer.preview.appendChild(this.canvas);
+    }
+
+    copy(){
+        console.log("cloning rotation: ", this.rotation);
+        let clone = new Layer(this.type, this.src, this.canvas.width, this.canvas.height, this.x, this.y, this.width, this.height, this.rotation, this.baseRotation);
+        
+        return clone;
+    }
+
+    draw(){
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        this.ctx.save();
+        this.ctx.translate(centerX, centerY);
+        this.ctx.rotate((this.rotation + this.baseRotation) * Math.PI/180);
+        this.ctx.translate(-centerX, -centerY);
+        
+        if(this.type == "text"){
+            this.clear();
+            this.ctx.fillText(this.text, this.x, this.y + this.height-12);
+            this.ctx.restore();
+        } else{
+            let image = new Image();
+            image.src = this.src;
+            image.onload = ()=>{
+                this.clear();
+                this.ctx.drawImage(image, this.x, this.y, this.width, this.height);
+                this.ctx.restore();
+            }
+        }
+    }
+
+    clear(){
+        this.ctx.clearRect(-this.canvas.width, -this.canvas.height, this.canvas.width*3, this.canvas.height *3);
+    }
+
+    rotate(d, fixed){
+        if(fixed) this.baseRotation += d;
+        else this.rotation += d;
+    }
+
+    drawText(text, bold, strike, underline, font, color){
+        console.log(font);
+        this.ctx.font = `${bold? "bold":""} ${this.height}px ${font.class.style.fontFamily}`;
+        // this.ctx.font = `${bold? "bold":""} 248px ${font.style.fontFamily}`;
+        console.log(this.ctx.font);
+        console.log(this.ctx.textBaseline)
+        // if(strike) this.ctx.font += " strike";
+        // if(underline) this.ctx.font += " underline";
+        this.ctx.lineWidth = 10;
+        this.ctx.textAlign = "cetner";
+        this.ctx.fillStyle = color;
+        this.width = this.ctx.measureText(text).width;
+        this.ctx.fillText(text, this.x, this.y + this.height-12);
+    }
 }
 
-function crop(){
-    currentPage?.crop();
-}
 
-function cancelCrop(){
-    currentPage?.cancelCrop();
-}
 
-function rotate(d){
-    currentPage?.rotate(d);
-}
-
-function rotateFixed(d){
-    currentPage?.rotate(currentPage.rotation + d, true);
-}
-
-function getRotation(pageIndex){
-    return pages[pageIndex]?.rotation;
-}
-
-function setFrame(src){
-    currentPage?.setFrame(src);
-}
-
-export {
-    initCanvas, cropStart, crop, cancelCrop, hideCurrentCanvas,
-    addPage, deletePage, loadPage, rotate, rotateFixed, getRotation,
-    handlePenTouchStart, handleDrawTouchMove, handleEraserTouchStart, handleBucketTouchStart,
-    setFrame
-};
-
-function handleCropBoxTouchStart(e){
-    currentPage?.handleCropTouchStart(convertXYToCanvasSize(e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop));
-}
-
-function handleCropBoxTouchMove(e){
-    currentPage?.handleCropTouchMove(convertXYToCanvasSize(e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop));
-}
-
-function handlePenTouchStart(e, color, strokeWidth){
-    currentPage?.handleDrawTouchStart(
-        convertXYToCanvasSize(e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop),
-        color, strokeWidth
-    );
-}
-
-function handleEraserTouchStart(e, strokeWidth){
-    currentPage?.handleDrawTouchStart(
-        convertXYToCanvasSize(e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop),
-        "", strokeWidth
-    );
-}
-
-function handleBucketTouchStart(e, color){
-    currentPage?.handleBucketTouch(
-        convertXYToCanvasSize(e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop),
-        color
-    );
-}
-
-function handleDrawTouchMove(e){
-    currentPage?.handleDrawTouchMove(convertXYToCanvasSize(e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop));
-}
-
-function convertXYToCanvasSize(x, y){
-    let newX = Math.round(x * currentPage.layers[0].canvas.width/canvasDom.offsetWidth);
-    let newY = Math.round(y * currentPage.layers[0].canvas.height/canvasDom.offsetHeight);
-    return {x: newX, y: newY};
-}
+export {Page};

@@ -5,14 +5,16 @@ import ImageText from "@/components/ImageText";
 import Tilter from "@/components/Tilter";
 import editStyles from "../edit.module.css";
 import { useEffect, useState } from "react";
-import { cropStart, crop, cancelCrop, rotate, rotateFixed, getRotation } from "../../../app/edit/edit.module";
+import { Page } from "@/app/edit/edit.module";
 
-export default function Trim({pageIndex}) {
+/** @param {{page:Page}} page */
+export default function Trim({page}) {
   const [isCroping, setIsCroping] = useState(false);
   const [cropIndex, setCropIndex] = useState(-1);
-  const [rotateVal, setRotateVal] = useState(0);
+  const [rotateVal, setRotateVal] = useState(page?.rotation);
+  const [signal, setSignal] = useState(false);
 
-  const crops = [
+  const cropOptions = [
     {
       src: "/edit/trim/free.png",
       text: "자유롭게",
@@ -37,19 +39,24 @@ export default function Trim({pageIndex}) {
   ]
 
   const handleCropClick = (ratio, i)=>{
-    setIsCroping(true);
-    setCropIndex(i)
-    cropStart(ratio);
+    if(page){
+      Page.setTouchLayer(page, "crop");
+      setIsCroping(true);
+      setCropIndex(i)
+    }
   }
 
   useEffect(()=>{
-    rotate(rotateVal);
-  }, [rotateVal]);
+    if(page){
+      setIsCroping(false);
+      if(isCroping)
+        Page.disableTouchLayer();
+    }
+  }, [page]);
 
   useEffect(()=>{
-    setIsCroping(false);
-    setRotateVal(getRotation(pageIndex));
-  }, [pageIndex])
+    page?.rotate(rotateVal);
+  }, [rotateVal]);
 
   return (
     <div>
@@ -65,7 +72,7 @@ export default function Trim({pageIndex}) {
           width: "100%",
           marginTop: "3vh",
         }}>
-          {crops.map((v, i)=>
+          {cropOptions.map((v, i)=>
             (!isCroping || i==cropIndex) &&
               <div key={i} onClick={()=>{handleCropClick(v.ratio, i)}}>
                 <ImageText src={v.src} width="30vw" size={"17vw"}>{v.text}</ImageText>
@@ -74,10 +81,10 @@ export default function Trim({pageIndex}) {
           {
             isCroping &&
             <div style={{display:"flex", alignItems:"center", justifyContent:"space-around", width:"50vw", marginLeft:"10vw"}}>
-              <div onClick={()=>{setIsCroping(false); crop();}}>
+              <div onClick={()=>{setIsCroping(false);page.crop();setRotateVal(0);setSignal(!signal);}}>
                 <ImageText src={"/edit/trim.png"} width="30vw" size={"17vw"}>자르기</ImageText>
               </div>
-              <div onClick={()=>{setIsCroping(false); cancelCrop();}}>
+              <div onClick={()=>{setIsCroping(false);Page.disableTouchLayer();}}>
                 <ImageText src={"/edit/delete.png"} width="30vw" size={"17vw"}>취소</ImageText>
               </div>
             </div>
@@ -86,7 +93,7 @@ export default function Trim({pageIndex}) {
       </div>
       <div className={editStyles.editWrapper}>
         <span>회전</span>
-        <Tilter value={rotateVal} setValue={setRotateVal} />
+        <Tilter value={rotateVal} setValue={setRotateVal} page={page} signal={signal} />
         <p style={{
           textAlign:"center",
           margin:"0px",
@@ -97,10 +104,10 @@ export default function Trim({pageIndex}) {
         justifyContent:"space-between",
         margin: "0px 4vw"
       }}>
-        <div onClick={()=>{rotateFixed(90)}}>
+        <div onClick={()=>{page?.rotate(90, true)}}>
           <BigBtn src={"/edit/trim/rotate_anticlock.png"} iconWidth={32} size={52} />
         </div>
-        <div onClick={()=>{rotateFixed(-90)}}>
+        <div onClick={()=>{page?.rotate(-90, true)}}>
           <BigBtn src={"/edit/trim/rotate_clock.png"} iconWidth={32} size={52} />
         </div>
       </div>

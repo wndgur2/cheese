@@ -15,12 +15,3 @@
     border-color: #FFC121;
     border-width: 2px;
 }
-
-.drawCanvas{
-    position: absolute;
-    z-index: 10;
-    top:calc(7vh + 4vw);
-    left:0;
-    width:100vw;
-    height:35vh;
-}

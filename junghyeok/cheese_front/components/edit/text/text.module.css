@@ -2,8 +2,9 @@
     text-align:center;
     display: flex;
     align-items: center;
+    width:30vw;
     height:6vh;
-    width: 30vw;
+    font-weight: 400;
 }
 .fonts{
     overflow:scroll;
@@ -13,10 +14,38 @@
     font-size: 20px;
     scroll-snap-type: y mandatory;
 }
+.selected{
+    font-weight: 700;
+}
 .fontWrapper{
     display: flex;
-    height: 5vh;
+    height: 3.5vh;
     align-items: center;
     justify-content: space-between;
     scroll-snap-align: center;
+}
+
+.textInput{
+    width: 60vw;
+    margin: 2vh 0vw;
+    background:none;
+    border: none;
+    border-bottom: #ddd 1px solid;
+    font-size: 5vw;
+}
+
+.bold{
+    font-weight: bold;
+}
+
+.strike{
+    text-decoration: line-through;
+}
+
+.underline{
+    text-decoration: underline;
+}
+
+.textInput:focus{
+    outline: none;
 }
