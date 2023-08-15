@@ -8,13 +8,15 @@ import apStyles from "../ap.module.css";
 
 export default function Amount(props) {
     const router = useRouter();
-    const [location, setLocation] = useState("...");
+    const [branch, setBranch] = useState("...");
     const [amount, setAmount] = useState("");
     const action = props.params.action;
 
     useEffect(()=>{
-        let cur_location = localStorage.getItem("location");
-        if(!cur_location) router.push("/home/cheese_map");
+        let branch_ = JSON.parse(localStorage.getItem("branch"));
+        if(!branch_){
+            router.push("/home/cheese_map");
+        }
 
         if(action=="capture") localStorage.setItem("action", "capture");
         else if(action=="print") localStorage.setItem("action", "print");
@@ -23,7 +25,7 @@ export default function Amount(props) {
             router.push("/home");
         }
         
-        setLocation(cur_location);
+        setBranch(branch_);
     },[]);
 
     const handleInputChange = (e)=>{
@@ -45,7 +47,7 @@ export default function Amount(props) {
             <img src='/back.png' width={28}/>
         </div>
 
-        <span className='title'>{location}</span>
+        <span className='title'>{branch.name}</span>
         <span className='subtitle'>에서</span>
         
         <div className={captureStyles.inputAmount}>

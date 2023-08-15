@@ -5,21 +5,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import apStyles from "./ap.module.css"
+import Script from 'next/script';
 
 export default function Action(props) {
     const router = useRouter();
-    const [location, setLocation] = useState("...");
+    const [branch, setBranch] = useState("...");
+    const [ready, setReady] = useState(false);
 
     const action = props.params.action;
     
-    const locations = {"한경대 안성캠퍼스점": "경기도 안성시 중앙로 327",
-        "중앙대 안성캠퍼스점":"경기도 안성시 대덕면 서동대로 4726",
-        "평택 스타필드점": "경기도 안성시 공도읍 서동대로 3930-39"
-    };
-
     useEffect(()=>{
-        let cur_location = localStorage.getItem("location");
-        if(!cur_location){
+        if(!ready) return;
+        let branch_ = JSON.parse(localStorage.getItem("branch"));
+        if(!branch_){
             router.push("/home/cheese_map");
         }
 
@@ -32,7 +30,7 @@ export default function Action(props) {
             router.push("/home");
         }
         
-        setLocation(cur_location);
+        setBranch(branch_);
         const positions = [[37.7282592, 126.7050989],[37.7272592, 126.7077989],[37.7102592, 126.7067989]];
         let mapOptions = {
             center: new naver.maps.LatLng(37.7222592, 126.7027989),
@@ -51,10 +49,16 @@ export default function Action(props) {
             icon: icon
         });
         map.morph(new naver.maps.LatLng(positions[0][0], positions[0][1]), 16);
-    },[]);
+    },[ready]);
 
   return (
     <div>
+        <Script
+            src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_MAP_PUBLIC}`}
+            onReady={()=>{
+                setReady(true);
+            }}
+        ></Script>
         <div
             onClick={()=>{router.back()}}
             style={{
@@ -70,8 +74,8 @@ export default function Action(props) {
             color:"#343434",
             marginTop:0
         }}>{action=="print"?"인화":"촬영"} 장소를 확인하세요.</p>
-        <span className='title'>{location}</span> <br/>
-        <span className='subtitle'>{locations[location]}</span>
+        <span className='title'>치즈한장 {branch.name}</span> <br/>
+        <span className='subtitle'>{branch.address}</span>
         <div id="map" style={{
             width:"100%", height:"300px",
             margin: "3vh 0px 4vh 0px",

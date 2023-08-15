@@ -10,22 +10,22 @@ export default function MyCheese() {
 
   const shareSamples = [
     {
-      name:"햄도라지",
+      nickname:"햄도라지",
       createdAt:"3분 전",
       images:["/samples/혜민스님.jpeg", "/samples/하루네컷3.jpeg", "/samples/알고리즘.jpeg"],
     },
     {
-      name:"혜수_라구",
+      nickname:"혜수_라구",
       createdAt:"31분 전",
       images:["/samples/주성이.jpeg", "/samples/여름이.jpeg"],
     },
     {
-      name:"햄도라지",
+      nickname:"햄도라지",
       createdAt:"3분 전",
       images:["/samples/혜민스님.jpeg", "/samples/하루네컷3.jpeg", "/samples/알고리즘.jpeg"],
     },
     {
-      name:"혜수_라구",
+      nickname:"혜수_라구",
       createdAt:"31분 전",
       images:["/samples/주성이.jpeg", "/samples/여름이.jpeg"],
     },
@@ -95,7 +95,7 @@ export default function MyCheese() {
             <div key={i} className={shareStyles.share}>
               <div className={shareStyles.info}>
                 <span style={{fontWeight:400, fontSize:17, fontColor:"#333"}}>
-                  {share.name}
+                  {share.nickname}
                 </span>
                 <span style={{fontWeight:200, fontSize:15, fontColor:"#424242"}}>
                   {share.createdAt}

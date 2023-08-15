@@ -2,18 +2,39 @@
 
 import Input from "@/components/Input";
 import LongBtn from "@/components/LongBtn";
+import axios from "axios";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function SignIn() {
+export default function SignIn(props) {
   let session = useSession();
   let router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function login(){
+    try{
+      const res = await axios.post(process.env.NEXT_PUBLIC_API + "/auth", null, {
+        params: {
+          email,
+          password
+        }
+      })
+      localStorage.setItem("authorization", res.headers.authorization);
+      localStorage.setItem("refresh-token", res.headers["refresh-token"]);
+      localStorage.setItem("customerId", res.data.data.id);
+      router.push("/home");
+    } catch(error){
+      console.log(error);
+    }
+  }
 
   useEffect(()=>{
     if(session.status == "authenticated") {
       console.log("already logged in with: " + session.data.user.name);
-      router.back();
+      router.push("/home");
     }
   }, [session.status]);
   return (// rest api : /auth
@@ -34,11 +55,11 @@ export default function SignIn() {
         </div>
       </div>
 
-      <form method="POST" action="/api/auth/signin">
-        <Input src="/signin/user.png" name="email" type="text">이메일</Input>
-        <Input src="/signin/lock.png" name="password" type="password">비밀번호</Input>
-        <br />
-        <LongBtn colored="true" type="submit">
+      <Input onChange={(e)=>{setEmail(e.target.value)}} src="/signin/user.png" name="email" type="text">이메일</Input>
+      <Input onChange={(e)=>{setPassword(e.target.value)}} src="/signin/lock.png" name="password" type="password">비밀번호</Input>
+      <br />
+      <div onClick={()=>{ signIn("cheese", {callbackUrl:props.searchParams? props.searchParams.callbackUrl:"/home"}, {email, password})}}>
+        <LongBtn colored="true">
           <p style={{
             margin:0, fontSize:18, fontWeight:400, letterSpacing:"1.8px",
             textAlign: "center", width: "100%",
@@ -46,7 +67,7 @@ export default function SignIn() {
             로그인
           </p>
         </LongBtn>
-      </form>
+      </div>
       <div
         style={{marginTop:"15px"}}
         onClick={()=>{router.push("/signup")}}

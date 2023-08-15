@@ -11,7 +11,7 @@ export default function Amounts(props) {
     const router = useRouter();
 
     const input = useRef();
-    const [location, setLocation] = useState("...");
+    const [branch, setBranch] = useState("...");
     const [amounts, setAmounts] = useState([]);
     const [fileObjs, setFileObjs] = useState([]);
 
@@ -47,8 +47,10 @@ export default function Amounts(props) {
     }
 
     useEffect(()=>{
-        let cur_location = localStorage.getItem("location");
-        if(!cur_location) router.push("/home/cheese_map");
+        let branch_ = JSON.parse(localStorage.getItem("branch"));
+        if(!branch_){
+            router.push("/home/cheese_map");
+        }
 
         if(action=="capture") localStorage.setItem("action", "capture");
         else if(action=="print") localStorage.setItem("action", "print");
@@ -57,7 +59,7 @@ export default function Amounts(props) {
             router.push("/home");
         }
         
-        setLocation(cur_location);
+        setBranch(branch_);
     },[]);
 
   return (
@@ -72,7 +74,7 @@ export default function Amounts(props) {
             <img src='/back.png' width={28}/>
         </div>
 
-        <span className='title'>{location}</span>
+        <span className='title'>{branch.name}</span>
         <span style={{fontSize:26}}>에서</span>
         <p style={{margin:0, fontSize:24}}>인화할 사진을 추가해주세요.</p>
         {

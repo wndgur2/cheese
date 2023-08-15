@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import homeStyles from "./home.module.css";
 import Link from 'next/link';
+import Script from 'next/script';
 
 export default function HomeLayout({ children }) {
   const pathname = usePathname();
