@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,6 @@ import com.hknu.dto.BranchDto;
 import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Branch;
 import com.hknu.exception.CustomException;
-
-import javax.lang.model.type.NullType;
 
 @org.springframework.stereotype.Service
 public class BranchServiceImpl implements Service<BranchDto>{
@@ -96,7 +95,7 @@ public class BranchServiceImpl implements Service<BranchDto>{
 		throw new CustomException("지점 추가 중 오류가 발생했습니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<NullType>> updateBranch(
+	public ResponseEntity<ResponseDto<Null>> updateBranch(
 			Integer branchId, 
 			String name, 
 			float latitude, 
@@ -106,7 +105,7 @@ public class BranchServiceImpl implements Service<BranchDto>{
 			Integer paper_amount,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -140,11 +139,11 @@ public class BranchServiceImpl implements Service<BranchDto>{
 		throw new CustomException("지점 수정 중 오류가 발생했습니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<NullType>> deleteBranch(
+	public ResponseEntity<ResponseDto<Null>> deleteBranch(
 			Integer branchId,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -221,7 +220,7 @@ public class BranchServiceImpl implements Service<BranchDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<NullType>> deCameraQueue(
+	public ResponseEntity<ResponseDto<Null>> deCameraQueue(
 			Integer branchId, 
 			String device) {
 		if (device.isEmpty()) {
@@ -296,7 +295,7 @@ public class BranchServiceImpl implements Service<BranchDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<NullType>> dePrinterQueue(
+	public ResponseEntity<ResponseDto<Null>> dePrinterQueue(
 			Integer branchId, 
 			String device) {
 		if (device.isEmpty()) {

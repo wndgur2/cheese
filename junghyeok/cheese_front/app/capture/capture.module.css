@@ -1,0 +1,81 @@
+#stream{
+    position: absolute;
+    transform: rotate(90deg);
+    width: 82vh;
+    height: 100vw;
+    background-color: #999;
+    transform-origin: bottom left;
+    margin-top: -100vw;
+    object-fit: cover;
+}
+
+.functions{
+    position: absolute;
+    top: 82vh;
+    left: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100vw;
+    height: 18vh;
+    background-color: #000;
+}
+
+.functions span{
+    color: #EEE;
+    font-size: 8vw;
+}
+.functions div{
+    transform-origin: center;
+    transform: rotate(90deg);
+}
+
+#shutter{
+    width: 24vw;
+}
+
+.rotate{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26vw;
+}
+
+#rotate{
+    width: 80%;
+}
+
+.timer{
+    width: 10vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#timer{
+    width: 10vw;
+}
+
+.amount{
+    width: 10vw;
+}
+
+.alertWrapper{
+    position:absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0vh;
+    left: 0vw;
+    background-color: rgba(0, 0, 0, 0.50);
+}
+
+.alert{
+    position:absolute;
+    width:90vw;
+    top:15vh;
+    left:0vw;
+    padding: 5vh 5vw;
+    border-radius: 10px;
+    background: #FEFBF6;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}

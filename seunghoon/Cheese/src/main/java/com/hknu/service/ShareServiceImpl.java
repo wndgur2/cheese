@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,6 @@ import com.hknu.entity.Share;
 import com.hknu.entity.SharedPhoto;
 import com.hknu.exception.CustomException;
 import com.hknu.exception.DoNotMatchImageTypeException;
-
-import javax.lang.model.type.NullType;
 
 @org.springframework.stereotype.Service
 public class ShareServiceImpl implements Service<ShareDto>{
@@ -43,12 +42,12 @@ public class ShareServiceImpl implements Service<ShareDto>{
 		                               contentType.startsWith("image/tiff"));
 	}
 		
-	public ResponseEntity<ResponseDto<NullType>> insertShare(
+	public ResponseEntity<ResponseDto<Null>> insertShare(
 			Integer customerId, 
 			List<MultipartFile> photo,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;
@@ -105,12 +104,12 @@ public class ShareServiceImpl implements Service<ShareDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<NullType>> deleteShare(
+	public ResponseEntity<ResponseDto<Null>> deleteShare(
 			Integer customerId, 
 			Integer shareId, 
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;

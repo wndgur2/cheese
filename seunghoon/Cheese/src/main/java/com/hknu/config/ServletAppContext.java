@@ -3,7 +3,6 @@ package com.hknu.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -20,7 +19,7 @@ import com.hknu.socket.SignalHandler;
 @Configuration
 @ComponentScan("com.hknu.controller")
 public class ServletAppContext implements WebMvcConfigurer, WebSocketConfigurer {
-// Controller의 method가 반환하는 jsp의 이름 앞뒤에 경로와 확장자를 붙혀주도록 설정한다.
+	// Controller의 method가 반환하는 jsp의 이름 앞뒤에 경로와 확장자를 붙혀주도록 설정한다.
 //	@Override
 //	public void configureViewResolvers(ViewResolverRegistry registry) {
 //		WebMvcConfigurer.super.configureViewResolvers(registry);

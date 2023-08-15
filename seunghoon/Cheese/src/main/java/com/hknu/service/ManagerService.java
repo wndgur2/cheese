@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import javax.lang.model.type.NullType;
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +24,7 @@ public class ManagerService {
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<NullType>> loginManager(String password) {
+	public ResponseEntity<ResponseDto<Null>> loginManager(String password) {
 		String managerPassword = getManagerByPassword(password);
 		
 		if (managerPassword.equals(password)) {
@@ -46,11 +46,11 @@ public class ManagerService {
 		}
 	}
 	
-	public ResponseEntity<ResponseDto<NullType>> updateManager(
+	public ResponseEntity<ResponseDto<Null>> updateManager(
 			String password,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;

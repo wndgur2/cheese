@@ -3,7 +3,7 @@ package com.hknu.controller;
 import java.util.List;
 import java.util.Map;
 
-import javax.lang.model.type.NullType;
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,7 +52,7 @@ public class BranchController {
 	
 	// 지점 수정하기
 	@PutMapping(value = "/branch/{branchId}")
-	public ResponseEntity<ResponseDto<NullType>> updateBranch(
+	public ResponseEntity<ResponseDto<Null>> updateBranch(
 			@PathVariable Integer branchId, 
 			@RequestParam String name, 
 			@RequestParam float latitude, 
@@ -67,7 +67,7 @@ public class BranchController {
 	
 	// 지점 삭제하기
 	@DeleteMapping(value = "/branch/{branchId}")
-	public ResponseEntity<ResponseDto<NullType>> deleteBranch(
+	public ResponseEntity<ResponseDto<Null>> deleteBranch(
 			@PathVariable Integer branchId,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
@@ -92,7 +92,7 @@ public class BranchController {
 	
 	// 카메라 대기열 취소하기
 	@DeleteMapping(value = "/cameraQueue/{branchId}")
-	public ResponseEntity<ResponseDto<NullType>> deCameraQueue(
+	public ResponseEntity<ResponseDto<Null>> deCameraQueue(
 			@PathVariable Integer branchId, 
 			@RequestParam String device) {
 		return this.branchServiceImpl.deCameraQueue(branchId, device);
@@ -116,7 +116,7 @@ public class BranchController {
 	
 	// 인화기 대기열 취소하기
 	@DeleteMapping(value = "/printerQueue/{branchId}")
-	public ResponseEntity<ResponseDto<NullType>> dePrinterQueue(
+	public ResponseEntity<ResponseDto<Null>> dePrinterQueue(
 			@PathVariable Integer branchId, 
 			@RequestParam String device) {
 		return this.branchServiceImpl.dePrinterQueue(branchId, device);

@@ -1,0 +1,51 @@
+.fontsWrapper{
+    text-align:center;
+    display: flex;
+    align-items: center;
+    width:30vw;
+    height:6vh;
+    font-weight: 400;
+}
+.fonts{
+    overflow:scroll;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    font-size: 20px;
+    scroll-snap-type: y mandatory;
+}
+.selected{
+    font-weight: 700;
+}
+.fontWrapper{
+    display: flex;
+    height: 3.5vh;
+    align-items: center;
+    justify-content: space-between;
+    scroll-snap-align: center;
+}
+
+.textInput{
+    width: 60vw;
+    margin: 2vh 0vw;
+    background:none;
+    border: none;
+    border-bottom: #ddd 1px solid;
+    font-size: 5vw;
+}
+
+.bold{
+    font-weight: bold;
+}
+
+.strike{
+    text-decoration: line-through;
+}
+
+.underline{
+    text-decoration: underline;
+}
+
+.textInput:focus{
+    outline: none;
+}

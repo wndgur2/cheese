@@ -1,11 +1,16 @@
 package com.hknu.config;
 
-import jakarta.servlet.*;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.DispatcherServlet;
+
+import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
 
 /*
  * WebApplicationInitializer를 이용해 사용자 설정 class를 만들어 직접 구현
@@ -40,8 +45,5 @@ public class SpringConfigClass implements WebApplicationInitializer {
 		FilterRegistration.Dynamic filter = servletContext.addFilter("encodingFilter", CharacterEncodingFilter.class);
 		filter.setInitParameter("encoding", "UTF-8");
 		filter.addMappingForServletNames(null, false, "dispatcher");
-
-		FilterRegistration.Dynamic corsFilter = servletContext.addFilter("corsFilter", CorsFilter.class);
-		corsFilter.addMappingForServletNames(null, false, "*");
 	}
 }

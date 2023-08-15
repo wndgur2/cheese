@@ -2,7 +2,7 @@ package com.hknu.controller;
 
 import java.util.List;
 
-import javax.lang.model.type.NullType;
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class StickerController {
 	
 	// 스티커 추가하기
 	@PostMapping(value = "/item/sticker", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ResponseDto<NullType>> insertSticker(
+	public ResponseEntity<ResponseDto<Null>> insertSticker(
 			@RequestParam(required = false) Integer branchId, 
 			@RequestParam MultipartFile image,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
@@ -36,7 +36,7 @@ public class StickerController {
 	
 	// 스티커 삭제하기
 	@DeleteMapping(value = "/item/sticker/{stickerId}")
-	public ResponseEntity<ResponseDto<NullType>> deleteSticker(
+	public ResponseEntity<ResponseDto<Null>> deleteSticker(
 			@PathVariable Integer stickerId, 
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {

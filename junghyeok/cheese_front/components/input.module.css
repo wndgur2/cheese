@@ -1,0 +1,21 @@
+.b{
+    font-size: 18px;
+    font-weight: 300;
+    background: none;
+    margin-left: 12px;
+    outline: none;
+    border: none;
+    letter-spacing: 1px;
+    caret-color: #212121;
+    width: 100%;
+}
+
+.b::placeholder{
+    color: #AAA;
+}
+
+.b :focus{
+    color: #212121;
+    outline: none;
+    border: none;
+}

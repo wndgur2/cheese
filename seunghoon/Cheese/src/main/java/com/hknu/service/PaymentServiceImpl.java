@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.type.NullType;
+import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ public class PaymentServiceImpl implements Service<PaymentDto>{
 	private TokenService tokenService;
 	
 
-	public ResponseEntity<ResponseDto<NullType>> insertPayment(
+	public ResponseEntity<ResponseDto<Null>> insertPayment(
 			Integer branchId, 
 			Integer customerId,
 			Integer cost,

@@ -41,22 +41,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@ExceptionHandler({DataIntegrityViolationException.class})
 	public ResponseEntity<?> handleIntegrityViolation(DataAccessException e) {
-		String message = e.getMessage();
-		if (message.contains("nickname_UNIQUE")) {
-			return new ResponseEntity<>(
-					ResponseDto.of("중복된 닉네임입니다."),
-					HttpStatus.BAD_REQUEST);
-		}
-		else if (message.contains("email_UNIQUE")) {
-			return new ResponseEntity<>(
-					ResponseDto.of("중복된 이메일입니다."),
-					HttpStatus.BAD_REQUEST);
-		}
-		else {
-			return new ResponseEntity<>(
-					ResponseDto.of("비밀번호가 너무 깁니다."),
-					HttpStatus.BAD_REQUEST);
-		}
+		return new ResponseEntity<>(
+				ResponseDto.of("비밀번호가 너무 깁니다."), 
+				HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(NullPointerException.class)
