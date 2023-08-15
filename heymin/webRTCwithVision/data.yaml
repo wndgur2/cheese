@@ -1,0 +1,5 @@
+train: /kaggle/input/people-resorce/train/images
+val: /kaggle/input/people-resorce/valid/images
+
+nc: 1
+names: ['0']
