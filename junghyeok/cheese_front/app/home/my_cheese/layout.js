@@ -3,7 +3,7 @@
 import { SessionProvider } from "next-auth/react"
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LogoutBtn from "@/components/LogoutBtn";
 import myCheeseStyles from "./myCheese.module.css";
@@ -12,7 +12,7 @@ export default function Layout({ children }){
   const session = useSession({
     required: true,
     onUnauthenticated() {
-      router.replace("/home/signin");
+      redirect("/home/signin?callbackUrl=/home/my_cheese");
     },
   });
   const router = useRouter();
@@ -26,7 +26,9 @@ export default function Layout({ children }){
 
   useEffect(()=>{
     if(session.status == "unauthenticated") router.replace("/login");
+    console.log(session);
   }, [session.status]);
+
   return (
     <div onClick={handleClickMore}>
       <div style={{

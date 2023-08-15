@@ -4,18 +4,42 @@ import Input from "@/components/Input";
 import LongBtn from "@/components/LongBtn";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function SignIn() {
+export default function SignIn(props) {
   let session = useSession();
   let router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  async function login(e){
+    if(email == "" || password == ""){
+      setError("아이디와 비밀번호를 입력해주세요.");
+      return;
+    }
+    // signIn("cheese", {callbackUrl:props.searchParams? props.searchParams.callbackUrl:"/home"}, {email, password});
+    const res = await signIn("cheese", {redirect:false}, {email, password});
+    console.log(res);
+    if(res.error == null){
+      window.location.href=props.searchParams.callbackUrl? props.searchParams.callbackUrl:"/home";
+    } else{
+      setError("아이디 또는 비밀번호가 일치하지 않습니다.");
+    }
+  }
 
   useEffect(()=>{
     if(session.status == "authenticated") {
       console.log("already logged in with: " + session.data.user.name);
-      router.back();
+      router.push("/home");
     }
   }, [session.status]);
+
+  useEffect(()=>{
+    setError("");
+  }, [email, password]);
+
   return (// rest api : /auth
     <div className="container">
       <div style={{
@@ -34,11 +58,16 @@ export default function SignIn() {
         </div>
       </div>
 
-      <form method="POST" action="/api/auth/signin">
-        <Input src="/signin/user.png" name="email" type="text">이메일</Input>
-        <Input src="/signin/lock.png" name="password" type="password">비밀번호</Input>
-        <br />
-        <LongBtn colored="true" type="submit">
+      <Input value={email} onChange={(e)=>{setEmail(e.target.value)}} src="/signin/user.png" name="email" type="text">이메일</Input>
+      <Input value={password} onChange={(e)=>{setPassword(e.target.value)}} src="/signin/lock.png" name="password" type="password">비밀번호</Input>
+      <p style={{
+        margin:"3vh 0vw", width:"100%", minHeight:"3vh", textAlign:"center", alignItems:"center",
+        color:"#FF0000", fontSize: 16, fontWeight: 300,
+      }}>
+        {error}
+      </p>
+      <div onClick={login}>
+        <LongBtn colored="true">
           <p style={{
             margin:0, fontSize:18, fontWeight:400, letterSpacing:"1.8px",
             textAlign: "center", width: "100%",
@@ -46,7 +75,7 @@ export default function SignIn() {
             로그인
           </p>
         </LongBtn>
-      </form>
+      </div>
       <div
         style={{marginTop:"15px"}}
         onClick={()=>{router.push("/signup")}}

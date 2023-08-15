@@ -1,11 +1,12 @@
 'use client';
 
 import BigBtn from '@/components/BigBtn';
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import homeStyles from './home.module.css';
 import TextBtn from '@/components/TextBtn';
-import { useRouter } from 'next/navigation';
+import SharedPhoto from '@/entity/SharedPhoto';
+import axios from 'axios';
+import Branch from '@/entity/Branch';
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -14,18 +15,54 @@ function guid() {
   });
 }
 
-export default function Home() {
+async function getSharedPhotos(setPhotos, index) {
+  let photos = [];
+  try{
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/share/page/${index}`);
+    res.data.data.map((share)=>{
+      if(!share.sharedPhotoMap) {
+        console.log("No photo");
+        return;
+      }
+      const photo = share.sharedPhotoMap["1"];
+      photos.push(new SharedPhoto(photo.photographId, photo.customerId, photo.branchId, photo.createdAt, photo.photoImage));
+    })
+    setPhotos(photos);
+    return photos;
+  }
+  catch(error){
+    console.log(error);
+    throw new Error('Failed to fetch data')
+  }
+}
+
+
+
+async function getBranch(setBranch, branchId) {
+  try{
+    const res = await (await fetch(`${process.env.NEXT_PUBLIC_API}/branch/${branchId}`)).json();
+    console.log(res);
+    const branch = new Branch(res.data.branchId, res.data.name, res.data.longitude, res.data.latitude, res.data.shootingCost, res.data.printingCost, res.data.paperAmount);
+
+    setBranch(branch);
+    return branch;
+  }
+  catch(error){
+    console.log(error);
+    throw new Error('Failed to fetch data')
+  }
+}
+
+export default function Home(props) {
   const [uid, setUid] = useState();
-  const [location, setLocation] = useState();
+  const [branch, setBranch] = useState();
   const [isLocated, setIsLocated] = useState(false);
-  const router = useRouter();
-  let session  = useSession();
+  const [photos, setPhotos] = useState([]);
 
   useEffect(()=>{
-    let loc = localStorage.getItem("location");
-    if(loc != null){
-      setLocation(loc);
-      setIsLocated(true);
+    console.log(props.searchParams.branchId);
+    if(props.searchParams.branchId){
+      getBranch(setBranch, props.searchParams.branchId);
     }
 
     if (localStorage.getItem("uuid") === null)
@@ -33,14 +70,21 @@ export default function Home() {
     setUid(localStorage.getItem("uuid"));
   }, []);
 
+  useEffect(()=>{
+    if(!branch) return;
+
+    setIsLocated(true);
+    getSharedPhotos(setPhotos, 1);
+  }, [branch])
+
   return (
     <div className='container'>
       <div className='alignCenter'>
         <div style={{width:"100%"}}>
-          {isLocated?
+          {branch?
             <div>
-              <span className='title'>{location}</span> <br/>
-              <span className='subtitle'>경기도 안성시 중앙로 327</span>
+              <span className='title'>치즈한장 {branch.name}</span> <br/>
+              <span className='subtitle'>{branch.address}</span>
             </div>
             :
             <div>
@@ -57,8 +101,8 @@ export default function Home() {
         />
       </div>
       {/* <p>session.status : {session.status}</p> */}
-      { isLocated?
-        <img src='./sample.jpeg' width={"100%"}
+      { photos.length?
+        <img src={"data:image/png;base64," + photos[0].photoImage} width={"100%"}
         style={{
           borderRadius:"5px",
           margin:"20px 0 0 0",
@@ -107,34 +151,24 @@ export default function Home() {
         gap:"10px",
         overflowX:"scroll",
       }}>
-        <img src='/sample.jpeg' key={1}
-          style={{
-            maxHeight:"180px",
-            borderRadius:"5px",
-            boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
-            objectFit: "cover",
-            width: "70vw",
-        }}/>
-        <img src='/sample.jpeg' key={2}
-          style={{
-            maxHeight:"180px",
-            borderRadius:"5px",
-            boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
-            objectFit: "cover",
-            width: "70vw",
-        }}/>
-        <img src='/sample.jpeg' key={3}
-          style={{
-            maxHeight:"180px",
-            borderRadius:"5px",
-            boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
-            objectFit: "cover",
-            width: "70vw",
-        }}/>
+        {
+          photos.map((photo, i)=>{
+            return (
+              <img src={"data:image/png;base64," + photo.photoImage} key={i}
+              style={{
+                maxHeight:"180px",
+                borderRadius:"5px",
+                boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
+                objectFit: "cover",
+                width: "70vw",
+            }}/>
+            )
+          })
+        }
       </div>
       {isLocated?
         <button onClick={()=>{
-          localStorage.removeItem("location");
+          localStorage.removeItem("branch");
         }}>위치 없애기</button>:<></>
       }
     </div>

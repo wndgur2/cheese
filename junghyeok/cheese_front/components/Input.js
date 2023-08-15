@@ -1,6 +1,6 @@
 import styles from "./input.module.css";
 
-function Input({ src, name, type, children }) {
+function Input({ value, src, name, type, children, onChange, maxLength }) {
     return (
         <div style={{
             borderRadius:"30px",
@@ -16,6 +16,9 @@ function Input({ src, name, type, children }) {
                 placeholder={children}
                 name = {name}
                 type = {type}
+                onChange= {onChange}
+                maxLength={maxLength}
+                value={value}
             />
         </div>
     )

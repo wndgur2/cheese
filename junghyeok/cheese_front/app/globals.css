@@ -96,3 +96,12 @@ html, body{
     align-items:center;
     justify-content:center;
 }
+
+.error{
+    color:#FF0000;
+    text-align: center;
+    font-size: 16;
+    font-weight: 300;
+    width: 100%;
+    min-height: 2vh;
+}

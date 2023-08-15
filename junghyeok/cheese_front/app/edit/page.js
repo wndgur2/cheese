@@ -15,6 +15,7 @@ import Text from "../../components/edit/text/Text";
 import { Page } from "./edit.module";
 
 import JSZip from "jszip"
+import Script from "next/script";
 
 export default function Edit() {
   const router = useRouter();
@@ -165,6 +166,7 @@ export default function Edit() {
 
   return (
     <div>
+      <Script src="http://cdn.jsdelivr.net/g/filesaver.js" />
       <div className={editStyles.topContainer}>
         <div id={editStyles.album}>
           <img id={editStyles.add} src="/edit/add.png"
