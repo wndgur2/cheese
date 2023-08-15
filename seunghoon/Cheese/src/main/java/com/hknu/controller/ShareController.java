@@ -2,7 +2,7 @@ package com.hknu.controller;
 
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class ShareController {
 
 	// 사진 공유하기
 	@PostMapping(value = "/share/{customerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ResponseDto<Null>> insertShare(
+	public ResponseEntity<ResponseDto<NullType>> insertShare(
 			@PathVariable Integer customerId, 
 			@RequestParam List<MultipartFile> photo,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
@@ -36,7 +36,7 @@ public class ShareController {
 	
 	// 사진 공유 글 삭제하기
 	@DeleteMapping(value = "/share/{customerId}/{shareId}")
-	public ResponseEntity<ResponseDto<Null>> deleteShare(
+	public ResponseEntity<ResponseDto<NullType>> deleteShare(
 			@PathVariable Integer customerId,
 			@PathVariable Integer shareId,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,

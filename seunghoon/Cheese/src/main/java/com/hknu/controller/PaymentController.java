@@ -2,7 +2,7 @@ package com.hknu.controller;
 
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ public class PaymentController {
 	
 	// 결제내역 추가하기
 	@PostMapping(value = "/branch/{branchId}/payment")
-	public ResponseEntity<ResponseDto<Null>> insertPayment(
+	public ResponseEntity<ResponseDto<NullType>> insertPayment(
 			@PathVariable Integer branchId, 
 			@RequestParam(required = false) Integer customerId,
 			@RequestParam Integer cost,

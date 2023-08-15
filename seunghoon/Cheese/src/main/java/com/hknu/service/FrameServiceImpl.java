@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,12 +26,12 @@ public class FrameServiceImpl implements Service<FrameDto>{
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<Null>> insertFrame(
+	public ResponseEntity<ResponseDto<NullType>> insertFrame(
 			Integer branchId, 
 			MultipartFile image,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -63,11 +63,11 @@ public class FrameServiceImpl implements Service<FrameDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Null>> deleteFrame(
+	public ResponseEntity<ResponseDto<NullType>> deleteFrame(
 			Integer frameId, 
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;

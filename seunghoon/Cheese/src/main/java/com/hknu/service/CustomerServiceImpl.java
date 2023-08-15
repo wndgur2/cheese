@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +16,8 @@ import com.hknu.dto.CustomerDto;
 import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Customer;
 import com.hknu.exception.CustomException;
+
+import javax.lang.model.type.NullType;
 
 @org.springframework.stereotype.Service
 public class CustomerServiceImpl implements Service<CustomerDto>{
@@ -46,56 +47,56 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 		}
 
 		return new ResponseEntity<>(
-				ResponseDto.of("성공적으로 회원 정보를 가져왔습니다.", getById(customerId)), 
+				ResponseDto.of("성공적으로 회원 정보를 가져왔습니다.", getById(customerId)),
 				HttpStatus.OK) ;
 		}
-		
+
 	public ResponseEntity<ResponseDto<List<CustomerDto>>> getAllCustomers(
 			String accessToken,
 			String refreshToken) {
 		ResponseEntity<ResponseDto<List<CustomerDto>>> responseEntity = this.tokenService.validateAndGenerateTokenReturnList(accessToken, refreshToken);
-		
+
 		if (responseEntity != null) {
 			return responseEntity;
 		}
-		
+
 		if ((accessToken != null && this.tokenService.getEmailByToken(accessToken).equals(manager_email))
 				|| (refreshToken != null && this.tokenService.getEmailByToken(refreshToken).equals(manager_email))) {
 			return new ResponseEntity<>(
-					ResponseDto.of("성공적으로 모든 회원 정보를 가져왔습니다.", getAll()), 
+					ResponseDto.of("성공적으로 모든 회원 정보를 가져왔습니다.", getAll()),
 					HttpStatus.OK);
 		}
 		throw new CustomException("관리자 권한이 필요합니다.");
 	}
-		
 
-	public ResponseEntity<ResponseDto<Null>> insertCustomer(
-			String email, 
-			String password, 
+
+	public ResponseEntity<ResponseDto<NullType>> insertCustomer(
+			String email,
+			String password,
 			String nickname) {
 		CustomerDto customerDto = new CustomerDto(
-				getMaxPkValue(), 
-				email, 
-				password, 
-				0.0, 
-				nickname, 
-				null, 
-				null, 
-				null, 
+				getMaxPkValue(),
+				email,
+				password,
+				0.0,
+				nickname,
+				null,
+				null,
+				null,
 				null);
 		insert(customerDto);
 
 		return new ResponseEntity<>(
-				ResponseDto.of("성공적으로 회원가입을 했습니다."), 
+				ResponseDto.of("성공적으로 회원가입을 했습니다."),
 				HttpStatus.OK);
 	}
-		
-	public ResponseEntity<ResponseDto<Null>> updateCustomerPassword(
-			Integer customerId, 
+
+	public ResponseEntity<ResponseDto<NullType>> updateCustomerPassword(
+			Integer customerId,
 			String password,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -110,11 +111,11 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				HttpStatus.OK);
 	}
 
-	public ResponseEntity<ResponseDto<Null>> deleteCustomer(
-			Integer customerId, 
+	public ResponseEntity<ResponseDto<NullType>> deleteCustomer(
+			Integer customerId,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -125,37 +126,39 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				ResponseDto.of("성공적으로 회원 탈퇴를 했습니다."),
 				HttpStatus.OK);
 	}
-		
 
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> loginCustomer(
-			String email, 
+
+	public ResponseEntity<ResponseDto<Map<String, String>>> loginCustomer(
+			String email,
 			String password) {
 		CustomerDto customerDto = getByEmail(email);
 
 		if (password.equals(customerDto.getPassword())) {
 			String accessToken = this.tokenService.generateAccessToken(email);
 			String refreshToken = this.tokenService.generateRefreshToken(email);
-			
+
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Authorization", "Bearer " + accessToken);
 			headers.add("Refresh-Token", "Bearer " + refreshToken);
-			
-			Map<String, Integer> data = new HashMap<>();
-			data.put("id", customerDto.getCustomerId());
-			
+
+			Map<String, String> data = new HashMap<>();
+			data.put("id", customerDto.getCustomerId().toString());
+			data.put("nickname", customerDto.getNickname());
+			data.put("email", customerDto.getEmail());
+
 			return new ResponseEntity<>(
-					ResponseDto.of("성공적으로 로그인 했습니다.", data), 
-					headers, 
+					ResponseDto.of("성공적으로 로그인 했습니다.", data),
+					headers,
 					HttpStatus.OK) ;
 		} else {
 			return new ResponseEntity<>(
-					ResponseDto.of("비밀번호가 일치하지 않습니다."), 
+					ResponseDto.of("비밀번호가 일치하지 않습니다."),
 					HttpStatus.BAD_REQUEST);
 		}
 	}
-		
 
-	public ResponseEntity<ResponseDto<Null>> logoutCustomer(Integer customerId) {
+
+	public ResponseEntity<ResponseDto<NullType>> logoutCustomer(Integer customerId) {
 		CustomerDto customerDto = getById(customerId);
 		String email = customerDto.getEmail();
 		String accessToken = this.tokenService.getAccessTokenByEmail(email);

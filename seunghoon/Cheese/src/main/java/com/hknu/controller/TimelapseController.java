@@ -2,7 +2,7 @@ package com.hknu.controller;
 
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +31,7 @@ public class TimelapseController {
 	
 	// 클라우드 타임랩스 삭제하기
 	@DeleteMapping(value = "/cloud/{customerId}/timelapse/{timelapseId}")
-	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(
+	public ResponseEntity<ResponseDto<NullType>> deleteCustomerCloudTimelapse(
 			@PathVariable Integer customerId, 
 			@PathVariable Integer timelapseId,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,

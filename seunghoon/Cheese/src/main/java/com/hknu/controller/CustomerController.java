@@ -3,7 +3,7 @@ package com.hknu.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,7 +43,7 @@ public class CustomerController {
 	
 	//회원가입
 	@PostMapping(value = "/customer")
-	public ResponseEntity<ResponseDto<Null>> insertCustomer(
+	public ResponseEntity<ResponseDto<NullType>> insertCustomer(
 			@RequestParam String email, 
 			@RequestParam String password, 
 			@RequestParam String nickname) {
@@ -52,7 +52,7 @@ public class CustomerController {
 	
 	// 사용자 비밀번호 수정하기
 	@PutMapping(value = "/customer/{customerId}")
-	public ResponseEntity<ResponseDto<Null>> updateCustomerPassword(
+	public ResponseEntity<ResponseDto<NullType>> updateCustomerPassword(
 			@PathVariable Integer customerId, 
 			@RequestParam String password,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
@@ -62,7 +62,7 @@ public class CustomerController {
 	
 	// 회원 탈퇴하기
 	@DeleteMapping(value = "/customer/{customerId}")
-	public ResponseEntity<ResponseDto<Null>> deleteCustomer(
+	public ResponseEntity<ResponseDto<NullType>> deleteCustomer(
 			@PathVariable Integer customerId, 
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
@@ -71,7 +71,7 @@ public class CustomerController {
 	
 	// 사용자 로그인
 	@PostMapping(value = "/auth")
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> loginCustomer(
+	public ResponseEntity<ResponseDto<Map<String, String>>> loginCustomer(
 			@RequestParam String email,
 			@RequestParam String password) {
 		return this.customerServiceImpl.loginCustomer(email, password);
@@ -79,7 +79,7 @@ public class CustomerController {
 	
 	// 사용자 로그아웃
 	@DeleteMapping(value = "/auth/{customerId}")
-	public ResponseEntity<ResponseDto<Null>> logoutCustomer(@PathVariable Integer customerId) {
+	public ResponseEntity<ResponseDto<NullType>> logoutCustomer(@PathVariable Integer customerId) {
 		return this.logoutCustomer(customerId);
 	}
 	

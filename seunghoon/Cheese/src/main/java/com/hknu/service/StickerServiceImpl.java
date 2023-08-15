@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,12 +26,12 @@ public class StickerServiceImpl implements Service<StickerDto>{
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<Null>> insertSticker(
+	public ResponseEntity<ResponseDto<NullType>> insertSticker(
 			Integer branchId, 
 			MultipartFile image,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;
@@ -62,11 +62,11 @@ public class StickerServiceImpl implements Service<StickerDto>{
 		throw new CustomException("관리자 권한이 필요합니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteSticker(
+	public ResponseEntity<ResponseDto<NullType>> deleteSticker(
 			Integer stickerId, 
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;

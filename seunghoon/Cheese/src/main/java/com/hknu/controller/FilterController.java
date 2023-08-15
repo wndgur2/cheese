@@ -2,7 +2,7 @@ package com.hknu.controller;
 
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class FilterController {
 	
 	// 필터 추가하기
 	@PostMapping(value = "/item/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ResponseDto<Null>> insertFilter(
+	public ResponseEntity<ResponseDto<NullType>> insertFilter(
 			@RequestParam(required = false) Integer branchId,
 			@RequestParam Integer brightness,
 			@RequestParam Integer exposure,
@@ -52,7 +52,7 @@ public class FilterController {
 	
 	// 필터 삭제하기
 	@DeleteMapping(value = "/item/filter/{filterId}")
-	public ResponseEntity<ResponseDto<Null>> deleteFilter(
+	public ResponseEntity<ResponseDto<NullType>> deleteFilter(
 			@PathVariable Integer filterId,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {

@@ -3,7 +3,7 @@ package com.hknu.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,12 +46,12 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(
+	public ResponseEntity<ResponseDto<NullType>> deleteCustomerCloudTimelapse(
 			Integer customerId, 
 			Integer timelapseId,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;

@@ -17,6 +17,11 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import com.hknu.util.Parser;
 
 import jakarta.servlet.MultipartConfigElement;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 // 프로젝트 작업 시 사용할 bean을 정의하는 클래스
 @Configuration

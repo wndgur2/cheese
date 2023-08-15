@@ -3,7 +3,6 @@ package com.hknu.service;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +12,8 @@ import com.hknu.domain.Room;
 import com.hknu.dto.response.ResponseDto;
 import com.hknu.exception.CustomException;
 import com.hknu.util.Parser;
+
+import javax.lang.model.type.NullType;
 
 @Service
 public class CameraService {
@@ -49,7 +50,7 @@ public class CameraService {
     	}
     }
     
-    public ResponseEntity<ResponseDto<Null>> enterRoom(
+    public ResponseEntity<ResponseDto<NullType>> enterRoom(
     		String branchId, 
     		String device) {	
         if (parser.parseId(branchId).isPresent()) {
@@ -83,7 +84,7 @@ public class CameraService {
         throw new CustomException("지점 아이디가 주어지지 않았습니다.");
     }
 
-    public ResponseEntity<ResponseDto<Null>> exitRoom(
+    public ResponseEntity<ResponseDto<NullType>> exitRoom(
     		String branchId, 
     		String device) {
     	Integer integerBranchId = Integer.parseInt(branchId);
