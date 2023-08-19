@@ -6,7 +6,7 @@ from gender_detection.gender_detection_test import predict_gender
 from body_reshape import body_reshape_process
 
 
-model = torch.hub.load('ultralytics/yolov5', 'custom', path='../../webRTCwithVision/yolov5/runs/train/yolov5_people/weights/best.pt')
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='./models/weights/best.pt')
 
 
 def get_bounding_boxes(img):
