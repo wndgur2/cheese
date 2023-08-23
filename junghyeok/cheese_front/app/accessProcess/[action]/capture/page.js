@@ -5,17 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import captureStyles from "./capture.module.css";
 import apStyles from "../ap.module.css";
+import Branch from '@/entity/Branch';
 
 export default function Amount(props) {
     const router = useRouter();
-    const [branch, setBranch] = useState("...");
+    /**
+     * @type {[Branch, Function]}
+     */
+    const [branch, setBranch] = useState();
     const [amount, setAmount] = useState("");
     const action = props.params.action;
 
     useEffect(()=>{
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if(!branch_){
-            router.push("/home/cheese_map");
+            router.push("/home/cheeseMap");
         }
 
         if(action=="capture") localStorage.setItem("action", "capture");
@@ -47,7 +51,7 @@ export default function Amount(props) {
             <img src='/back.png' width={28}/>
         </div>
 
-        <span className='title'>{branch.name}</span>
+        <span className='title'>{branch?.name}</span>
         <span className='subtitle'>에서</span>
         
         <div className={captureStyles.inputAmount}>
@@ -79,7 +83,7 @@ export default function Amount(props) {
                     paddingRight:20,
                     textAlign:"right",
                     width: "100%",
-                }}>{amount*1200}원 결제하기</span>
+                }}>{amount*branch.shooting_cost}원 결제하기</span>
             </div>
         </Link>:
             <div className={`next ${apStyles.disabled}`}>

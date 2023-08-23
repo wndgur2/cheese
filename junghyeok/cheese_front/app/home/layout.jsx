@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import homeStyles from "./home.module.css";
 import Link from 'next/link';
-import Script from 'next/script';
 
 export default function HomeLayout({ children }) {
   const pathname = usePathname();
@@ -17,9 +16,9 @@ export default function HomeLayout({ children }) {
   const navs = [
     {src: "/home_x4.png", width:"32px", href:"/home", name: "홈", active: "home"},
     {src: "/edit_x4.png", width:"32px", href:"/edit", name: "편집", active: "edit"},
-    {src: "/cheese_120.png", width:"32px", href:"/access_process/capture", name: "촬영", active: "capture"},
-    {src: "/print_x4.png", width:"32px", href:"/access_process/print", name: "인화", active: "print"},
-    {src: "/my_x4.png", width:"32px", href:"/home/my_cheese", name: "내치즈", active: "my_cheese"},
+    {src: "/cheese_120.png", width:"32px", href:"/accessProcess/capture", name: "촬영", active: "capture"},
+    {src: "/print_x4.png", width:"32px", href:"/accessProcess/print", name: "인화", active: "print"},
+    {src: "/my_x4.png", width:"32px", href:"/home/myCheese", name: "내치즈", active: "myCheese"},
   ];
 
   const handleBodyScroll = (curTop)=>{

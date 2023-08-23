@@ -49,7 +49,7 @@ export default function Amounts(props) {
     useEffect(()=>{
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if(!branch_){
-            router.push("/home/cheese_map");
+            router.push("/home/cheeseMap");
         }
 
         if(action=="capture") localStorage.setItem("action", "capture");
@@ -74,7 +74,7 @@ export default function Amounts(props) {
             <img src='/back.png' width={28}/>
         </div>
 
-        <span className='title'>{branch.name}</span>
+        <span className='title'>{branch?.name}</span>
         <span style={{fontSize:26}}>에서</span>
         <p style={{margin:0, fontSize:24}}>인화할 사진을 추가해주세요.</p>
         {

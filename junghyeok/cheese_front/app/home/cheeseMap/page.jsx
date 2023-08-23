@@ -22,7 +22,6 @@ async function getData(url, setBranches) {
   }
   catch(error){
     console.log(error);
-    throw new Error('Failed to fetch data')
   }
 }
 
@@ -107,6 +106,25 @@ export default function CheeseMap() {
     }
   }
 
+  function getDistance(longitude, latitude){
+    if(!currentPosition) return;
+    let distance = Math.sqrt(
+      Math.pow(
+        (Math.cos(currentPosition.lat())*6400*2*3.14/360)*
+        Math.abs(currentPosition.lng() - longitude), 2
+      ) + Math.pow(111* Math.abs(currentPosition.lat() - latitude), 2)
+    );
+  
+    let p = "km";
+    if(distance < 1) {
+      distance *= 1000;
+      p = 'm';
+    }
+  distance =  parseFloat(distance.toFixed(0));
+  
+    return distance.toString() + p
+  }
+
   return (
     <div className="container">
       <Script
@@ -135,23 +153,4 @@ export default function CheeseMap() {
       })}
     </div>
   )
-
-  function getDistance(longitude, latitude){
-    if(!currentPosition) return;
-    let distance = Math.sqrt(
-      Math.pow(
-        (Math.cos(currentPosition.lat())*6400*2*3.14/360)*
-        Math.abs(currentPosition.lng() - longitude), 2
-      ) + Math.pow(111* Math.abs(currentPosition.lat() - latitude), 2)
-    );
-  
-    let p = "km";
-    if(distance < 1) {
-      distance *= 1000;
-      p = 'm';
-    }
-    distance = parseFloat(distance.toFixed(0));
-  
-    return distance.toString() + p
-  }
 }

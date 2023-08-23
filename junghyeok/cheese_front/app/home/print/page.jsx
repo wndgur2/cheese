@@ -8,7 +8,7 @@ export default function Print() {
   let router = useRouter();
   useEffect(()=>{
     if(!localStorage.getItem("location")){
-      router.push("/home/cheese_map");
+      router.push("/home/cheeseMap");
     }
   },[]);
   return (

@@ -4,27 +4,35 @@ import BigBtn from '@/components/BigBtn';
 import { useEffect, useState } from 'react';
 import homeStyles from './home.module.css';
 import TextBtn from '@/components/TextBtn';
-import SharedPhoto from '@/entity/SharedPhoto';
 import axios from 'axios';
+import SharedPhoto from '@/entity/SharedPhoto';
 import Branch from '@/entity/Branch';
 
-function guid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-  });
-}
+// function guid() {
+//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+//       let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+//       return v.toString(16);
+//   });
+// }
 
-async function getSharedPhotos(setPhotos, index) {
+async function getSharedPhotos(setPhotos, index, branchId) {
   let photos = [];
   try{
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/share/page/${index}`);
-    res.data.data.map((share)=>{
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API}/share/page/${index}`,
+      {
+        params: {
+          branchId: branchId?branchId:null,
+        }
+      }
+    );
+    // console.log("share data: ", res.data.data);
+    res.data.data?.map((share)=>{
       if(!share.sharedPhotoMap) {
         console.log("No photo");
         return;
       }
-      const photo = share.sharedPhotoMap["1"];
+      const photo = share.sharedPhotoMap[Object.keys(share.sharedPhotoMap)[0]];
       photos.push(new SharedPhoto(photo.photographId, photo.customerId, photo.branchId, photo.createdAt, photo.photoImage));
     })
     setPhotos(photos);
@@ -32,7 +40,6 @@ async function getSharedPhotos(setPhotos, index) {
   }
   catch(error){
     console.log(error);
-    throw new Error('Failed to fetch data')
   }
 }
 
@@ -41,11 +48,13 @@ async function getSharedPhotos(setPhotos, index) {
 async function getBranch(setBranch, branchId) {
   try{
     const res = await (await fetch(`${process.env.NEXT_PUBLIC_API}/branch/${branchId}`)).json();
-    console.log(res);
+    // console.log(res);
+    
     const branch = new Branch(res.data.branchId, res.data.name, res.data.longitude, res.data.latitude, res.data.shootingCost, res.data.printingCost, res.data.paperAmount);
-
-    setBranch(branch);
-    return branch;
+    branch.getAddress().then(()=>{
+      localStorage.setItem("branch", JSON.stringify(branch));
+      setBranch(branch);
+    })
   }
   catch(error){
     console.log(error);
@@ -54,27 +63,34 @@ async function getBranch(setBranch, branchId) {
 }
 
 export default function Home(props) {
-  const [uid, setUid] = useState();
+  // const [uid, setUid] = useState();
   const [branch, setBranch] = useState();
   const [isLocated, setIsLocated] = useState(false);
   const [photos, setPhotos] = useState([]);
 
   useEffect(()=>{
-    console.log(props.searchParams.branchId);
+    let localBranch = JSON.parse(localStorage.getItem("branch"));
     if(props.searchParams.branchId){
       getBranch(setBranch, props.searchParams.branchId);
+      getSharedPhotos(setPhotos, 1, props.searchParams.branchId);
+    } else if (localBranch){
+      setBranch(localBranch);
+      getSharedPhotos(setPhotos, 1, localBranch.id)
+    } else{
+      getSharedPhotos(setPhotos, 1);
     }
 
-    if (localStorage.getItem("uuid") === null)
-      localStorage.setItem("uuid", guid());
-    setUid(localStorage.getItem("uuid"));
+    screen.orientation.lock("any");
+
+
+    // if (localStorage.getItem("uuid") === null)
+    //   localStorage.setItem("uuid", guid());
+    // setUid(localStorage.getItem("uuid"));
   }, []);
 
   useEffect(()=>{
     if(!branch) return;
-
     setIsLocated(true);
-    getSharedPhotos(setPhotos, 1);
   }, [branch])
 
   return (
@@ -83,7 +99,7 @@ export default function Home(props) {
         <div style={{width:"100%"}}>
           {branch?
             <div>
-              <span className='title'>치즈한장 {branch.name}</span> <br/>
+              <span className='title'>{branch.name.length < 7?"치즈한장":""} {branch.name}</span> <br/>
               <span className='subtitle'>{branch.address}</span>
             </div>
             :
@@ -93,7 +109,7 @@ export default function Home(props) {
             </div>}
         </div>
         <BigBtn enabled="true"
-          href="/home/cheese_map"
+          href="/home/cheeseMap"
           src="/map_x4.png"
           size="60px"
           iconWidth="26px"
@@ -101,16 +117,18 @@ export default function Home(props) {
         />
       </div>
       {/* <p>session.status : {session.status}</p> */}
-      { photos.length?
-        <img src={"data:image/png;base64," + photos[0].photoImage} width={"100%"}
-        style={{
-          borderRadius:"5px",
-          margin:"20px 0 0 0",
-          maxHeight:"30vh",
-          objectFit: "cover"
-        }}/>
+      { isLocated?
+          photos.length?
+          <img src={"data:image/png;base64," + photos[0].photoImage} width={"100%"}
+          style={{
+            borderRadius:"5px",
+            margin:"20px 0 0 0",
+            maxHeight:"30vh",
+            objectFit: "cover"
+          }}/>
+          :<div>No shared photos yet.</div>
         :
-        <TextBtn href="/home/cheese_map" color="#FFD56A"
+        <TextBtn href="/home/cheeseMap" color="#FFD56A"
           type="big"
           content="현장에서 촬영과 인화를 할 수 있어요.">
             지점을 선택해주세요.
@@ -127,7 +145,7 @@ export default function Home(props) {
           iconHeight="30px"
         >편집</BigBtn>
         <BigBtn enabled={isLocated}
-          href="/access_process/capture"
+          href="/accessProcess/capture"
           src="/cheese_empty_37_30_x4.png"
           size="80px"
           iconWidth="37px"
@@ -135,7 +153,7 @@ export default function Home(props) {
         >촬영</BigBtn>
         <BigBtn
           enabled={isLocated}
-          href="/access_process/print"
+          href="/accessProcess/print"
           src="/print_x4.png"
           size="80px"
           iconWidth="37px"
@@ -152,15 +170,15 @@ export default function Home(props) {
         overflowX:"scroll",
       }}>
         {
-          photos.map((photo, i)=>{
+          photos.slice(1,5).map((photo, i)=>{
             return (
               <img src={"data:image/png;base64," + photo.photoImage} key={i}
               style={{
-                maxHeight:"180px",
+                maxWidth:"80vw",
+                maxHeight:"30vh",
                 borderRadius:"5px",
                 boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
                 objectFit: "cover",
-                width: "70vw",
             }}/>
             )
           })

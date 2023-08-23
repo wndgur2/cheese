@@ -151,7 +151,6 @@ export default function Edit() {
       case "Text":
         Page.setTouchLayer(pages[pageIndex], "text");
         break;
-
       default:
         Page.setTouchLayer(pages[pageIndex], "");
         break;

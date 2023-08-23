@@ -4,6 +4,7 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import KakaoProvider from 'next-auth/providers/kakao';
 import CredentialsProvider from "next-auth/providers/credentials";
+import { getSession } from "next-auth/react";
 
 export const authOptions = {
   providers: [
@@ -31,8 +32,13 @@ export const authOptions = {
           const res = await axios.post(process.env.NEXT_PUBLIC_API + "/auth", null, {
             params: req.query
           })
-          console.log(res.data);
-          return {id:res.data.data.id, email:req.query.email, name:res.data.data.nickname};
+          return {
+            id:res.data.data.id,
+            email:req.query.email,
+            name:res.data.data.nickname,
+            authorization:res.headers.authorization.split(" ")[1],
+            "refresh-token":res.headers["refresh-token"].split(" ")[1],
+          };
         } catch(error){
           console.log("LOGINERROR", error.response.data);
           return null;
@@ -47,20 +53,19 @@ export const authOptions = {
       return user;
     },
     session: async ({ session, token }) => {
-      if (session?.user) {
-        session.user.id = token.uid;
-      }
+      if(!session) return session;
+      session.user.id = token.uid;
+      session.user.authorization = token.authorization;
+      session.user["refresh-token"] = token["refresh-token"];
       return session;
     },
     jwt: async ({ user, token }) => {
-      if (user) {
-        token.uid = user.id;
-      }
+      if (!user) return token;
+      token.uid = user.id;
+      token.authorization = user.authorization;
+      token["refresh-token"] = user["refresh-token"];
       return token;
     },
-  },
-  session: {
-    strategy: 'jwt',
   },
 };
 export default NextAuth(authOptions); 

@@ -19,7 +19,6 @@ export default function SignIn(props) {
       setError("아이디와 비밀번호를 입력해주세요.");
       return;
     }
-    // signIn("cheese", {callbackUrl:props.searchParams? props.searchParams.callbackUrl:"/home"}, {email, password});
     const res = await signIn("cheese", {redirect:false}, {email, password});
     console.log(res);
     if(res.error == null){

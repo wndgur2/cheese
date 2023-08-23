@@ -1,5 +1,3 @@
-import axios from "axios";
-
 class SharedPhoto{
     constructor(id, customerId, branchId, createdAt, photoImage){
         this.id = id;

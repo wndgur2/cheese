@@ -1,29 +1,8 @@
 'use client';
 import { useState } from "react";
-import myCheeseStyles from "../myCheese.module.css";
+import myCheeseStyles from "../../app/home/myCheese/myCheese.module.css"
 
-export default function Timelapse() {
-
-  const photographs = [
-    {
-      src:"/samples/대만.jpeg",
-      branch: "한경대 안성캠점",
-      createdAt: "2023년 3월 9일 18:19"
-    }, {
-      src:"/samples/당진.jpeg",
-      branch: "중앙대 안성캠점",
-      createdAt: "2022년 12월 8일 17:00"
-    }, {
-      src:"/samples/알고리즘.jpeg",
-      branch: "한경대 안성캠점",
-      createdAt: "2023년 3월 9일 18:19"
-    }, {
-      src:"/samples/여름이.jpeg",
-      branch: "중앙대 안성캠점",
-      createdAt: "2022년 12월 8일 17:00"
-    }
-  ];
-
+export default function Timelapse({timelapses}) {
   const [selected, setSelected] = useState([]);
   
   const handleImageClick = (i)=>{
@@ -49,10 +28,10 @@ export default function Timelapse() {
             `${selected.includes(i)?myCheeseStyles.selected:""}
             ${myCheeseStyles.image}`
           }
-          src={photographs[i].src} />
+          src={timelapses[i].src} />
       </td>
     );
-    if(photographs[i+1]){
+    if(timelapses[i+1]){
       result.push(
         <td key={i+1} className={myCheeseStyles.td}
           onClick={()=>{handleImageClick(i+1)}}>
@@ -61,7 +40,7 @@ export default function Timelapse() {
               `${selected.includes(i+1)?myCheeseStyles.selected:""}
               ${myCheeseStyles.image}`
             }
-            src={photographs[i+1].src} />
+            src={timelapses[i+1].src} />
         </td>
       )
     }
@@ -71,7 +50,7 @@ export default function Timelapse() {
 
   const renderImages = ()=>{
     const result = [];
-    for(let i=0; i<photographs.length; i+=2){
+    for(let i=0; i<timelapses.length; i+=2){
       result.push(
         <tr key={i} className={myCheeseStyles.tr}>
           {renderRow(i)}
@@ -89,7 +68,7 @@ export default function Timelapse() {
         borderCollapse:"collapse",
       }}>
         <tbody>
-          {renderImages()}
+          {timelapses?renderImages():<></>}
         </tbody>
       </table>
       <br/>

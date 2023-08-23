@@ -1,6 +1,6 @@
 #captureAmount{
-    width: 80%;
-    font-size: 9vw;
+    width: 100%;
+    font-size: 11vw;
     font-weight: 700;
     caret-color: #FFD56A;
     background:none;
@@ -12,8 +12,7 @@
 
 .inputInfo{
     height: 5vh;
-
-    font-size: 9vw;
+    font-size: 11vw;
     font-weight: 700;
     color: #212121;
     pointer-events: none;

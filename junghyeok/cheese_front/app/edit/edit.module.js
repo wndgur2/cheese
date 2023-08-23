@@ -347,7 +347,6 @@ class Page{
             contrast(${filter.contrast/100})
             saturate(${filter.saturate/100})
             grayscale(${filter.grayscale/100})`
-        console.log(filterString);
         this.layers.forEach(layer =>{
             layer.ctx.filter = filterString;
         })

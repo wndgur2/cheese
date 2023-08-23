@@ -2,12 +2,15 @@
 
 import { useEffect, useRef, useState} from "react";
 import captureStyles from "./capture.module.css";
-import { useRouter } from "next/navigation";
-import LongBtn from "@/components/LongBtn";
 import TextBtn from "@/components/TextBtn";
+import JSZip from "jszip";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import dataURItoBlob from "@/util/dataUriToBlob";
 
 export default function Home() {
   const remoteVideoRef = useRef();
+  const localVideoRef = useRef();
   let localStream;
   let myPeerConnection;
   const localRoom= "4";
@@ -77,11 +80,6 @@ export default function Home() {
           handleErrorMessage('Wrong type message received from server');
       }
     };
-
-    //방 만들기
-    // postRoom().then((data)=>{
-    //   console.log(data);
-    // })
 
     // 함수들 정의
     function stop() {
@@ -170,7 +168,7 @@ export default function Home() {
     // add MediaStream to local video element and to the Peer
     function getLocalMediaStream(mediaStream) {
         localStream = mediaStream;
-        // localVideoRef.current.srcObject = mediaStream;
+        localVideoRef.current.srcObject = mediaStream;
         localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
     }
 
@@ -299,50 +297,115 @@ export default function Home() {
       console.log("Adding received ICE candidate: " + JSON.stringify(candidate));
       myPeerConnection.addIceCandidate(candidate).catch(handleErrorMessage);
     }
+
+    screen.orientation.lock("any");
   },[]);
-  
-
-  // room POST 요청 구현해보기
-  // async function postRoom(url = 'http://0.0.0.0:8080/room', data = {uuid: localStorage.getItem("uuid"), id:2, action:'create'}) {
-  //   const formData = new FormData();
-  //   formData.append("action", data.action);
-  //   formData.append("uuid", data.uuid);
-  //   formData.append("id", data.id);
-
-  //   // 옵션 기본 값은 *로 강조
-  //   const response = await fetch(url, {
-  //     method: 'POST', // *GET, POST, PUT, DELETE 등
-  //     mode: 'no-cors', // no-cors, *cors, same-origin
-  //     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-  //     credentials: 'same-origin', // include, *same-origin, omit
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       // 'Content-Type': 'application/x-www-form-urlencoded',
-  //     },
-  //     redirect: 'follow', // manual, *follow, error
-  //     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-  //     body: formData, // body의 데이터 유형은 반드시 "Content-Type" 헤더와 일치해야 함
-  //   });
-  //   return response; // JSON 응답을 네이티브 JavaScript 객체로 파싱
-  // }
 
   const [capturedAmount, setCapturedAmount] = useState(0);
-  const router = useRouter();
+  const [captures, setCaptures] = useState([]);
+  const session = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect("/home/signin");
+    },
+  });
+
+
+  function capture() {
+    var canvas = document.createElement("canvas");
+    var video = localVideoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas
+      .getContext("2d")
+      .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+    const url = canvas.toDataURL("image/jpeg");
+    let newCaptures = [...captures];
+    newCaptures.push(url);
+    // console.log(url);
+    setCaptures(newCaptures);
+  }
+
+  function handleShutterClick() {
+    capture();
+    setCapturedAmount(capturedAmount+1);
+    if(capturedAmount >= 4) savePhotos();
+    // console.log(captures);
+  }
+
+  
+  function savePhotos() {
+    console.log("save photos");
+    // save captures to local storage  
+    localStorage.setItem("captures", JSON.stringify(captures));
+    // zip captures and download
+    const zip = new JSZip();
+    const folder = zip.folder("captures");
+    for (let i = 0; i < captures.length; i++) {
+      const data = captures[i].split(",")[1];
+      folder.file(`capture${i}.jpg`, data, { base64: true });
+    }
+    zip.generateAsync({ type: "blob" }).then((content) => {
+      const url = window.URL.createObjectURL(content);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "captures.zip";
+      link.click();
+    });
+
+    const branchId = JSON.parse(localStorage.getItem("branch")).id;
+
+    // upload captures to server
+    // fetch post for each capture
+    // Array.from(captures).forEach((capture) => {
+      const url = process.env.NEXT_PUBLIC_API + `/cloud/${session.data.user.id}/photo`;
+      const data = new FormData();
+      const blob = dataURItoBlob(captures[0]);
+      // console.log(blob);
+      data.append("image", blob);
+      axios.post(url, data, {
+        headers: {
+          authorization: session.data.user.authorization,
+          "refresh-token": session.data.user["refresh-token"],
+        }, 
+        params:{
+          branchId:branchId,
+        }
+      })
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    // })
+
+    // post payment data to server
+    const paymentUrl = process.env.NEXT_PUBLIC_API + `/branch/${branchId}/payment`;
+    axios.post(paymentUrl, null, {
+      headers: {
+        authorization: session.data.user.authorization,
+        "refresh-token": session.data.user["refresh-token"],
+      },
+      params:{
+        customerId: session.data.user.id,
+        cost: 1000,
+        amount: capturedAmount,
+        photo_or_print: true,
+      }
+    })
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
+  }
+
+
 
   return (
     <div>
-      {/* <video ref={localVideoRef} autoPlay playsInline></video> */}
-      <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
+      <video id={captureStyles.stream} ref={localVideoRef} autoPlay playsInline></video>
+      {/* <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video> */}
       <div className={captureStyles.functions}>
         <div className={captureStyles.rotate}>
           <img id={captureStyles.rotate} src="/capture/rotate.png" />
         </div>
         <div className={captureStyles.shutter} 
-          onClick={
-            ()=>{
-              if(capturedAmount < 5){ setCapturedAmount(capturedAmount+1);}
-            }
-          }>
+          onClick={handleShutterClick}>
           <img id={captureStyles.shutter} src="/capture/shutter.png" />
         </div>
         <div className={captureStyles.timer}>
@@ -355,13 +418,13 @@ export default function Home() {
       </div>
       {capturedAmount ==5 &&
         <div className={captureStyles.alertWrapper}>
-          <div className={captureStyles.alert}>
+          <div className="alert">
             <span className='title'>촬영이 끝났어요.</span> <br/>
             <span className='subtitle'>사진을 기기에 저장할게요.</span> <br/><br/>
-            <TextBtn href={"home"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
-            <TextBtn href={"home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
-            <TextBtn href={"home"} color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn>
-            <TextBtn href={"home"} color="#FEFBF6">홈으로</TextBtn>
+            <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
+            <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
+            <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn>
+            <TextBtn href={"/home"} color="#FEFBF6">홈으로</TextBtn>
           </div>
         </div>
       }

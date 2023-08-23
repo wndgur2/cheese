@@ -18,7 +18,7 @@ export default function Action(props) {
         if(!ready) return;
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if(!branch_){
-            router.push("/home/cheese_map");
+            router.push("/home/cheeseMap");
         }
 
         if(action=="capture"){
@@ -74,18 +74,18 @@ export default function Action(props) {
             color:"#343434",
             marginTop:0
         }}>{action=="print"?"인화":"촬영"} 장소를 확인하세요.</p>
-        <span className='title'>치즈한장 {branch.name}</span> <br/>
-        <span className='subtitle'>{branch.address}</span>
+        <span className='title'>치즈한장 {branch?.name}</span> <br/>
+        <span className='subtitle'>{branch?.address}</span>
         <div id="map" style={{
             width:"100%", height:"300px",
             margin: "3vh 0px 4vh 0px",
             borderRadius: 10,
             boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)"
         }}></div>
-        <TextBtn href="/home/cheese_map"
+        <TextBtn href="/home/cheeseMap"
         content="치즈맵에서 지점을 변경하세요.">현재 위치가 아닌가요?</TextBtn>
 
-        <Link href={"/access_process/"+action+"/"+action}>
+        <Link href={"/accessProcess/"+action+"/"+action}>
             <div className="next">
                 <p style={{
                     fontSize: 20,
