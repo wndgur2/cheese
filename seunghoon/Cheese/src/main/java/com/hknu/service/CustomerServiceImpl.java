@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import com.hknu.dao.CustomerDaoImpl;
 import com.hknu.dto.CustomerDto;
@@ -69,14 +71,14 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Null>> insertCustomer(
+	public ResponseEntity<ResponseDto<NullType>> insertCustomer(
 			String email, 
 			String password, 
 			String nickname) {
 		CustomerDto customerDto = new CustomerDto(
 				getMaxPkValue(), 
 				email, 
-				password, 
+				BCrypt.hashpw(password, BCrypt.gensalt()), 
 				0.0, 
 				nickname, 
 				null, 
@@ -90,19 +92,19 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				HttpStatus.OK);
 	}
 		
-	public ResponseEntity<ResponseDto<Null>> updateCustomerPassword(
+	public ResponseEntity<ResponseDto<NullType>> updateCustomerPassword(
 			Integer customerId, 
 			String password,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
 		}
 
 		CustomerDto customerDto = getById(customerId);
-		customerDto.setPassword(password);
+		customerDto.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
 		update(customerDto);
 
 		return new ResponseEntity<>(
@@ -110,11 +112,11 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 				HttpStatus.OK);
 	}
 
-	public ResponseEntity<ResponseDto<Null>> deleteCustomer(
+	public ResponseEntity<ResponseDto<NullType>> deleteCustomer(
 			Integer customerId, 
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -127,12 +129,12 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> loginCustomer(
+	public ResponseEntity<ResponseDto<Map<String, Object>>> loginCustomer(
 			String email, 
 			String password) {
 		CustomerDto customerDto = getByEmail(email);
 
-		if (password.equals(customerDto.getPassword())) {
+		if (BCrypt.checkpw(password, customerDto.getPassword())) {
 			String accessToken = this.tokenService.generateAccessToken(email);
 			String refreshToken = this.tokenService.generateRefreshToken(email);
 			
@@ -140,8 +142,10 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 			headers.add("Authorization", "Bearer " + accessToken);
 			headers.add("Refresh-Token", "Bearer " + refreshToken);
 			
-			Map<String, Integer> data = new HashMap<>();
+			Map<String, Object> data = new HashMap<>();
 			data.put("id", customerDto.getCustomerId());
+			data.put("nickname", customerDto.getNickname());
+			data.put("email", customerDto.getEmail());
 			
 			return new ResponseEntity<>(
 					ResponseDto.of("성공적으로 로그인 했습니다.", data), 
@@ -155,7 +159,7 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Null>> logoutCustomer(Integer customerId) {
+	public ResponseEntity<ResponseDto<NullType>> logoutCustomer(Integer customerId) {
 		CustomerDto customerDto = getById(customerId);
 		String email = customerDto.getEmail();
 		String accessToken = this.tokenService.getAccessTokenByEmail(email);
@@ -172,6 +176,11 @@ public class CustomerServiceImpl implements Service<CustomerDto>{
 		return new ResponseEntity<>(
 				ResponseDto.of("성공적으로 로그아웃 했습니다."), 
 				HttpStatus.OK);
+	}
+	
+	public String getNickNameById(Integer id) {
+		Customer customer = this.customerDaoImpl.getById(id);
+		return customer.getNickname();
 	}
 	
 	public CustomerDto getById(Integer id) {

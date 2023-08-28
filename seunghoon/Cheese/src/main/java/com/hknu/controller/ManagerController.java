@@ -1,6 +1,7 @@
 package com.hknu.controller;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,13 +20,13 @@ public class ManagerController {
 	
 	// 관리자 로그인
 	@PostMapping(value = "/manager")
-	public ResponseEntity<ResponseDto<Null>> loginManager(@RequestParam String password) {
+	public ResponseEntity<ResponseDto<NullType>> loginManager(@RequestParam String password) {
 		return this.managerService.loginManager(password);
 	}
 	
 	// 관리자 비밀번호 수정하기
 	@PutMapping(value = "/manager")
-	public ResponseEntity<ResponseDto<Null>> updateManager(
+	public ResponseEntity<ResponseDto<NullType>> updateManager(
 			@RequestParam String password,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {

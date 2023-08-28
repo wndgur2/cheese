@@ -1,10 +1,10 @@
 package com.hknu.controller;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,15 +18,9 @@ public class CameraController {
 	@Autowired
 	private CameraService cameraService;
 	
-	// test
-	@GetMapping(value = "/branch/getroom")
-	public void test() {
-		this.cameraService.test();
-	}
-
 	// 미러링 시작하기
 	@PostMapping(value = "/branch/{branchId}/stream")
-    public ResponseEntity<ResponseDto<Null>> enterRoom(
+    public ResponseEntity<ResponseDto<NullType>> enterRoom(
     		@PathVariable String branchId, 
     		@RequestParam String device) {
         return this.cameraService.enterRoom(branchId, device);
@@ -34,7 +28,7 @@ public class CameraController {
 	
 	// 미러링 종료하기
 	@DeleteMapping("/branch/{branchId}/stream")
-	public ResponseEntity<ResponseDto<Null>> exitRoom(
+	public ResponseEntity<ResponseDto<NullType>> exitRoom(
 			@PathVariable String branchId, 
 			@RequestParam String device) {
 	    return this.cameraService.exitRoom(branchId, device);

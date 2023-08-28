@@ -2,7 +2,8 @@ package com.hknu.controller;
 
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hknu.dto.FrameDto;
 import com.hknu.dto.response.ResponseDto;
 import com.hknu.service.FrameServiceImpl;
+
 @RestController
 public class FrameController {
 	@Autowired
@@ -25,7 +27,7 @@ public class FrameController {
 	
 	// 프레임 추가하기
 	@PostMapping(value = "/item/frame", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ResponseDto<Null>> insertFrame(
+	public ResponseEntity<ResponseDto<NullType>> insertFrame(
 			@RequestParam(required = false) Integer branchId, 
 			@RequestParam MultipartFile image,
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
@@ -35,7 +37,7 @@ public class FrameController {
 	
 	// 프레임 삭제하기
 	@DeleteMapping(value = "/item/frame/{frameId}")
-	public ResponseEntity<ResponseDto<Null>> deleteFrame(
+	public ResponseEntity<ResponseDto<NullType>> deleteFrame(
 			@PathVariable Integer frameId, 
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
@@ -50,16 +52,4 @@ public class FrameController {
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.frameServiceImpl.getListFrames(branchId, accessToken, refreshToken);
 	}
-	
-//	public String getFrameById(Integer id) {
-//		return null;
-//	}
-//	
-//	public String getAllFrames() {
-//		return null;
-//	}
-//	
-//	public String updateFrame(FrameDto fd) {
-//		return null;
-//	}
 }

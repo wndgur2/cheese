@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,8 @@ public class ShareServiceImpl implements Service<ShareDto>{
 	@Autowired
 	private PhotographServiceImpl photographServiceImpl;
 	@Autowired
+	private CustomerServiceImpl customerServiceImpl;
+	@Autowired
 	private TokenService tokenService;
 	
 	// 이미지 파일 여부 확인
@@ -42,12 +45,12 @@ public class ShareServiceImpl implements Service<ShareDto>{
 		                               contentType.startsWith("image/tiff"));
 	}
 		
-	public ResponseEntity<ResponseDto<Null>> insertShare(
+	public ResponseEntity<ResponseDto<NullType>> insertShare(
 			Integer customerId, 
 			List<MultipartFile> photo,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;
@@ -89,6 +92,7 @@ public class ShareServiceImpl implements Service<ShareDto>{
 			ShareDto shareDto = new ShareDto(
 					getShareMaxPkValue(), 
 					customerId, 
+					customerServiceImpl.getNickNameById(customerId),
 					firstBranchIdFromPhotograph,
 					date, 
 					sharedPhotoMap);
@@ -104,12 +108,12 @@ public class ShareServiceImpl implements Service<ShareDto>{
 	}
 		
 
-	public ResponseEntity<ResponseDto<Null>> deleteShare(
+	public ResponseEntity<ResponseDto<NullType>> deleteShare(
 			Integer customerId, 
 			Integer shareId, 
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;
@@ -160,6 +164,7 @@ public class ShareServiceImpl implements Service<ShareDto>{
 		ShareDto shareDto = new ShareDto(
 				share.getShare_id(),
 				share.getCustomer_id(), 
+				customerServiceImpl.getNickNameById(share.getCustomer_id()),
 				share.getBranch_id(),
 				share.getCreated_at(),
 				null);
@@ -194,6 +199,7 @@ public class ShareServiceImpl implements Service<ShareDto>{
 			ShareDto shareDto = new ShareDto(
 					share.getShare_id(),
 					share.getCustomer_id(),
+					customerServiceImpl.getNickNameById(share.getCustomer_id()),
 					share.getBranch_id(),
 					share.getCreated_at(),
 					null);
@@ -283,6 +289,7 @@ public class ShareServiceImpl implements Service<ShareDto>{
 			ShareDto shareDto = new ShareDto(
 					share.getShare_id(),
 					share.getCustomer_id(), 
+					customerServiceImpl.getNickNameById(share.getCustomer_id()),
 					share.getBranch_id(),
 					share.getCreated_at(),
 					null);
@@ -321,6 +328,7 @@ public class ShareServiceImpl implements Service<ShareDto>{
 			ShareDto shareDto = new ShareDto(
 					share.getShare_id(),
 					share.getCustomer_id(), 
+					customerServiceImpl.getNickNameById(share.getCustomer_id()),
 					share.getBranch_id(),
 					share.getCreated_at(),
 					null);

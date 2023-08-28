@@ -1,5 +1,6 @@
 package com.hknu.config;
 
+import javax.servlet.MultipartConfigElement;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.hknu.util.Parser;
-
-import jakarta.servlet.MultipartConfigElement;
 
 // 프로젝트 작업 시 사용할 bean을 정의하는 클래스
 @Configuration

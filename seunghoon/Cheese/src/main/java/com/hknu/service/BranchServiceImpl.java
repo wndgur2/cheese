@@ -9,7 +9,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -95,7 +96,7 @@ public class BranchServiceImpl implements Service<BranchDto>{
 		throw new CustomException("지점 추가 중 오류가 발생했습니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> updateBranch(
+	public ResponseEntity<ResponseDto<NullType>> updateBranch(
 			Integer branchId, 
 			String name, 
 			float latitude, 
@@ -105,7 +106,7 @@ public class BranchServiceImpl implements Service<BranchDto>{
 			Integer paper_amount,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -139,11 +140,11 @@ public class BranchServiceImpl implements Service<BranchDto>{
 		throw new CustomException("지점 수정 중 오류가 발생했습니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteBranch(
+	public ResponseEntity<ResponseDto<NullType>> deleteBranch(
 			Integer branchId,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -174,6 +175,22 @@ public class BranchServiceImpl implements Service<BranchDto>{
 					ResponseDto.of("해당 지점은 현재 촬영 대기열이 존재하지 않습니다.", data), 
 					HttpStatus.OK);
 		} else {
+			// Debug Code ======================================================================
+			String totalQueue = "";
+			
+			Iterator<String> it = queue.iterator();
+	        Integer idx = 0;
+
+	        while (it.hasNext()) {
+	        	idx++;
+	            String element = it.next();
+	            totalQueue += element;
+	            totalQueue += ", ";
+	        }
+	        
+	        System.out.println(String.format("현재 총 대기열 디바이스 목록 : [%s]", totalQueue));
+	     // ====================================================================================
+	        
 		    if (device != null) {
 		        Iterator<String> iterator = queue.iterator();
 		        Integer index = 0;
@@ -204,15 +221,32 @@ public class BranchServiceImpl implements Service<BranchDto>{
 	public ResponseEntity<ResponseDto<Map<String, Integer>>> enCameraQueue(
 			Integer branchId, 
 			String device) {
-		if (device.isEmpty()) {
+		if (device == null || device.isEmpty()) {
 			throw new CustomException("디바이스 정보가 옳지 않습니다.");
 		}
 		
 		Boolean cameraOrPrint = false;
-		enQueue(branchId, device, cameraOrPrint);
+		Map<String, Integer> data = new HashMap<>();
+		Boolean isExist = enQueue(branchId, device, cameraOrPrint);
 		ConcurrentLinkedQueue<String> queue = getQueue(branchId, cameraOrPrint);
 		
-		Map<String, Integer> data = new HashMap<>();
+		if (!isExist) {
+	        Iterator<String> iterator = queue.iterator();
+	        Integer index = 0;
+
+	        while (iterator.hasNext()) {
+	            index++;
+	            String element = iterator.next();
+	            
+	            if (element.equals(device)) {
+			        data.put("length_queue", index);
+					return new ResponseEntity<>(
+							ResponseDto.of("이미 대기열에 존재하는 디바이스 입니다.", data), 
+							HttpStatus.OK);
+	            }
+	        }
+		}
+		
 		data.put("length_queue", queue.size());
 		
 		return new ResponseEntity<>(
@@ -220,16 +254,15 @@ public class BranchServiceImpl implements Service<BranchDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deCameraQueue(
+	public ResponseEntity<ResponseDto<NullType>> deCameraQueue(
 			Integer branchId, 
 			String device) {
-		if (device.isEmpty()) {
+		if (device == null || device.isEmpty()) {
 			throw new CustomException("디바이스 정보가 옳지 않습니다.");
 		}
 		
 		Boolean cameraOrPrint = false;
 		removeElementFromQueue(branchId, device, cameraOrPrint);
-		
 		return new ResponseEntity<>(
 				ResponseDto.of("성공적으로 촬영 대기를 취소했습니다."), 
 				HttpStatus.OK);
@@ -279,7 +312,7 @@ public class BranchServiceImpl implements Service<BranchDto>{
 	public ResponseEntity<ResponseDto<Map<String, Integer>>> enPrinterQueue(
 			Integer branchId, 
 			String device) {
-		if (device.isEmpty()) {
+		if (device == null || device.isEmpty()) {
 			throw new CustomException("디바이스 정보가 옳지 않습니다.");
 		}
 		
@@ -295,10 +328,10 @@ public class BranchServiceImpl implements Service<BranchDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> dePrinterQueue(
+	public ResponseEntity<ResponseDto<NullType>> dePrinterQueue(
 			Integer branchId, 
 			String device) {
-		if (device.isEmpty()) {
+		if (device == null || device.isEmpty()) {
 			throw new CustomException("디바이스 정보가 옳지 않습니다.");
 		}
 		
@@ -328,31 +361,39 @@ public class BranchServiceImpl implements Service<BranchDto>{
 		}
 	}
 	
-	public void enQueue(Integer branchId, 
-						String device, 
-						Boolean cameraOrPrint) {
+	public Boolean enQueue(
+			Integer branchId, 
+			String device, 
+			Boolean cameraOrPrint) {
 		ConcurrentLinkedQueue<String> queue = getOrCreateQueue(branchId, cameraOrPrint);
-		queue.add(device);
-	}
-	
-	public String deQueue(Integer branchId, 
-						  Boolean cameraOrPrint) {
-		ConcurrentLinkedQueue<String> queue = null;
-		if (!cameraOrPrint) {
-			queue = cameraQueue.get(branchId);
+		if (!queue.contains(device)) {
+			queue.add(device);
+			return true;
 		} else {
-			queue = printerQueue.get(branchId);
+			return false;
 		}
-		
-		if (queue != null) {
-			return queue.poll();
-		}
-		return null;
 	}
 	
-	public Boolean removeElementFromQueue(Integer branchId, 
-										  String device, 
-										  Boolean cameraOrPrint) {
+//	public String deQueue(
+//			Integer branchId, 
+//			Boolean cameraOrPrint) {
+//		ConcurrentLinkedQueue<String> queue = null;
+//		if (!cameraOrPrint) {
+//			queue = cameraQueue.get(branchId);
+//		} else {
+//			queue = printerQueue.get(branchId);
+//		}
+//		
+//		if (queue != null) {
+//			return queue.poll();
+//		}
+//		return null;
+//	}
+	
+	public Boolean removeElementFromQueue(
+			Integer branchId, 
+			String device, 
+			Boolean cameraOrPrint) {
 		ConcurrentLinkedQueue<String> queue = null;
 		if (!cameraOrPrint) {
 			queue = cameraQueue.get(branchId);
@@ -366,8 +407,9 @@ public class BranchServiceImpl implements Service<BranchDto>{
 		return false;
 	}
 	
-	public String checkNextElementFromQueue(Integer branchId, 
-											Boolean cameraOrPrint) {
+	public String checkNextElementFromQueue(
+			Integer branchId, 
+			Boolean cameraOrPrint) {
 		ConcurrentLinkedQueue<String> queue = null;
 		if (!cameraOrPrint) {
 			queue = cameraQueue.get(branchId);

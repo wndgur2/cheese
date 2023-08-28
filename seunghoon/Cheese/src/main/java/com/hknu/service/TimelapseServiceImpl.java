@@ -1,23 +1,31 @@
 package com.hknu.service;
 
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hknu.dao.TimelapseDaoImpl;
+import com.hknu.dto.CustomerDto;
 import com.hknu.dto.TimelapseDto;
 import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Timelapse;
 import com.hknu.exception.CustomException;
+import com.hknu.exception.DoNotMatchVideoTypeException;
 
 @org.springframework.stereotype.Service
 public class TimelapseServiceImpl implements Service<TimelapseDto>{
 	@Autowired
 	private TimelapseDaoImpl timelapseDaoImpl;
+	@Autowired
+	private CustomerServiceImpl customerServiceImpl;
 	@Autowired
 	private TokenService tokenService;
 	
@@ -31,7 +39,7 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 	                                   contentType.startsWith("video/webm");			// WebM
 	}
 	
-	public ResponseEntity<ResponseDto<List<TimelapseDto>>> getCustomerCloudData(
+	public ResponseEntity<ResponseDto<List<TimelapseDto>>> getCustomerCloudTimelapse(
 			Integer customerId,
 			String accessToken, 
 			String refreshToken) {
@@ -46,12 +54,71 @@ public class TimelapseServiceImpl implements Service<TimelapseDto>{
 				HttpStatus.OK);
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteCustomerCloudTimelapse(
+	public ResponseEntity<ResponseDto<CustomerDto>> insertCustomerCloudTimelapse(
+			Integer customerId, 
+			MultipartFile data, 
+			Integer branchId,
+			String accessToken, 
+			String refreshToken) {
+		ResponseEntity<ResponseDto<CustomerDto>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		
+		if (responseEntity != null) {
+			return responseEntity;
+		}
+		
+		CustomerDto customerDto = null;
+		
+		if (!data.isEmpty()) {
+			byte[] byteData = null;
+			
+			try {
+				byteData = data.getBytes();
+				Timestamp date = new Timestamp(System.currentTimeMillis() + (9 * 60 * 60 * 1000));
+				
+				if (isVideoFile(data.getContentType())) {
+					TimelapseDto timelapseDto = new TimelapseDto(
+							getMaxPkValue(), 
+							customerId, 
+							branchId,
+							date, 	
+							byteData);
+					
+					double dataSizeToGB = (double) data.getSize() / 1024 / 1024 / 1024;
+					customerDto = this.customerServiceImpl.getById(customerId);
+					double setSize = customerDto.getCloudSize() + dataSizeToGB;
+					
+					if (setSize > 5) {
+						return new ResponseEntity<>(
+								ResponseDto.of("클라우드 용량이 초과됐습니다."),
+								HttpStatus.INTERNAL_SERVER_ERROR);
+					}
+					insert(timelapseDto);
+					customerDto.setCloudSize(setSize);
+					this.customerServiceImpl.update(customerDto);
+				} else {
+					throw new DoNotMatchVideoTypeException();
+				}
+			} catch (IOException e) {
+				return new ResponseEntity<>(
+						ResponseDto.of("클라우드에 타임랩스를 추가하는 중에 오류가 발생했습니다."),
+						HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			return new ResponseEntity<>(
+					ResponseDto.of("클라우드에 추가할 타임랩스를 선택해주세요."),
+					HttpStatus.OK);
+		}
+		return new ResponseEntity<>(
+				ResponseDto.of("성공적으로 클라우드에 타임랩스를 추가했습니다.", customerDto),
+				HttpStatus.OK);
+	}
+	
+	public ResponseEntity<ResponseDto<NullType>> deleteCustomerCloudTimelapse(
 			Integer customerId, 
 			Integer timelapseId,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;

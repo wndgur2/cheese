@@ -35,7 +35,7 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 	                                   contentType.startsWith("image/tiff"));
 	}
 	
-	public ResponseEntity<ResponseDto<List<PhotographDto>>> getCustomerCloudData(
+	public ResponseEntity<ResponseDto<List<PhotographDto>>> getCustomerCloudPhotograph(
 			Integer customerId, 
 			String accessToken,
 			String refreshToken) {
@@ -52,7 +52,7 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 				HttpStatus.OK);
 	}
 
-	public ResponseEntity<ResponseDto<CustomerDto>> insertCustomerCloudData(
+	public ResponseEntity<ResponseDto<CustomerDto>> insertCustomerCloudPhotograph(
 			Integer customerId, 
 			MultipartFile data, 
 			Integer branchId,
@@ -80,11 +80,18 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 							branchId,
 							date, 	
 							byteData);
-					insert(photographDto);
 					
 					double dataSizeToGB = (double) data.getSize() / 1024 / 1024 / 1024;
 					customerDto = this.customerServiceImpl.getById(customerId);
-					customerDto.setCloudSize(customerDto.getCloudSize() + dataSizeToGB);
+					double setSize = customerDto.getCloudSize() + dataSizeToGB;
+					
+					if (setSize > 5) {
+						return new ResponseEntity<>(
+								ResponseDto.of("클라우드 용량이 초과됐습니다."),
+								HttpStatus.INTERNAL_SERVER_ERROR);
+					}
+					insert(photographDto);
+					customerDto.setCloudSize(setSize);
 					this.customerServiceImpl.update(customerDto);
 				} else {
 					throw new DoNotMatchImageTypeException();
@@ -94,6 +101,10 @@ public class PhotographServiceImpl implements Service<PhotographDto>{
 						ResponseDto.of("클라우드에 사진을 추가하는 중에 오류가 발생했습니다."),
 						HttpStatus.INTERNAL_SERVER_ERROR);
 			}
+		} else {
+			return new ResponseEntity<>(
+					ResponseDto.of("클라우드에 추가할 사진을 선택해주세요."),
+					HttpStatus.OK);
 		}
 		return new ResponseEntity<>(
 				ResponseDto.of("성공적으로 클라우드에 사진을 추가했습니다.", customerDto),

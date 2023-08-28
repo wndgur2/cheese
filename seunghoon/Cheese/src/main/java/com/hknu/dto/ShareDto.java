@@ -15,6 +15,7 @@ import lombok.ToString;
 public class ShareDto {
 	private Integer shareId;
 	private Integer customerId;
+	private String nickname;
 	private Integer branchId;
 	private Timestamp createdAt;
 	private HashMap<Integer, PhotographDto> sharedPhotoMap;

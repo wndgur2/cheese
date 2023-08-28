@@ -11,7 +11,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
-
 import com.hknu.socket.SignalHandler;
 
 @EnableWebMvc
@@ -35,7 +34,7 @@ public class ServletAppContext implements WebMvcConfigurer, WebSocketConfigurer 
 	
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(new SignalHandler(), "/signal")
+		registry.addHandler(signalHandler(), "/signal")
 			.setAllowedOrigins("*");
 	}
 	

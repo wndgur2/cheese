@@ -3,7 +3,8 @@ package com.hknu.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.jakartaee.commons.lang3.ObjectUtils.Null;
+import javax.lang.model.type.NullType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class FilterServiceImpl implements Service<FilterDto>{
 	@Value("${cheese.manager-email}")
     private String manager_email;
 	
-	public ResponseEntity<ResponseDto<Null>> insertFilter(
+	public ResponseEntity<ResponseDto<NullType>> insertFilter(
 			Integer branchId,
 			Integer brightness,
 			Integer exposure,
@@ -47,7 +48,7 @@ public class FilterServiceImpl implements Service<FilterDto>{
 			Integer mosaic,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 
 		if (responseEntity != null) {
 			return responseEntity;
@@ -84,11 +85,11 @@ public class FilterServiceImpl implements Service<FilterDto>{
 		throw new CustomException("관리자 권한이 필요합니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<Null>> deleteFilter(
+	public ResponseEntity<ResponseDto<NullType>> deleteFilter(
 			Integer filterId,
 			String accessToken,
 			String refreshToken) {
-		ResponseEntity<ResponseDto<Null>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
+		ResponseEntity<ResponseDto<NullType>> responseEntity = this.tokenService.validateAndGenerateToken(accessToken, refreshToken);
 		
 		if (responseEntity != null) {
 			return responseEntity;

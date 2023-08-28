@@ -30,7 +30,7 @@ public class PhotographController {
 			@PathVariable Integer customerId, 
 			@RequestHeader(required = false, value = "Authorization") String accessToken,
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
-		return this.photographServiceImpl.getCustomerCloudData(customerId, accessToken, refreshToken);
+		return this.photographServiceImpl.getCustomerCloudPhotograph(customerId, accessToken, refreshToken);
 	}
 
 	// 클라우드 사진 추가하기
@@ -41,7 +41,7 @@ public class PhotographController {
 			@RequestParam(required = false) Integer branchId,
 			@RequestHeader(required = false, value = "Authorization") String accessToken, 
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
-		return this.photographServiceImpl.insertCustomerCloudData(customerId, data, branchId, accessToken, refreshToken);
+		return this.photographServiceImpl.insertCustomerCloudPhotograph(customerId, data, branchId, accessToken, refreshToken);
 	}
 	
 	// 클라우드 사진 삭제하기
@@ -54,23 +54,19 @@ public class PhotographController {
 		return this.photographServiceImpl.deleteCustomerCloudPhotograph(customerId, photoId, accessToken, refreshToken);
 	}
 	
-//	public String getPhotographById(Integer id) {
-//		return null;
-//	}
-//	
-//	public String getAllPhotographs() {
-//		return null;
-//	}
-//
-//	public String insertPhotograph(PhotographDto pd) {
-//		return null;
-//	}
-//	
-//	public String updatePhotograph(PhotographDto pd) {
-//		return null;
-//	}
-//	
-//	public String deletePhotograph(Integer id) {
+//	@GetMapping(value = "/edit/body")
+//	public ResponseEntity<ResponseDto<?>> body() {
+//		JepConfig config = new JepConfig();
+//		config.setIncludePath("C:\\Users\\sxaz1\\anaconda3\\Lib\\site-packages");
+//		
+//		Interpreter interpreter = new SharedInterpreter();
+//		SharedInterpreter.setConfig(config);
+//		
+//		interpreter.eval("test = 'Hello World'");
+//		System.out.println(interpreter.getValue("test"));
+
+//		System.setProperty("python.import.site", "false");
+//		interpreter.execfile("C:\\graduation\\git\\heymin\\body_reconstruction\\multi_people_reshape.py");
 //		return null;
 //	}
 }
