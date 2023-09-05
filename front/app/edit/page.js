@@ -86,7 +86,6 @@ export default function Edit({searchParams}) {
 
   // event handlers
   const handleBodyScroll = (curTop)=>{
-    console.log("SCROLL");
     if(curTop > scrollTop) setHideNavbar(true);
     else setHideNavbar(false);
     setScrollTop(curTop);
@@ -129,7 +128,6 @@ export default function Edit({searchParams}) {
   const handlePageClick = (i)=>{
     pages[pageIndex]?.hide();
     setPageIndex(i);
-    pages[i].show();
   }
 
   // useEffects

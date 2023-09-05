@@ -212,6 +212,11 @@ class Page{
         this.layers=[new Layer("image", this.src, this.width, this.height, 0, 0, image.width, image.height)];
     }
 
+    setImage(src){
+        this.src = src;
+        this.getLayer("image").setImage(src);
+    }
+
     draw(){
         this.layers.forEach((layer)=>{layer.draw()});
     }
@@ -739,6 +744,17 @@ class Layer{
         }
         
         Layer.preview.appendChild(this.canvas);
+    }
+
+    setImage(src){
+        let image = new Image();
+        console.log(this.src, " to ", src);
+        this.src = src;
+        image.src = src;
+        image.onload = ()=>{
+            this.image = image;
+            this.draw();
+        }
     }
 
     copy(){
