@@ -24,7 +24,7 @@ export default function SignIn(props) {
     if(res.error == null){
       window.location.href=props.searchParams.callbackUrl? props.searchParams.callbackUrl:"/home";
     } else{
-      setError("아이디 또는 비밀번호가 일치하지 않습니다.");
+      setError("회원 정보가 일치하지 않습니다.");
     }
   }
 
@@ -40,7 +40,7 @@ export default function SignIn(props) {
   }, [email, password]);
 
   return (// rest api : /auth
-    <div className="container">
+    <div className="container" style={{overflowY:"scroll", height:"calc(100vh - 64px)"}}>
       <div style={{
         display:"flex",
         alignItems:"center",
@@ -121,6 +121,9 @@ export default function SignIn(props) {
         <img src="/signin/line.png" width="1px" height="20px" />
         <p style={{margin:"18px", color:"#5F5F5F"}}> 비밀번호 찾기 </p>
       </div>
+      <br/>
+      <br/>
+      <br/>
     </div>
   )
 }

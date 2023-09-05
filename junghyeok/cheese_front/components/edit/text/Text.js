@@ -92,7 +92,7 @@ export default function Text({page}) {
           justifyContent: "center"
         }}>
           <div style={{width:"50vw"}}>
-            <Range min={70} fixThumbSize={true} value={fontSize} setValue={setFontSize} />
+            <Range min={30} fixThumbSize={true} value={fontSize} setValue={setFontSize} />
           </div>
           <div className={textStyles.fontsWrapper}>
             <div
@@ -136,7 +136,7 @@ export default function Text({page}) {
           />
           <img onClick={setTextBold} src="/edit/text/B.png" width={26} height={26} />
           <img
-            onClick={()=>{page.addText(text, bold, strike, underline, font, color, fontSize + 70)}}
+            onClick={()=>{page.addText(text, bold, strike, underline, font, color, fontSize + 30)}}
             src="/edit/text/+.png"
             width={24}
             height={24}

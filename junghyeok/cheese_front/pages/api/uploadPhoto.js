@@ -1,10 +1,9 @@
 import axios from "axios";
-import { NextRequest } from "next/server";
 
 export default async function uploadPhoto(req, res) {
     // console.log("query: ", req.query);
     // console.log(req.body);
-    const url = process.env.NEXT_PUBLIC_API + `/cloud/${req.query.id}/photo`;
+    const url = `http://${process.env.NEXT_PUBLIC_API}/cloud/${req.query.id}/photo`;
     const boundary = "--" + req.headers["content-type"].split("boundary=")[1];
     const formData = new FormData();
     const data = req.body.split(boundary)[1].split("Content-Type: image/jpeg")[1];

@@ -13,20 +13,21 @@ import Payment from "@/components/myCheese/Payment";
 
 async function getUserData(id, auth, refresh){
   try{
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/customer/${id}`, {
+    const res = await axios.get(`http://${process.env.NEXT_PUBLIC_API}/customer/${id}`, {
       headers:{
         "Content-Type": "application/json",
         authorization: auth,
         "refresh-token": refresh,
       }
     })
-    // console.log(res);
+    let shares = res.data.data.shares?.reverse();
+    shares = shares?.filter((share)=>share.sharedPhotoMap);
     return {
       cloudSize: res.data.data.cloudSize,
-      photographs: res.data.data.photographs,
-      timelapses: res.data.data.timelapses,
-      shares: res.data.data.shares,
-      payments: res.data.data.payments,
+      photographs: res.data.data.photographs?.reverse(),
+      timelapses: res.data.data.timelapses?.reverse(),
+      shares: shares,
+      payments: res.data.data.payments?.reverse(),
     }
   } catch(error){
     console.log(error);
@@ -36,7 +37,7 @@ async function getUserData(id, auth, refresh){
 
 async function getBranchData(){
   try{
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API}/branch`);
+    const res = await axios.get(`http://${process.env.NEXT_PUBLIC_API}/branch`);
     // console.log(res);
     return res.data;
   } catch(error){
@@ -71,14 +72,32 @@ export default function MyCheese(){
       });
     }
   }, [session.status]);
-
-  useEffect(()=>{
-  },[]);
+  
+  const handleLeaveMember = ()=>{
+    if(confirm("정말 탈퇴하시겠습니까?")){
+      axios.delete(`http://${process.env.NEXT_PUBLIC_API}/customer/${session.data.user.id}`, {
+        headers:{
+          "Content-Type": "application/json",
+          authorization: session.data.user.authorization,
+          "refresh-token": session.data.user["refresh-token"],
+        }
+      }).then((res)=>{
+        console.log(res);
+        if(res.status==200){
+          alert("탈퇴되었습니다.");
+          signOut({callbackUrl: "/home"});
+        }
+      }).catch((error)=>{
+        console.log(error);
+        alert("탈퇴에 실패하였습니다.");
+      });
+    }
+  }
 
   const renderChild = ()=>{
-    if(nav == "photograph") return <Photograph photographs={userData.photographs} branches={branches}/>;
-    else if(nav == "timelapse") return <Timelapse timelapses={userData.timelapses} branches={branches}/>;
-    else if(nav == "share") return <Share shares={userData.shares} branches={branches}/>;
+    if(nav == "photograph") return <Photograph photographs={userData.photographs} branches={branches} userData={userData} setUserData = {setUserData}/>;
+    else if(nav == "timelapse") return <Timelapse timelapses={userData.timelapses} branches={branches} userData={userData} setUserData = {setUserData}/>;
+    else if(nav == "share") return <Share shares={userData.shares} branches={branches} userData={userData} setUserData = {setUserData}/>;
     else if(nav == "payment") return <Payment payments={userData.payments} branches={branches}/>;
   }
 
@@ -88,9 +107,14 @@ export default function MyCheese(){
   }
 
   const changePassword = ()=>{
-    const password = prompt("변경할 이름을 입력해주세요.");
+    let password = prompt("변경할 비밀번호를 입력해주세요.");
+    if(!password) return;
+    while(password.length < 6){
+      password = prompt("비밀번호는 6자리 이상이어야 합니다.");
+      if(!password) return;
+    }
     if(password){
-      axios.put(`${process.env.NEXT_PUBLIC_API}/customer/${session.data.user.id}`, null, {
+      axios.put(`http://${process.env.NEXT_PUBLIC_API}/customer/${session.data.user.id}`, null, {
         headers:{
           "Content-Type": "application/json",
           authorization: session.data.user.authorization,
@@ -125,11 +149,11 @@ export default function MyCheese(){
               height:"100%",
             }}>
               <p className={myCheeseStyles.name}>{session.data?.user.name}</p>
-              <p className={myCheeseStyles.email}>{session.data?.user.email}</p>
+              <p className={myCheeseStyles.meta}>{session.data?.user.email}</p>
               <div style={{display:"flex", justifyContent:"space-between", gap:"3vw"}}>
-                <p className={myCheeseStyles.email}>{`${parseFloat(userData?.cloudSize*1000).toFixed(2)} MB`}</p>
-                <p className={myCheeseStyles.email}>/</p>
-                <p className={myCheeseStyles.email}>5 GB</p>
+                <p className={myCheeseStyles.meta}>{`${parseFloat(userData?.cloudSize*1000).toFixed(2)} MB`}</p>
+                <p className={myCheeseStyles.meta}>/</p>
+                <p className={myCheeseStyles.meta}>5 GB</p>
               </div>
             </div>:<div>
               <span>불러오는중...</span>
@@ -139,20 +163,12 @@ export default function MyCheese(){
           <div>
             {isMore? 
             <div id={myCheeseStyles.more} className={`${myCheeseStyles.more} moreButton`}>
-              <p
-                onClick={changePassword}
-              >
-                비밀번호 변경
-              </p>
-              <p onClick={()=>{ 
-                  signOut({callbackUrl: "/home"})
-              }}>로그아웃</p>
-              <p>회원 탈퇴</p>
+              <p onClick={changePassword}>비밀번호 변경</p>
+              <p onClick={()=>{ signOut({callbackUrl: "/home"})}}>로그아웃</p>
+              <p onClick={handleLeaveMember}>회원 탈퇴</p>
             </div>
             :
-              <img src="/myCheese/more.png" width={"36"}
-                className="moreButton"
-              />
+              <img src="/myCheese/more.png" width={"40"} className="moreButton"/>
             }
           </div>
         </div>
@@ -182,9 +198,14 @@ export default function MyCheese(){
       </div>
       <div style={{
         marginTop:"27vh",
+        overflowY:"scroll",
+        height:"calc(100vh - 27vh - 64px)",
       }}
       >
         {userData? renderChild():<></>}
+        <br/>
+        <br/>
+        <br/>
       </div>
     </div>
   )

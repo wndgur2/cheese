@@ -25,10 +25,12 @@ function BigBtn({enabled, href, size, src, text, iconWidth, iconHeight, children
                         alt={text}
                         width={iconWidth} height={iconHeight}
                     />
-                    <p style={{
-                        fontSize: "14px",
-                        margin:0
-                    }}>{children}</p>
+                    {children &&
+                        <p style={{
+                            fontSize: "15px",
+                            margin:"1vh 0px 0px 0px"
+                        }}>{children}</p>
+                    }
                 </button>
             </div>
         </Link>

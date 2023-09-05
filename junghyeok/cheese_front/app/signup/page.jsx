@@ -16,7 +16,7 @@ export default function SignUp() {
 
   async function enroll(){
     try{
-      await axios.post(process.env.NEXT_PUBLIC_API + "/customer", null, {
+      await axios.post(`http://${process.env.NEXT_PUBLIC_API}/customer`, null, {
         params:{
           email:email,
           nickname:nickname,

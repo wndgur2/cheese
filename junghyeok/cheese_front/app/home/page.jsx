@@ -7,19 +7,19 @@ import TextBtn from '@/components/TextBtn';
 import axios from 'axios';
 import SharedPhoto from '@/entity/SharedPhoto';
 import Branch from '@/entity/Branch';
+import { PyScript, PyScriptProvider } from 'pyscript-react';
 
-// function guid() {
-//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-//       let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-//       return v.toString(16);
-//   });
-// }
+function guid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+  });
+}
 
 async function getSharedPhotos(setPhotos, index, branchId) {
   let photos = [];
   try{
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API}/share/page/${index}`,
+    const res = await axios.get(`http://${process.env.NEXT_PUBLIC_API}/share/page/${index}`,
       {
         params: {
           branchId: branchId?branchId:null,
@@ -47,7 +47,7 @@ async function getSharedPhotos(setPhotos, index, branchId) {
 
 async function getBranch(setBranch, branchId) {
   try{
-    const res = await (await fetch(`${process.env.NEXT_PUBLIC_API}/branch/${branchId}`)).json();
+    const res = await (await fetch(`http://${process.env.NEXT_PUBLIC_API}/branch/${branchId}`)).json();
     // console.log(res);
     
     const branch = new Branch(res.data.branchId, res.data.name, res.data.longitude, res.data.latitude, res.data.shootingCost, res.data.printingCost, res.data.paperAmount);
@@ -63,7 +63,7 @@ async function getBranch(setBranch, branchId) {
 }
 
 export default function Home(props) {
-  // const [uid, setUid] = useState();
+  const [uid, setUid] = useState();
   const [branch, setBranch] = useState();
   const [isLocated, setIsLocated] = useState(false);
   const [photos, setPhotos] = useState([]);
@@ -80,12 +80,9 @@ export default function Home(props) {
       getSharedPhotos(setPhotos, 1);
     }
 
-    screen.orientation.lock("any");
-
-
-    // if (localStorage.getItem("uuid") === null)
-    //   localStorage.setItem("uuid", guid());
-    // setUid(localStorage.getItem("uuid"));
+    if (localStorage.getItem("uuid") === null)
+      localStorage.setItem("uuid", guid());
+    setUid(localStorage.getItem("uuid"));
   }, []);
 
   useEffect(()=>{
@@ -94,7 +91,12 @@ export default function Home(props) {
   }, [branch])
 
   return (
-    <div className='container'>
+    <div className='container' style={{height:"calc(96vh - 64px)", overflowY:"scroll"}}>
+      <div>
+        {/* <PyScriptProvider>
+        <PyScript>display("Hello world!")</PyScript>
+        </PyScriptProvider> */}
+      </div>
       <div className='alignCenter'>
         <div style={{width:"100%"}}>
           {branch?
@@ -136,29 +138,29 @@ export default function Home(props) {
       }
 
       <div className={homeStyles.bigBtnWrapper}>
-        <BigBtn
+        {/* <BigBtn
           enabled={true}
           href="/edit"
           src="/edit_x4.png"
           size="80px"
           iconWidth="37px"
           iconHeight="30px"
-        >편집</BigBtn>
+        >편집</BigBtn> */}
         <BigBtn enabled={isLocated}
           href="/accessProcess/capture"
           src="/cheese_empty_37_30_x4.png"
-          size="80px"
+          size="25vw"
           iconWidth="37px"
           iconHeight="30px"
-        >촬영</BigBtn>
+        >촬영하기</BigBtn>
         <BigBtn
           enabled={isLocated}
           href="/accessProcess/print"
           src="/print_x4.png"
-          size="80px"
+          size="25vw"
           iconWidth="37px"
           iconHeight="32px"
-        >인화</BigBtn>
+        >인화하기</BigBtn>
       </div>
       
       <TextBtn content="사진 아이디어를 얻어보세요." href="/home/share">
@@ -166,6 +168,7 @@ export default function Home(props) {
       </TextBtn>
       <div style={{
         display:"flex",
+        justifyContent:"safe center",
         gap:"10px",
         overflowX:"scroll",
       }}>
@@ -184,11 +187,9 @@ export default function Home(props) {
           })
         }
       </div>
-      {isLocated?
-        <button onClick={()=>{
-          localStorage.removeItem("branch");
-        }}>위치 없애기</button>:<></>
-      }
+      <br/>
+      <br/>
+      <br/>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 import BigBtn from "@/components/BigBtn";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import shareStyles from "./share.module.css";
 import axios from "axios";
 import Share from "@/entity/Share";
@@ -12,14 +12,19 @@ export default function MyCheese() {
   const [branch, setBranch] = useState();
   const [shares, setShares] = useState([]);
   const [page, setPage] = useState(1);
-  const [customerNames, setCustomerNames] = useState([]);
+  const [end, setEnd] = useState(false);
+  const sharesContainer = useRef();
+
+  let offset = 0;
+
+  const container = useRef();
 
   // async function getCustomerNames(){
   //   let names = [];
   //   try{
   //     for(let i=0; i<shares.length; i++){
   //       const res = await axios.get(
-  //         `${process.env.NEXT_PUBLIC_API}/customer/${shares[i].customerId}`,{
+  //         `http://${process.env.NEXT_PUBLIC_API}/customer/${shares[i].customerId}`,{
   //           params: {
   //             customerId: shares[i].customerId,
   //           }
@@ -35,37 +40,47 @@ export default function MyCheese() {
   // }
 
   async function getShares(page, branchId) {
-      let shares = [];
-      try{
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API}/share/page/${page}`,
-          {
-            params: {
-              branchId: branchId?branchId:null,
-            }
+    console.log("GET SHARES: ", page);
+    let shares_ = [...shares];
+    try{
+      const res = await axios.get(
+        `http://${process.env.NEXT_PUBLIC_API}/share/page/${page}`,
+        {
+          params: {
+            branchId: branchId?branchId:null,
           }
-        );
-        // console.log("share data: ", res.data.data);
-        res.data.data?.map((share)=>{
-          if(!share.sharedPhotoMap) {
-            console.log("No photo");
-            return;
-          }
-          shares.push(new Share(share.shareId, share.customerId, share.branchId, share.createdAt, share.sharedPhotoMap));
-        })
-        setShares(shares);
-        // getCustomerNames();
-        return shares;
-      }
-      catch(error){
-        console.log(error);
-      }
+        }
+      );
+      // console.log("share data: ", res.data.data);
+      if(res.data.data) setPage(page);
+      else setEnd(true);
+      res.data.data?.map((share)=>{
+        if(!share.sharedPhotoMap) {
+          console.log(share.shareId, "No photo");
+          return;
+        }
+        shares_.push(new Share(share.shareId, share.customerId, share.nickname, share.branchId, share.createdAt, share.sharedPhotoMap));
+      })
+      setShares(shares_);
+      // getCustomerNames();
     }
+    catch(error){
+      console.log(error);
+    }
+  }
 
-  const handleScrollEvent = (e, i)=>{
+  const handlePhotoSlide = (e, i)=>{
     let newIndexes = indexes;
     newIndexes[i] = Math.round(e.target.scrollLeft / e.target.offsetWidth);
     setIndexes([...newIndexes]);
+  }
+
+  const handleMainScroll = (e)=>{
+    if(end) return;
+    if(e.target.scrollTop >= (e.target.scrollHeight - e.target.offsetHeight) * 0.9){
+      offset = e.target.scrollTop;
+      getShares(page+1, branch?branch.id:null);
+    }
   }
 
   const renderDots = (n, index)=>{
@@ -95,10 +110,11 @@ export default function MyCheese() {
   }, [shares])
   
   return (
-    <div style={{paddingTop:"4vh"}}>
+    <div ref={container}>
       <div className='alignCenter'
         style={{
-          padding:"0px 3vw",
+          padding:"3vh 3vw 2vh 3vw",
+          height: "10vh",
         }}>
         <div style={{width:"100%"}}>
           {isLocated?
@@ -126,21 +142,25 @@ export default function MyCheese() {
           iconHeight="23px"
         />
       </div>
-      <div style={{width:"100%", marginTop: "2vh"}}>
+      <div
+        ref={sharesContainer}
+        style={{width:"100%", overflowY:"scroll", height:"calc(85vh - 64px)"}}
+        onScroll={handleMainScroll}
+      >
         {
           shares.map((share, i)=>
             <div key={i} className={shareStyles.share}>
               <div className={shareStyles.info}>
                 <span style={{fontWeight:400, fontSize:"5vw", fontColor:"#333"}}>
-                  {share.customerId}
+                  {share.nickname}
                 </span>
                 <span style={{fontWeight:200, fontSize:"4vw", fontColor:"#212121"}}>
-                  {new Date(share.createdAt).toUTCString().split(' ').slice(0, 4).join(' ')}
+                  {dateToString(share.createdAt)}
                 </span>
               </div>
               <div
                 className={shareStyles.images}
-                onScroll={(e)=>handleScrollEvent(e, i)}
+                onScroll={(e)=>handlePhotoSlide(e, i)}
               >
                 {Object.values(share.sharedPhotoMap).map((photo, j)=>
                   <img
@@ -157,7 +177,31 @@ export default function MyCheese() {
             </div>
           )
         }
+        {end?
+          <div style={{
+            width:"100%",
+            textAlign:"center",
+            fontSize:"4vw",
+            fontWeight:400,
+            color:"#888",
+            marginTop:"5vh",
+            marginBottom:"5vh",
+          }}>
+            사진을 더 공유해주세요!
+          </div>
+        :<></>}
       </div>
     </div>
   )
+}
+
+function dateToString(createdAt){
+  const date = new Date(createdAt);
+  const now = new Date();
+  const minDiff = (now - date)/(1000*60);
+  if(minDiff < 10) return `방금 전`;
+  if(minDiff < 60) return `${Math.round(minDiff)}분 전`;
+  if(minDiff < 60*24) return `${Math.round(minDiff/60)}시간 전`;
+  if(minDiff < 60*24*7) return `${Math.round(minDiff/(60*24))}일 전`;
+  return `${date.getMonth()}월 ${date.getDate()}일 ${date.getHours()}시 ${date.getMinutes()}분`;
 }

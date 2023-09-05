@@ -4,7 +4,6 @@ import TextBtn from '@/components/TextBtn';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import apStyles from "./ap.module.css"
 import Script from 'next/script';
 
 export default function Action(props) {
@@ -19,6 +18,7 @@ export default function Action(props) {
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if(!branch_){
             router.push("/home/cheeseMap");
+            return;
         }
 
         if(action=="capture"){
@@ -31,7 +31,6 @@ export default function Action(props) {
         }
         
         setBranch(branch_);
-        const positions = [[37.7282592, 126.7050989],[37.7272592, 126.7077989],[37.7102592, 126.7067989]];
         let mapOptions = {
             center: new naver.maps.LatLng(37.7222592, 126.7027989),
             zoom: 15
@@ -43,12 +42,12 @@ export default function Action(props) {
         }
         var map = new naver.maps.Map('map', mapOptions);
         new naver.maps.Marker({
-            position: new naver.maps.LatLng(positions[0][0], positions[0][1]),
+            position: new naver.maps.LatLng(branch_.latitude, branch_.longitude),
             map: map,
             animation: naver.maps.Animation.DROP,
             icon: icon
         });
-        map.morph(new naver.maps.LatLng(positions[0][0], positions[0][1]), 16);
+        map.morph(new naver.maps.LatLng(branch_.latitude, branch_.longitude), 16);
     },[ready]);
 
   return (

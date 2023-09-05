@@ -21,31 +21,28 @@ export default function HomeLayout({ children }) {
     {src: "/my_x4.png", width:"32px", href:"/home/myCheese", name: "내치즈", active: "myCheese"},
   ];
 
-  const handleBodyScroll = (curTop)=>{
-    if(curTop > top) setHideNavbar(true);
-    else setHideNavbar(false);
-    setTop(curTop);
+  const handleBodyScroll = (e)=>{
+    // if(curTop > top) setHideNavbar(true);
+    // else setHideNavbar(false);
+    // setTop(curTop);
+    if(e.target.scrollTop >= (e.target.scrollHeight - e.target.offsetHeight) * 0.9){
+      console.log("Load more");
+    }
   }
 
   return (
     <div>
       <div
         style={{
-          overflowY:"scroll",
           height:"calc(100vh - 64px)",
           backgroundColor:"#FEFBF6",
         }}
         // style={{height:"calc(100vh - 64px)", overflowY:"scroll"}}
-        // onScroll={(e)=>{handleBodyScroll(e.target.scrollTop)}}
+        // onScroll={(e)=>{handleBodyScroll(e)}}
       >
         <SessionProvider>
           {children}
         </SessionProvider>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
-          <br/>
       </div>
       <div className={homeStyles.navbar}
         style={{bottom:hideNavbar?-64:0}}

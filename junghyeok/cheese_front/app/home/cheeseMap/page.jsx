@@ -40,12 +40,12 @@ export default function CheeseMap() {
       scaledSize: new naver.maps.Size(32, 32)
     };
     initMap();
-    getData(`${process.env.NEXT_PUBLIC_API}/branch`, setBranches).then((res)=>{
+    getData(`http://${process.env.NEXT_PUBLIC_API}/branch`, setBranches).then((res)=>{
       if(res==[]) return;
       for (const branch of res){
         const contentString = 
           `<div style="padding:8px; border-radius:20px; background-color:#FFFFFF;">
-            <a href="/location/${i++}" style="color: black; text-decoration: none;">
+            <a href="/home?branchId=${branch.id}" style="color: black; text-decoration: none;">
               ${branch.name}
             </a>
           </div>`;
@@ -126,7 +126,7 @@ export default function CheeseMap() {
   }
 
   return (
-    <div className="container">
+    <div className="container" style={{overflowY:"scroll", height:"calc(96vh - 64px)"}}>
       <Script
         src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_MAP_PUBLIC}`}
         onReady={()=>{
@@ -151,6 +151,13 @@ export default function CheeseMap() {
           </div>
         )
       })}
+      <div onClick={()=>{localStorage.removeItem("branch")}}>
+        <TextBtn href={`/home`} color="#FFD56A"
+        >위치 없애기</TextBtn>
+      </div>
+      <br/>
+      <br/>
+      <br/>
     </div>
   )
 }

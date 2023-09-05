@@ -7,6 +7,7 @@
     align-items: center;
     padding: 2vw;
     height: 7vh;
+    width: 100%;
     gap:16px;
     overflow-x:scroll;
 }
@@ -16,7 +17,8 @@
 }
 
 #add{
-    height: 100%;
+    padding: 2vw;
+    height: 7vh;
 }
 
 #curWrapper{
@@ -100,7 +102,7 @@
 .editBody{
     overflow-y:scroll;
     overflow-x:visible;
-    height: calc((55vh - 48px));
+    height: calc((53vh - 48px));
     margin: 1vh 2vw;
 }
 

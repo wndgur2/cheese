@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import printStyles from "./print.module.css";
 import apStyles from "../ap.module.css";
+import axios from 'axios';
 
 export default function Amounts(props) {
     const action = props.params.action;
@@ -44,6 +45,26 @@ export default function Amounts(props) {
             }
             reader.readAsDataURL(file);
         };
+    }
+
+    const handlePrint = ()=>{
+        // make multipart form data
+        let formData = new FormData();
+        for(let i=0; i<fileObjs.length; i++){
+            formData.append("photos", fileObjs[i]);
+        }
+        // post print request to server
+        axios.post(`http://${process.env.NEXT_PUBLIC_API}/printerQueue/${branch.id}`, null, {
+            params:{
+                device: localStorage.getItem("uuid"),
+            },
+        }).then((res)=>{
+            console.log(res);
+        }).catch((err)=>{
+            console.log(err);
+        }).finally(()=>{
+            router.push("/home/print");
+        });
     }
 
     useEffect(()=>{
@@ -116,7 +137,7 @@ export default function Amounts(props) {
         <br/>
         <br/>
         {amounts.reduce((a, b) => a + b, 0)*1200 ?
-        <Link href={action=="print"?"/home/print":"/capture"}>
+        <div onClick={handlePrint}>
             <div className="next">
                 <span style={{
                     fontSize: 22,
@@ -127,7 +148,7 @@ export default function Amounts(props) {
                     width: "100%",
                 }}>{amounts.reduce((a, b) => a + b, 0)*1200}원 결제하기</span>
             </div>
-        </Link>:
+        </div>:
             <div className={`next ${apStyles.disabled}`}>
                 <span style={{
                     fontSize: 19,

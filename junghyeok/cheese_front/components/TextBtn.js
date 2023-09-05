@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 function TextBtn({color, type, substring, content, href, children}) {
-    return (
-        <Link href={href} style={{textDecoration: "none", color:"black"}}>
+    function render(){
+        return (
             <div style={{
                 display:"flex",
                 alignItems: "center",
@@ -38,8 +38,18 @@ function TextBtn({color, type, substring, content, href, children}) {
                         <img src="/arrow_right.png" width={"28px"}/>
                     </div>
                 </div>
+            </div>)
+    }
+    return (
+        <div>
+        {href ?
+            <Link href={href} style={{textDecoration: "none", color:"black"}}>
+                {render()}
+            </Link>
+        :   <div>
+                {render()}
             </div>
-        </Link>
+    }</div>
     )
 }
 

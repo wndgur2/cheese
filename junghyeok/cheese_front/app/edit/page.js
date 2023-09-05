@@ -17,7 +17,7 @@ import { Page } from "./edit.module";
 import JSZip from "jszip"
 import Script from "next/script";
 
-export default function Edit() {
+export default function Edit({searchParams}) {
   const router = useRouter();
 
   const [nav, setNav] = useState("Ai");
@@ -86,6 +86,7 @@ export default function Edit() {
 
   // event handlers
   const handleBodyScroll = (curTop)=>{
+    console.log("SCROLL");
     if(curTop > scrollTop) setHideNavbar(true);
     else setHideNavbar(false);
     setScrollTop(curTop);
@@ -135,6 +136,15 @@ export default function Edit() {
 
   useEffect(()=>{
     Page.init();
+    if(searchParams.photos=="true"){
+      let newPages = [];
+      for(let photo of JSON.parse(localStorage.getItem("photos"))){
+        newPages.push(new Page(photo));
+      }
+      setPages([...newPages]);
+    } else{
+      addButton.current.click();
+    }
   }, [])
 
   useEffect(()=>{
@@ -163,50 +173,67 @@ export default function Edit() {
     }
   }, [pageIndex])
 
+  useEffect(()=>{
+    if(pageIndex==-1){
+      if(pages.length>0){
+        setPageIndex(0);
+      }
+    }
+  }, [pages])
+
   return (
     <div>
       <Script src="http://cdn.jsdelivr.net/g/filesaver.js" />
       <div className={editStyles.topContainer}>
-        <div id={editStyles.album}>
+        <div style={{ display:"flex", justifyContent:"space-between"}}>
           <img id={editStyles.add} src="/edit/add.png"
             onClick={()=>{addButton.current.click();}}
           />
-          <input
-              type="file" multiple
-              style={{display:"none"}}
-              ref={addButton}
-              onChange={(e)=>{
-                handleFileChange(e.target.files);
-                e.target.value = '';
-              }}
-              accept="image/png, image/jpeg"
-          />
+          <div id={editStyles.album}>
+            <input
+                type="file" multiple
+                style={{display:"none"}}
+                ref={addButton}
+                onChange={(e)=>{
+                  handleFileChange(e.target.files);
+                  e.target.value = '';
+                }}
+                accept="image/png, image/jpeg"
+            />
 
-          {pages.map((page, i)=>{
-            return (
-              i==pageIndex?
-                <div id={editStyles.curWrapper} key={i}>
-                  <img id={editStyles.curPage} src={page.src}/>
-                  <div id={editStyles.pageControlWrapper}>
-                    <div id={editStyles.pageControl}>
-                      <img className={editStyles.control} src="/edit/copy.png"
-                        onClick={()=>{handlePageCopy()}}
-                      />
-                      <img className={editStyles.control} src="/edit/delete.png"
-                        onClick={()=>{handlePageDelete()}}
-                      />
+            {pages.map((page, i)=>{
+              return (
+                i==pageIndex?
+                  <div id={editStyles.curWrapper} key={i}>
+                    <img id={editStyles.curPage} src={page.src}/>
+                    <div id={editStyles.pageControlWrapper}>
+                      <div id={editStyles.pageControl}>
+                        <img className={editStyles.control} src="/edit/copy.png"
+                          onClick={()=>{handlePageCopy()}}
+                        />
+                        <img className={editStyles.control} src="/edit/delete.png"
+                          onClick={()=>{handlePageDelete()}}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              :
-                <img
-                  className={editStyles.page} 
-                  key={i}
-                  src={page.src}
-                  onClick={()=>{handlePageClick(i)}}
-                />
-            )
-          })}
+                :
+                  <img
+                    className={editStyles.page} 
+                    key={i}
+                    src={page.src}
+                    onClick={()=>{handlePageClick(i)}}
+                  />
+              )
+            })}
+          </div>
+          <div className="alignCenter"
+            onClick={()=>{
+              if(confirm("정말 종료하시겠습니까?"))
+                router.push("/home");
+            }}>
+            <img src="/edit/exit.png" width={60} />
+          </div>
         </div>
         
         <div className={editStyles.preview} id="preview">
@@ -233,17 +260,12 @@ export default function Edit() {
               <div className="alignCenter" onClick={save}>
                 <img src="/edit/save.png" width={60} /><a id="link"></a>
               </div>
-              <div className="alignCenter"
-                onClick={()=>{
-                  router.push("/home");
-              }}>
-                <img src="/edit/exit.png" width={60} />
-              </div>
             </div>
           </div>
 
           <div
             className={editStyles.editBody}
+            style={{overflowY:"scroll"}}
             onScroll={(e)=>{handleBodyScroll(e.target.scrollTop)}}
           >
             {renderChild()}

@@ -74,7 +74,7 @@ export default function Amount(props) {
         </div>
 
     {amount ?
-        <Link href={"/"+action}>
+        <Link href={"/capture?amount="+amount}>
             <div className="next">
                 <span style={{
                     fontSize: 22,

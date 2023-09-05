@@ -28,10 +28,13 @@ export const authOptions = {
           password: { type: "password" }
       },
       async authorize(credentials, req){
+        console.log("LOGIN", req.query);
         try{
-          const res = await axios.post(process.env.NEXT_PUBLIC_API + "/auth", null, {
+          const res = await axios.post(`http://${process.env.NEXT_PUBLIC_API}/auth`, null, {
             params: req.query
           })
+          console.log("??????");
+          console.log("RES: ", res);
           return {
             id:res.data.data.id,
             email:req.query.email,
