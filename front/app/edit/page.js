@@ -189,14 +189,14 @@ export default function Edit({searchParams}) {
           />
           <div id={editStyles.album}>
             <input
-                type="file" multiple
-                style={{display:"none"}}
-                ref={addButton}
-                onChange={(e)=>{
-                  handleFileChange(e.target.files);
-                  e.target.value = '';
-                }}
-                accept="image/png, image/jpeg"
+              type="file" multiple
+              style={{display:"none"}}
+              ref={addButton}
+              onChange={(e)=>{
+                handleFileChange(e.target.files);
+                e.target.value = '';
+              }}
+              accept="image/png, image/jpeg"
             />
 
             {pages.map((page, i)=>{

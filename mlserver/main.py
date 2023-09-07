@@ -103,7 +103,7 @@ async def generate_filter_by_image(original_image: UploadFile, filtered_image: U
 async def extracter_filter_by_image(file: UploadFile):
     image_bytes = await file.read()
     image = file_to_image(image_bytes)
-    out = image.astype(np.float)
+    out = image.astype(float)
     out = ((out / 255) ** (1 / 1.1)) * 255
     edited_image = out.astype(np.uint8)
     filepath = 'edit_image.jpg'
