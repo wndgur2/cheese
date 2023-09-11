@@ -28,7 +28,7 @@ def objects_detected(img):
 def pose_recommendation(num):
     if num == 1:
         pose_img = cv2.imread('./ai/pose_estimation/cheese_pose_image/image1.PNG')
-        cv2.imshow(pose_img)
+        cv2.imshow('', pose_img)
     else:
         pose_img = cv2.imread('./ai/pose_estimation/cheese_pose_image/image2.PNG')
     return pose_img

@@ -11,7 +11,7 @@ import sharePhotos from "@/api/sharePhotos";
 import { useRouter } from "next/navigation";
 import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
 
-const LOCAL_TEST = false;
+const LOCAL_TEST = true;
 
 function addToQueue(roomN, uuid) {
   // send post request to server to add to queue
@@ -51,6 +51,35 @@ function exitRoom(roomN, uuid) {
 }
 
 
+async function getPose(localVideoRef, setPose) {
+  const poses = [];
+  try{
+    const data = new FormData();
+    
+    // capture from video
+    var canvas = document.createElement("canvas");
+    if(LOCAL_TEST) var video = localVideoRef.current;
+    else var video = remoteVideoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas
+      .getContext("2d")
+      .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+    const url = canvas.toDataURL("image/jpeg");
+
+    let blob = await fetch(url).then(r => r.blob());
+    data.append('image', blob);
+    const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/pose_estimation`,
+    data, {
+      responseType: 'blob',
+    })
+    setPose(URL.createObjectURL(res.data));
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+
 export default function Capture(props) {
   const session = useSession({
     required: false,
@@ -65,6 +94,7 @@ export default function Capture(props) {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [captures, setCaptures] = useState([]);
   const [isEnd, setIsEnd] = useState(false);
+  const [pose, setPose] = useState(null);
   const remoteVideoRef = useRef();
   const localVideoRef = useRef();
   const shutter = useRef();
@@ -119,6 +149,9 @@ export default function Capture(props) {
       tId = setTimeout(()=>{
         setTime(time-1);
       }, 1000);
+
+      //포즈 추천
+      getPose(localVideoRef, setPose);
     }
   }, [time]);
 
@@ -206,6 +239,19 @@ export default function Capture(props) {
       { LOCAL_TEST ?
         <video id={captureStyles.stream} ref={localVideoRef} autoPlay playsInline></video>:
         <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
+      }
+      { pose?
+        <img style={{
+          position: "absolute",
+          transform: "translate(-50%, -50%) rotate(90deg)",
+          opacity: 0.5,
+          top: "45%",
+          left: "50%",
+          width: "30%",
+          height: "30%",
+          objectFit: "cover",
+          zIndex: 1,
+        }} src={pose}/> : <></>
       }
       <div className={captureStyles.functions}>
         <div className={captureStyles.rotate}>

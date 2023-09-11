@@ -82,10 +82,12 @@ export default function Ai({page}) {
     const data = new FormData();
     let original_image = await fetch(page.src).then(r => r.blob());
     data.append('original_image', original_image);
+
     // blob2
     let filtered_image = await fetch(filtered_src).then(r => r.blob());
     console.log(filtered_image);
     data.append('filtered_image', filtered_image);
+    
     try{
       const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/filter_generate`,
         data, {
