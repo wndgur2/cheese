@@ -62,7 +62,7 @@ class BodyRetoucher(object):
     @classmethod
     def reshape_body(cls, gender, src_img, degree):
         t1 = time.time()
-
+        pred = src_img.copy()
         #cls._logger.logger.info('begin run')
         flow = cls.pred_flow(src_img)
         #cls._logger.logger.info('time of inference: {}ms'.format(int((time.time() - t1) * 1000)))
