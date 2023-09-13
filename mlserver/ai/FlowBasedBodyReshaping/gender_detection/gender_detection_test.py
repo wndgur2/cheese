@@ -99,6 +99,7 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
 
 
 def predict_gender(img):
+    label = "Unknown"
     """Predict the gender of the faces showing in the image"""
     frame = img.copy()
     if frame.shape[1] > frame_width:
