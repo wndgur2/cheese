@@ -2,7 +2,8 @@ from fastapi import FastAPI, File, UploadFile, Response
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from io import BytesIO
-import base64
+from fastapi.responses import JSONResponse
+import zipfile
 
 import cv2
 import numpy as np
@@ -18,6 +19,7 @@ from fastapi.responses import StreamingResponse
 
 
 app = FastAPI()
+
 
 origins = [
     "http://localhost",
@@ -99,6 +101,33 @@ async def generate_filter_by_image(original_image: UploadFile, filtered_image: U
     return StreamingResponse(BytesIO(data), media_type="image/jpeg")
 
 
+@app.post("/ai/filter_generate_with_value")
+async def generate_filter_by_image(original_image: UploadFile, filtered_image: UploadFile):
+    ori_image_bytes = await original_image.read()
+    fil_image_bytes = await filtered_image.read()
+    ori_image = file_to_image(ori_image_bytes)
+    fil_image = file_to_image(fil_image_bytes)
+    
+    edited_image, brightness, chroma, r, g, b = extract_color(ori_image, fil_image, 1)
+    
+    filepath = 'edit_image.jpg'
+    cv2.imwrite(filepath, edited_image)
+    
+    edited_image_bytes = edited_image.astype(np.uint8)
+    data = image_to_file(edited_image_bytes)
+    
+    response_data = {
+        "img_path": filepath,
+        "brightness": brightness,
+        "chroma": chroma,
+        "r": r,
+        "g": g,
+        "b": b
+    }
+    
+    return JSONResponse(content=response_data)
+
+
 @app.post("/ai/color_filter")
 async def extracter_filter_by_image(file: UploadFile):
     image_bytes = await file.read()
@@ -130,15 +159,17 @@ async def apply_dehaze(file: UploadFile):
 @app.post("/ai/object_remove")
 async def select_object_add_inpainting(file: UploadFile, x: int, y: int):
     image_bytes = BytesIO(await file.read())
-    edited_image = remove_background(image_bytes, x, y)
+    edited_image, object_image = remove_background(image_bytes, x, y)
 
     edited_image_byte = BytesIO()
     edited_image.save(edited_image_byte, format="JPEG")
+    
+    object_image_byte = BytesIO()
+    object_image.save(object_image_byte, format="JPEG")
 
-    data = edited_image_byte.getvalue()
+    zip_buffer = create_zip(edited_image_byte, object_image_byte)
 
-
-    return StreamingResponse(BytesIO(data), media_type="image/jpeg")
+    return StreamingResponse(content=zip_buffer, media_type="application/zip", headers={"Content-Disposition": "attachment; filename=images.zip"})
 
 
 @app.post("/ai/pose_estimation")
@@ -152,3 +183,14 @@ async def select_object_add_inpainting(image: UploadFile):
     data = image_to_file(edited_image)
 
     return StreamingResponse(BytesIO(data), media_type="image/jpeg")
+
+
+def create_zip(edited_image_bytes, object_image_bytes):
+    zip_buffer = BytesIO()
+    
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        zipf.writestr('edited_image.jpg', edited_image_bytes.getvalue())
+        zipf.writestr('object_image.jpg', object_image_bytes.getvalue())
+    
+    zip_buffer.seek(0)
+    return zip_buffer

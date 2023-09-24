@@ -63,11 +63,17 @@ def remove_background(image, x, y):
 
     mask = torch.where(segmentation==instance_id, 1, 0)
     mask = mask.cpu().numpy() * 255.
-            
+
     inpainted_image = run_inpaint(np_image, mask, inpaint_config, inpaint_model)
     inpainted_image = Image.fromarray(inpainted_image)
 
-    return(inpainted_image)
+    mask = mask.astype(np.uint8)
+    masked_image = cv2.bitwise_and(np_image, np_image, mask=mask)
+    masked_image = cv2.GaussianBlur(masked_image, (9, 9), 0)
+
+    masked_image = Image.fromarray(masked_image)
+
+    return inpainted_image, masked_image
 
 
 if __name__ == '__main__':    

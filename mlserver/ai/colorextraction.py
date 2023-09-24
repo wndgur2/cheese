@@ -38,15 +38,15 @@ def calculate_mean_brightness(original_hsv, edited_hsv):
     e_hsv = edited_hsv[:, :, 2]
     o_mean_brightness = np.mean(o_hsv)
     e_mean_brightness = np.mean(e_hsv)
-    return o_mean_brightness - e_mean_brightness
+    return round((o_mean_brightness - e_mean_brightness)*100)
 
 
 def calculate_mean_chroma(original_hsv, edited_hsv):
     o_hsv = original_hsv[:,:,1]
     e_hsv = edited_hsv[:, :, 1]
-    o_mean_brightness = np.mean(o_hsv)
-    e_mean_brightness = np.mean(e_hsv)
-    return o_mean_brightness - e_mean_brightness
+    o_mean_chroma= np.mean(o_hsv)
+    e_mean_chroma = np.mean(e_hsv)
+    return round((o_mean_chroma - e_mean_chroma)*100)
 
 
 def calculate_rgb_difference(image1, image2):
@@ -58,16 +58,15 @@ def calculate_rgb_difference(image1, image2):
     diff_r = np.mean(arr1[:, :, 0] - arr2[:, :, 0])
     diff_g = np.mean(arr1[:, :, 1] - arr2[:, :, 1])
     diff_b = np.mean(arr1[:, :, 2] - arr2[:, :, 2])
-    return diff_r, diff_g, diff_b
+    r = round(diff_r / 10)
+    g = round(diff_g / 10)
+    b = round(diff_b / 10)
+    return r, g, b
 
 
-def extract_color_by_picture(original_img_path, edited_image):
-    
-    # 이미지 파일
-    original_image = load_img_file(original_img_path) # 'C:/Users/goaeh/Desktop/블로그/56/2.jpeg'
-
+def extract_color_by_picture(original_img, edited_image):
     # 이미지 밝기 계산
-    original_b, edited_b = RGB_to_HSV(original_image, edited_image)
+    original_b, edited_b = RGB_to_HSV(original_img, edited_image)
     diff_brightness = calculate_mean_brightness(original_b, edited_b)
     print('밝기 차이', diff_brightness)
 
@@ -78,7 +77,7 @@ def extract_color_by_picture(original_img_path, edited_image):
 
 
     # RGB 값 차이 계산
-    diff_r, diff_g, diff_b = calculate_rgb_difference(original_image, edited_image)
+    diff_r, diff_g, diff_b = calculate_rgb_difference(original_img, edited_image)
     
     return diff_brightness, diff_chroma, diff_r, diff_g, diff_b
 
