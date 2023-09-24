@@ -81,7 +81,7 @@ public class CustomerController {
 	// 사용자 로그아웃
 	@DeleteMapping(value = "/auth/{customerId}")
 	public ResponseEntity<ResponseDto<NullType>> logoutCustomer(@PathVariable Integer customerId) {
-		return this.logoutCustomer(customerId);
+		return this.customerServiceImpl.logoutCustomer(customerId);
 	}
 	
 	// test

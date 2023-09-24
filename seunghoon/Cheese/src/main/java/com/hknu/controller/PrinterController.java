@@ -11,26 +11,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hknu.dto.response.ResponseDto;
-import com.hknu.service.CameraService;
+import com.hknu.service.PrinterService;
 
 @RestController
-public class CameraController {
+public class PrinterController {
 	@Autowired
-	private CameraService cameraService;
+	private PrinterService printerService;
 	
-	// 미러링 시작하기
-	@PostMapping(value = "/branch/{branchId}/stream")
+	// 인화 시작하기
+	@PostMapping(value = "/branch/{branchId}/print")
 	public ResponseEntity<ResponseDto<NullType>> enterRoom(
-			@PathVariable String branchId, 
+			@PathVariable String branchId,
 			@RequestParam String device) {
-		return this.cameraService.enterRoom(branchId, device);
+		return this.printerService.enterRoom(branchId, device);
 	}
 	
-	// 미러링 종료하기
-	@DeleteMapping("/branch/{branchId}/stream")
+	// 인화 종료하기
+	@DeleteMapping("/branch/{branchId}/print")
 	public ResponseEntity<ResponseDto<NullType>> exitRoom(
 			@PathVariable String branchId, 
 			@RequestParam String device) {
-		return this.cameraService.exitRoom(branchId, device);
+		return this.printerService.exitRoom(branchId, device);
 	}
 }

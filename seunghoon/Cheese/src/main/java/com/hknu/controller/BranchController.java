@@ -77,49 +77,49 @@ public class BranchController {
 	
 	// 카메라 대기열 조회하기
 	@GetMapping(value = "/cameraQueue/{branchId}")
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkCameraQueue(
+	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkCameraClients(
 			@PathVariable Integer branchId, 
 			@RequestParam(required = false) String device) {
-		return this.branchServiceImpl.checkCameraQueue(branchId, device);
+		return this.branchServiceImpl.checkCameraClients(branchId, device);
 	}
 	
-	// 카메라 대기열 추가하기
-	@PostMapping(value = "/cameraQueue/{branchId}")
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> enCameraQueue(
-			@PathVariable Integer branchId, 
-			@RequestParam String device) {
-		return this.branchServiceImpl.enCameraQueue(branchId, device);
-	}
+//	// 카메라 대기열 추가하기
+//	@PostMapping(value = "/cameraQueue/{branchId}")
+//	public ResponseEntity<ResponseDto<Map<String, Integer>>> enCameraQueue(
+//			@PathVariable Integer branchId, 
+//			@RequestParam String device) {
+//		return this.branchServiceImpl.enCameraQueue(branchId, device);
+//	}
 	
-	// 카메라 대기열 취소하기
-	@DeleteMapping(value = "/cameraQueue/{branchId}")
-	public ResponseEntity<ResponseDto<NullType>> deCameraQueue(
-			@PathVariable Integer branchId, 
-			@RequestParam String device) {
-		return this.branchServiceImpl.deCameraQueue(branchId, device);
-	}
+//	// 카메라 대기열 취소하기
+//	@DeleteMapping(value = "/cameraQueue/{branchId}")
+//	public ResponseEntity<ResponseDto<NullType>> deCameraQueue(
+//			@PathVariable Integer branchId, 
+//			@RequestParam String device) {
+//		return this.branchServiceImpl.deCameraQueue(branchId, device);
+//	}
 	
 	// 인화기 대기열 조회하기
 	@GetMapping(value = "/printerQueue/{branchId}")
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkPrinterQueue(
+	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkPrinterClients(
 			@PathVariable Integer branchId, 
 			@RequestParam(required = false) String device) {
-		return this.branchServiceImpl.checkPrinterQueue(branchId, device);
+		return this.branchServiceImpl.checkPrinterClients(branchId, device);
 	}
 	
-	// 인화기 대기열 추가하기
-	@PostMapping(value = "/printerQueue/{branchId}")
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> enPrinterQueue(
-			@PathVariable Integer branchId, 
-			@RequestParam String device) {
-		return this.branchServiceImpl.enPrinterQueue(branchId, device);
-	}
-	
-	// 인화기 대기열 취소하기
-	@DeleteMapping(value = "/printerQueue/{branchId}")
-	public ResponseEntity<ResponseDto<NullType>> dePrinterQueue(
-			@PathVariable Integer branchId, 
-			@RequestParam String device) {
-		return this.branchServiceImpl.dePrinterQueue(branchId, device);
-	}
+//	// 인화기 대기열 추가하기
+//	@PostMapping(value = "/printerQueue/{branchId}")
+//	public ResponseEntity<ResponseDto<Map<String, Integer>>> enPrinterQueue(
+//			@PathVariable Integer branchId, 
+//			@RequestParam String device) {
+//		return this.branchServiceImpl.enPrinterQueue(branchId, device);
+//	}
+//	
+//	// 인화기 대기열 취소하기
+//	@DeleteMapping(value = "/printerQueue/{branchId}")
+//	public ResponseEntity<ResponseDto<NullType>> dePrinterQueue(
+//			@PathVariable Integer branchId, 
+//			@RequestParam String device) {
+//		return this.branchServiceImpl.dePrinterQueue(branchId, device);
+//	}
 }

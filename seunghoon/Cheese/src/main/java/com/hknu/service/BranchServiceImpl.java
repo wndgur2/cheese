@@ -2,12 +2,9 @@ package com.hknu.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.lang.model.type.NullType;
 
@@ -15,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.socket.WebSocketSession;
 
 import com.hknu.dao.BranchDaoImpl;
+import com.hknu.domain.Room;
 import com.hknu.dto.BranchDto;
 import com.hknu.dto.response.ResponseDto;
 import com.hknu.entity.Branch;
@@ -33,6 +32,8 @@ public class BranchServiceImpl implements Service<BranchDto>{
 	@Autowired
 	private FilterServiceImpl filterServiceImpl;
 	@Autowired
+	private RoomService roomService;
+	@Autowired
 	private TokenService tokenService;
 	@Value("${cheese.shooting-cost}")
 	private Integer defaultShootingCost;
@@ -40,8 +41,8 @@ public class BranchServiceImpl implements Service<BranchDto>{
 	private Integer defaultPrintingCost;
 	@Value("${cheese.manager-email}")
     private String manager_email;
-	private static ConcurrentHashMap<Integer, ConcurrentLinkedQueue<String>> cameraQueue = new ConcurrentHashMap<>();
-	private static ConcurrentHashMap<Integer, ConcurrentLinkedQueue<String>> printerQueue = new ConcurrentHashMap<>();
+//	private static ConcurrentHashMap<Integer, ConcurrentLinkedQueue<String>> cameraQueue = new ConcurrentHashMap<>();
+//	private static ConcurrentHashMap<Integer, ConcurrentLinkedQueue<String>> printerQueue = new ConcurrentHashMap<>();
 	
 	public ResponseEntity<ResponseDto<BranchDto>> getBranchById(Integer branchId) {
 		return new ResponseEntity<>(
@@ -161,219 +162,240 @@ public class BranchServiceImpl implements Service<BranchDto>{
 		throw new CustomException("지점 삭제 중 오류가 발생했습니다.");
 	}
 	
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkCameraQueue(
+	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkCameraClients(
 			Integer branchId, 
 			String device) {
 		getById(branchId);
-		Boolean cameraOrPrint = false;
+	        
+		Room room = this.roomService.findRoomByStringId(String.valueOf(branchId))
+				.orElseThrow(() -> new CustomException("해당 지점은 현재 촬영 서비스가 준비되지 않았습니다."));
+		
+		Map<String, WebSocketSession> cameraClients = room.getCameraClient();
 		Map<String, Integer> data = new HashMap<>();
-		ConcurrentLinkedQueue<String> queue = getQueue(branchId, cameraOrPrint);
-
-		if (queue == null) {
+		
+		if (cameraClients.size() == 0) {
 			data.put("length_queue", 0);
 			return new ResponseEntity<>(
 					ResponseDto.of("해당 지점은 현재 촬영 대기열이 존재하지 않습니다.", data), 
 					HttpStatus.OK);
-		} else {
-			// Debug Code ======================================================================
-			String totalQueue = "";
-			
-			Iterator<String> it = queue.iterator();
-	        Integer idx = 0;
-
-	        while (it.hasNext()) {
-	        	idx++;
-	            String element = it.next();
-	            totalQueue += element;
-	            totalQueue += ", ";
-	        }
-	        
-	        System.out.println(String.format("현재 총 대기열 디바이스 목록 : [%s]", totalQueue));
-	     // ====================================================================================
-	        
-		    if (device != null) {
-		        Iterator<String> iterator = queue.iterator();
-		        Integer index = 0;
-
-		        while (iterator.hasNext()) {
-		            index++;
-		            String element = iterator.next();
-		            
-		            if (element.equals(device)) {
-				        data.put("length_queue", index);
-						return new ResponseEntity<>(
-								ResponseDto.of("성공적으로 해당 지점 촬영 대기열의 사용자님 순번을 조회했습니다.", data), 
-								HttpStatus.OK);
-		            }
-		        }
-		        data.put("length_queue", index);
-				return new ResponseEntity<>(
-						ResponseDto.of("해당 지점 촬영 대기열에 사용자님은 등록돼있지 않습니다.", data), 
-						HttpStatus.OK);
-		    }
-	        data.put("length_queue", queue.size());
+		}
+		
+		// Debug Code ======================================================================
+		String total = "";
+		for (Map.Entry<String, WebSocketSession> cameraClient : cameraClients.entrySet()) {
+			 total += cameraClient.getKey();
+			 total += ", ";
+		}
+        
+        System.out.println(String.format("현재 총 촬영 대기열 디바이스 목록 : [%s]", total));
+        // ====================================================================================
+		
+		if (device == null || device.isBlank()) {
+	        data.put("length_queue", cameraClients.size());
 			return new ResponseEntity<>(
 					ResponseDto.of("성공적으로 해당 지점 촬영 대기열을 조회했습니다.", data), 
 					HttpStatus.OK);
 		}
-	}
-	
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> enCameraQueue(
-			Integer branchId, 
-			String device) {
-		if (device == null || device.isEmpty()) {
-			throw new CustomException("디바이스 정보가 옳지 않습니다.");
-		}
 		
-		Boolean cameraOrPrint = false;
-		Map<String, Integer> data = new HashMap<>();
-		Boolean isExist = enQueue(branchId, device, cameraOrPrint);
-		ConcurrentLinkedQueue<String> queue = getQueue(branchId, cameraOrPrint);
-		
-		if (!isExist) {
-	        Iterator<String> iterator = queue.iterator();
-	        Integer index = 0;
-
-	        while (iterator.hasNext()) {
-	            index++;
-	            String element = iterator.next();
-	            
-	            if (element.equals(device)) {
-			        data.put("length_queue", index);
-					return new ResponseEntity<>(
-							ResponseDto.of("이미 대기열에 존재하는 디바이스 입니다.", data), 
+		int index = 0;
+		for (Map.Entry<String, WebSocketSession> cameraClient : cameraClients.entrySet()) {
+			 if (cameraClient.getKey().equals(device)) {
+				 data.put("length_queue", index);
+				 return new ResponseEntity<>(
+							ResponseDto.of("성공적으로 해당 지점 촬영 대기열의 사용자님 순번을 조회했습니다.", data), 
 							HttpStatus.OK);
-	            }
-	        }
+			 }
+			 index++;
 		}
-		
-		data.put("length_queue", queue.size());
-		
+        data.put("length_queue", index);
 		return new ResponseEntity<>(
-				ResponseDto.of("성공적으로 촬영 대기열에 추가했습니다.", data), 
-				HttpStatus.OK);
+				ResponseDto.of("해당 지점 촬영 대기열에 사용자님은 등록돼있지 않습니다.", data), 
+				HttpStatus.NOT_FOUND);
 	}
 	
-	public ResponseEntity<ResponseDto<NullType>> deCameraQueue(
-			Integer branchId, 
-			String device) {
-		if (device == null || device.isEmpty()) {
-			throw new CustomException("디바이스 정보가 옳지 않습니다.");
-		}
-		
-		Boolean cameraOrPrint = false;
-		removeElementFromQueue(branchId, device, cameraOrPrint);
-		return new ResponseEntity<>(
-				ResponseDto.of("성공적으로 촬영 대기를 취소했습니다."), 
-				HttpStatus.OK);
-	}
-	
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkPrinterQueue(
+	public ResponseEntity<ResponseDto<Map<String, Integer>>> checkPrinterClients(
 			Integer branchId, 
 			String device) {
 		getById(branchId);
-		Boolean cameraOrPrint = true;
+        
+		Room room = this.roomService.findRoomByStringId(String.valueOf(branchId))
+				.orElseThrow(() -> new CustomException("해당 지점은 현재 인화 서비스가 준비되지 않았습니다."));
+		
+		Map<String, WebSocketSession> printerClients = room.getPrinterClient();
 		Map<String, Integer> data = new HashMap<>();
-		ConcurrentLinkedQueue<String> queue = getQueue(branchId, cameraOrPrint);
-
-		if (queue == null) {
+		
+		if (printerClients.size() == 0) {
 			data.put("length_queue", 0);
 			return new ResponseEntity<>(
 					ResponseDto.of("해당 지점은 현재 인화 대기열이 존재하지 않습니다.", data), 
 					HttpStatus.OK);
-		} else {
-		    if (device != null) {
-		        Iterator<String> iterator = queue.iterator();
-		        Integer index = 0;
-
-		        while (iterator.hasNext()) {
-		            index++;
-		            String element = iterator.next();
-		            
-		            if (element.equals(device)) {
-				        data.put("length_queue", index);
-						return new ResponseEntity<>(
-								ResponseDto.of("성공적으로 해당 지점 인화 대기열의 사용자님 순번을 조회했습니다.", data), 
-								HttpStatus.OK);
-		            }
-		        }
-		        data.put("length_queue", index);
-				return new ResponseEntity<>(
-						ResponseDto.of("해당 지점 인화 대기열에 사용자님은 등록돼있지 않습니다.", data), 
-						HttpStatus.OK);
-		    } 
-	        data.put("length_queue", queue.size());
+		}
+		
+		// Debug Code ======================================================================
+		String total = "";
+		for (Map.Entry<String, WebSocketSession> printerClient : printerClients.entrySet()) {
+			 total += printerClient.getKey();
+			 total += ", ";
+		}
+        
+        System.out.println(String.format("현재 총 인화 대기열 디바이스 목록 : [%s]", total));
+        // ====================================================================================
+		
+		if (device == null || device.isBlank()) {
+	        data.put("length_queue", printerClients.size());
 			return new ResponseEntity<>(
 					ResponseDto.of("성공적으로 해당 지점 인화 대기열을 조회했습니다.", data), 
 					HttpStatus.OK);
 		}
-	}
-	
-	public ResponseEntity<ResponseDto<Map<String, Integer>>> enPrinterQueue(
-			Integer branchId, 
-			String device) {
-		if (device == null || device.isEmpty()) {
-			throw new CustomException("디바이스 정보가 옳지 않습니다.");
+		
+		int index = 0;
+		for (Map.Entry<String, WebSocketSession> printerClient : printerClients.entrySet()) {
+			 if (printerClient.getKey().equals(device)) {
+				 data.put("length_queue", index);
+				 return new ResponseEntity<>(
+							ResponseDto.of("성공적으로 해당 지점 인화 대기열의 사용자님 순번을 조회했습니다.", data), 
+							HttpStatus.OK);
+			 }
+			 index++;
 		}
-		
-		Boolean cameraOrPrint = true;
-		enQueue(branchId, device, cameraOrPrint);
-		ConcurrentLinkedQueue<String> queue = getQueue(branchId, cameraOrPrint);
-
-		Map<String, Integer> data = new HashMap<>();
-		data.put("length_queue", queue.size());
-		
+        data.put("length_queue", index);
 		return new ResponseEntity<>(
-				ResponseDto.of("성공적으로 인화 대기열에 추가했습니다.", data), 
-				HttpStatus.OK);
+				ResponseDto.of("해당 지점 인화 대기열에 사용자님은 등록돼있지 않습니다.", data), 
+				HttpStatus.NOT_FOUND);
 	}
 	
-	public ResponseEntity<ResponseDto<NullType>> dePrinterQueue(
-			Integer branchId, 
-			String device) {
-		if (device == null || device.isEmpty()) {
-			throw new CustomException("디바이스 정보가 옳지 않습니다.");
-		}
-		
-		Boolean cameraOrPrint = true;
-		removeElementFromQueue(branchId, device, cameraOrPrint);
-
-		return new ResponseEntity<>(
-				ResponseDto.of("성공적으로 인화 대기를 취소했습니다."), 
-				HttpStatus.OK);
-	}
+//	public ResponseEntity<ResponseDto<Map<String, Integer>>> enCameraQueue(
+//			Integer branchId, 
+//			String device) {
+//		if (device == null || device.isEmpty()) {
+//			throw new CustomException("디바이스 정보가 옳지 않습니다.");
+//		}
+//		
+//		Boolean cameraOrPrint = false;
+//		Map<String, Integer> data = new HashMap<>();
+//		Boolean isExist = enQueue(branchId, device, cameraOrPrint);
+//		ConcurrentLinkedQueue<String> queue = getQueue(branchId, cameraOrPrint);
+//		
+//		if (!isExist) {
+//	        Iterator<String> iterator = queue.iterator();
+//	        Integer index = 0;
+//
+//	        while (iterator.hasNext()) {
+//	            index++;
+//	            String element = iterator.next();
+//	            
+//	            if (element.equals(device)) {
+//			        data.put("length_queue", index);
+//					return new ResponseEntity<>(
+//							ResponseDto.of("이미 대기열에 존재하는 디바이스 입니다.", data), 
+//							HttpStatus.BAD_REQUEST);
+//	            }
+//	        }
+//		}
+//		
+//		data.put("length_queue", queue.size());
+//		
+//		return new ResponseEntity<>(
+//				ResponseDto.of("성공적으로 촬영 대기열에 추가했습니다.", data), 
+//				HttpStatus.OK);
+//	}
 	
-	private ConcurrentLinkedQueue<String> getOrCreateQueue(
-			Integer branchId, 
-			Boolean cameraOrPrint) {
-		if (!cameraOrPrint) {
-			return cameraQueue.computeIfAbsent(branchId, k -> new ConcurrentLinkedQueue<>());
-		} else {
-			return printerQueue.computeIfAbsent(branchId, k -> new ConcurrentLinkedQueue<>());
-		}
-	}
-	
-	public ConcurrentLinkedQueue<String> getQueue(Integer branchId, Boolean cameraOrPrint) {
-		if (!cameraOrPrint) {
-			return cameraQueue.get(branchId);
-		} else {
-			return printerQueue.get(branchId);
-		}
-	}
-	
-	public Boolean enQueue(
-			Integer branchId, 
-			String device, 
-			Boolean cameraOrPrint) {
-		ConcurrentLinkedQueue<String> queue = getOrCreateQueue(branchId, cameraOrPrint);
-		if (!queue.contains(device)) {
-			queue.add(device);
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
+//	public ResponseEntity<ResponseDto<NullType>> deCameraQueue(
+//			Integer branchId, 
+//			String device) {
+//		if (device == null || device.isEmpty()) {
+//			throw new CustomException("디바이스 정보가 옳지 않습니다.");
+//		}
+//		
+//		Boolean cameraOrPrint = false;
+//		removeElementFromQueue(branchId, device, cameraOrPrint);
+//		return new ResponseEntity<>(
+//				ResponseDto.of("성공적으로 촬영 대기를 취소했습니다."), 
+//				HttpStatus.OK);
+//	}
+//	
+//	public ResponseEntity<ResponseDto<Map<String, Integer>>> enPrinterQueue(
+//			Integer branchId, 
+//			String device) {
+//		if (device == null || device.isEmpty()) {
+//			throw new CustomException("디바이스 정보가 옳지 않습니다.");
+//		}
+//		
+//		Boolean cameraOrPrint = true;
+//		Map<String, Integer> data = new HashMap<>();
+//		Boolean isExist = enQueue(branchId, device, cameraOrPrint);
+//		ConcurrentLinkedQueue<String> queue = getQueue(branchId, cameraOrPrint);
+//		
+//		if (!isExist) {
+//			Iterator<String> iterator = queue.iterator();
+//			Integer index = 0;
+//			
+//			while (iterator.hasNext()) {
+//				index++;
+//				String element = iterator.next();
+//				
+//				if (element.equals(device)) {
+//					data.put("length_queue", index);
+//					return new ResponseEntity<>(
+//							ResponseDto.of("이미 대기열에 존재하는 디바이스 입니다.", data), 
+//							HttpStatus.BAD_REQUEST);
+//				}
+//			}
+//		}
+//
+//		data.put("length_queue", queue.size());
+//		
+//		return new ResponseEntity<>(
+//				ResponseDto.of("성공적으로 인화 대기열에 추가했습니다.", data), 
+//				HttpStatus.OK);
+//	}
+//	
+//	public ResponseEntity<ResponseDto<NullType>> dePrinterQueue(
+//			Integer branchId, 
+//			String device) {
+//		if (device == null || device.isEmpty()) {
+//			throw new CustomException("디바이스 정보가 옳지 않습니다.");
+//		}
+//		
+//		Boolean cameraOrPrint = true;
+//		removeElementFromQueue(branchId, device, cameraOrPrint);
+//
+//		return new ResponseEntity<>(
+//				ResponseDto.of("성공적으로 인화 대기를 취소했습니다."), 
+//				HttpStatus.OK);
+//	}
+//	
+//	private ConcurrentLinkedQueue<String> getOrCreateQueue(
+//			Integer branchId, 
+//			Boolean cameraOrPrint) {
+//		if (!cameraOrPrint) {
+//			return cameraQueue.computeIfAbsent(branchId, k -> new ConcurrentLinkedQueue<>());
+//		} else {
+//			return printerQueue.computeIfAbsent(branchId, k -> new ConcurrentLinkedQueue<>());
+//		}
+//	}
+//	
+//	public ConcurrentLinkedQueue<String> getQueue(Integer branchId, Boolean cameraOrPrint) {
+//		if (!cameraOrPrint) {
+//			return cameraQueue.get(branchId);
+//		} else {
+//			return printerQueue.get(branchId);
+//		}
+//	}
+//	
+//	public Boolean enQueue(
+//			Integer branchId, 
+//			String device, 
+//			Boolean cameraOrPrint) {
+//		ConcurrentLinkedQueue<String> queue = getOrCreateQueue(branchId, cameraOrPrint);
+//		if (!queue.contains(device)) {
+//			queue.add(device);
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
+//	
 //	public String deQueue(
 //			Integer branchId, 
 //			Boolean cameraOrPrint) {
@@ -389,39 +411,39 @@ public class BranchServiceImpl implements Service<BranchDto>{
 //		}
 //		return null;
 //	}
-	
-	public Boolean removeElementFromQueue(
-			Integer branchId, 
-			String device, 
-			Boolean cameraOrPrint) {
-		ConcurrentLinkedQueue<String> queue = null;
-		if (!cameraOrPrint) {
-			queue = cameraQueue.get(branchId);
-		} else {
-			queue = printerQueue.get(branchId);
-		}
-		
-		if (queue != null) {
-			return queue.remove(device);
-		}
-		return false;
-	}
-	
-	public String checkNextElementFromQueue(
-			Integer branchId, 
-			Boolean cameraOrPrint) {
-		ConcurrentLinkedQueue<String> queue = null;
-		if (!cameraOrPrint) {
-			queue = cameraQueue.get(branchId);
-		} else {
-			queue = printerQueue.get(branchId);
-		}
-		
-		if (queue != null) {
-			return queue.peek();
-		}
-		return null;
-	}
+//	
+//	public Boolean removeElementFromQueue(
+//			Integer branchId, 
+//			String device, 
+//			Boolean cameraOrPrint) {
+//		ConcurrentLinkedQueue<String> queue = null;
+//		if (!cameraOrPrint) {
+//			queue = cameraQueue.get(branchId);
+//		} else {
+//			queue = printerQueue.get(branchId);
+//		}
+//		
+//		if (queue != null) {
+//			return queue.remove(device);
+//		}
+//		return false;
+//	}
+//	
+//	public String checkNextElementFromQueue(
+//			Integer branchId, 
+//			Boolean cameraOrPrint) {
+//		ConcurrentLinkedQueue<String> queue = null;
+//		if (!cameraOrPrint) {
+//			queue = cameraQueue.get(branchId);
+//		} else {
+//			queue = printerQueue.get(branchId);
+//		}
+//		
+//		if (queue != null) {
+//			return queue.peek();
+//		}
+//		return null;
+//	}
 	
 	public BranchDto getById(Integer id) {
 		Branch branch = this.branchDaoImpl.getById(id);

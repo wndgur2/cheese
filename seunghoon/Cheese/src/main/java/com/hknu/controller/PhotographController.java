@@ -53,20 +53,4 @@ public class PhotographController {
 			@RequestHeader(required = false, value = "Refresh-Token") String refreshToken) {
 		return this.photographServiceImpl.deleteCustomerCloudPhotograph(customerId, photoId, accessToken, refreshToken);
 	}
-	
-//	@GetMapping(value = "/edit/body")
-//	public ResponseEntity<ResponseDto<?>> body() {
-//		JepConfig config = new JepConfig();
-//		config.setIncludePath("C:\\Users\\sxaz1\\anaconda3\\Lib\\site-packages");
-//		
-//		Interpreter interpreter = new SharedInterpreter();
-//		SharedInterpreter.setConfig(config);
-//		
-//		interpreter.eval("test = 'Hello World'");
-//		System.out.println(interpreter.getValue("test"));
-
-//		System.setProperty("python.import.site", "false");
-//		interpreter.execfile("C:\\graduation\\git\\heymin\\body_reconstruction\\multi_people_reshape.py");
-//		return null;
-//	}
 }

@@ -49,12 +49,6 @@
 	</properties>
 	<!-- Library Setting -->
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/black.ninia/jep -->
-		<!--<dependency>
-    		<groupId>black.ninia</groupId>
-    		<artifactId>jep</artifactId>
-    		<version>4.1.1</version>
-		</dependency> -->
 		<dependency>
 			<groupId>org.projectlombok</groupId> 
 			<artifactId>lombok</artifactId> 
