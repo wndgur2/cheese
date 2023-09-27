@@ -8,6 +8,7 @@ function ImageText({size, active, src, width, children}) {
     }}>
       <div style={{
         display: "flex",
+        height: "40px",
         alignItems:"center",
         justifyContent:"center",
       }}>

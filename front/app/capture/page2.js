@@ -13,23 +13,22 @@ import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
 
 const LOCAL_TEST = true;
 
-// @shlee, 백엔드 Queue 삭제
-// function addToQueue(roomN, uuid) {
-//   // send post request to server to add to queue
-//   const url = `http://${process.env.NEXT_PUBLIC_API}/cameraQueue/${roomN}`;
-//   axios.post(url, null, {
-//     params: {
-//       device: uuid,
-//     },
-//   })
-//     .then((res) => console.log(res))
-//     .catch((err) => console.log(err));
-// }
+function addToQueue(roomN, uuid) {
+  // send post request to server to add to queue
+  const url = `http://${process.env.NEXT_PUBLIC_API}/cameraQueue/${roomN}`;
+  axios.post(url, null, {
+    params: {
+      device: uuid,
+    },
+  })
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err));
+}
 
 function enterRoom(roomN, uuid) {
   // send post request to server to enter the room
-  // const url = `http://172.30.1.62:8080/branch/${roomN}/stream`;
-  const url = `http://${process.env.NEXT_PUBLIC_API}/branch/${roomN}/stream`;
+  const url = `http://172.30.1.62:8080/branch/${roomN}/stream`;
+  // const url = `http://${process.env.NEXT_PUBLIC_API}/branch/${roomN}/stream`;
   axios.post(url, null, {
     params: {
       device: uuid,
@@ -123,19 +122,16 @@ export default function Capture(props) {
     uuid = localStorage.getItem("uuid");
     roomN = JSON.parse(localStorage.getItem("branch")).id;
 
-    // @shlee, 백엔드 Queue 삭제
-    // addToQueue(roomN, uuid);
-    setAmount(props.searchParams.amount);
-    
-    socket = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API}/signal`);
-    
-    // @shlee, enterRoom 순서 변경 (socket 연결 후 enterRoom)
+    addToQueue(roomN, uuid);
     enterRoom(roomN, uuid);
+
+    setAmount(props.searchParams.amount);
+
+    socket = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API}/signal`);
 
     setSocketListeners(socket);
   },[]);
 
-  // @shlee, 웹 소켓 연결 끊어야 함. (ex. 뒤로가기 등 해당 URL이 아닐 시에도 끊겨야 됨)
   useEffect(()=>{
     if(amount==0) return;
     if(capturedAmount >= amount) {
@@ -296,7 +292,7 @@ export default function Capture(props) {
       // send a message to the server to join selected room with Web Socket
       sendToServer({
         from: localStorage.getItem("uuid"),
-        type: 'device_join',
+        type: 'join',
         data: roomN
       });
     };
@@ -311,35 +307,28 @@ export default function Capture(props) {
       handleErrorMessage("Error: " + message);
     };
 
-    /**
-     * @shlee, 메세지 수정 (백엔드 메세지 참조)
-     * sendToServer (보내는 메세지) 형식도 확인
-     */
     //webrtc_client
     socket.onmessage = function(msg) {
       let message = JSON.parse(msg.data);
       switch (message.type) {
-        // case "text":
-        //   console.log('Text message from ' + message.from + ' received: ' + message.data);
-        //   break;
-        case "camera_offer":
+        case "text":
+          console.log('Text message from ' + message.from + ' received: ' + message.data);
+          break;
+        case "offer":
           console.log('Signal OFFER received');
           handleOfferMessage(message);
           break;
-        case "camera_answer":
+        case "answer":
           console.log('Signal ANSWER received');
           handleAnswerMessage(message);
           break;
-        case "camera_ice":
+        case "ice":
           console.log('Signal ICE Candidate received');
           handleNewICECandidateMessage(message);
           break;
-        case "camera_join":
+        case "join":
           console.log('Client is starting to ' + (message.data === "true)" ? 'negotiate' : 'wait for a peer'));
           handlePeerConnection(message);
-          break;
-        case "device_join":
-        case "printer_join":
           break;
         default:
           handleErrorMessage('Wrong type message received from server');
@@ -441,7 +430,7 @@ export default function Capture(props) {
     if (event.candidate) {
       sendToServer({
         from: localStorage.getItem("uuid"),
-        type: 'device_camera_ice',
+        type: 'ice',
         candidate: event.candidate
       });
       console.log('ICE Candidate Event: ICE candidate sent');
@@ -467,7 +456,7 @@ export default function Capture(props) {
     .then(function() {
       sendToServer({
         from: localStorage.getItem("uuid"),
-        type: 'device_camera_offer',
+        type: 'offer',
         sdp: myPeerConnection.localDescription
       });
       console.log('Negotiation Needed Event: SDP offer sent');
@@ -522,7 +511,7 @@ export default function Capture(props) {
               console.log("Sending answer packet back to other peer");
               sendToServer({
                   from: localStorage.getItem("uuid"),
-                  type: 'device_camera_answer',
+                  type: 'answer',
                   sdp: myPeerConnection.localDescription
               });
 

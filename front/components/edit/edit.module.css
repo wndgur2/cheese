@@ -162,3 +162,11 @@
     border-radius: 12px;
     border: 1px solid #ddd;
 }
+
+.extractBtn{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: none;
+    background: none;
+}

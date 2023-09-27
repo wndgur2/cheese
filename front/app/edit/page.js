@@ -240,14 +240,14 @@ export default function Edit({searchParams}) {
         <div>
           <div className="alignCenter" id={editStyles.functionBar}>
             <div className="alignCenter" style={{ gap:10 }}>
-              <div className="alignCenter">
+              {/* <div className="alignCenter">
                 <div className="alignCenter" id={editStyles.undoWrapper}>
                   <img src="/edit/undo.png" width={24} />
                 </div>
                 <div className="alignCenter" id={editStyles.doWrapper}>
                   <img src="/edit/redo.png" width={24} />
                 </div>
-              </div>
+              </div> */}
 
               <div className="alignCenter">
                 <img src="/edit/reset.png" width={60} />

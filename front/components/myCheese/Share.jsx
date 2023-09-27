@@ -5,7 +5,7 @@ import deleteShare from "@/api/deleteShare";
 import { useSession } from "next-auth/react";
 import savePhotosOnDevice from "@/api/savePhotosOnDevice";
 
-export default function Share({shares, userData, setUserData, branches}) {
+export default function Shares({shares, userData, setUserData, branches}) {
   const session = useSession({
     required: true,
     onUnauthenticated() {

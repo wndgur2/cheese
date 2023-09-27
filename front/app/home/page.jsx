@@ -8,6 +8,7 @@ import axios from 'axios';
 import SharedPhoto from '@/entity/SharedPhoto';
 import Branch from '@/entity/Branch';
 import { PyScript, PyScriptProvider } from 'pyscript-react';
+import CheeseMapBtn from '@/components/CheeseMapBtn';
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -110,24 +111,20 @@ export default function Home(props) {
               <span className='subtitle'>선택된 지점이 없어요.</span>
             </div>}
         </div>
-        <BigBtn enabled="true"
-          href="/home/cheeseMap"
-          src="/map_x4.png"
-          size="60px"
-          iconWidth="26px"
-          iconHeight="23px"
-        />
+        <CheeseMapBtn/>
       </div>
       {/* <p>session.status : {session.status}</p> */}
       { isLocated?
           photos.length?
           <img src={"data:image/png;base64," + photos[0].photoImage} width={"100%"}
-          style={{
-            borderRadius:"5px",
-            margin:"20px 0 0 0",
-            maxHeight:"30vh",
-            objectFit: "cover"
-          }}/>
+            style={{
+              borderRadius:"16px",
+              margin:"2.5vh 0 2.5vh 0",
+              maxHeight:"30vh",
+              objectFit: "cover",
+              boxShadow: "1px 1px 10px 1px rgba(0, 0, 0, 0.10)",
+            }}
+          />
           :<div>No shared photos yet.</div>
         :
         <TextBtn href="/home/cheeseMap" color="#FFD56A"
@@ -149,18 +146,18 @@ export default function Home(props) {
         <BigBtn enabled={isLocated}
           href="/accessProcess/capture"
           src="/cheese_empty_37_30_x4.png"
-          size="25vw"
+          size="40vw"
           iconWidth="37px"
           iconHeight="30px"
-        >촬영하기</BigBtn>
+        >촬영</BigBtn>
         <BigBtn
           enabled={isLocated}
           href="/accessProcess/print"
           src="/print_x4.png"
-          size="25vw"
+          size="40vw"
           iconWidth="37px"
           iconHeight="32px"
-        >인화하기</BigBtn>
+        >인화</BigBtn>
       </div>
       
       <TextBtn content="사진 아이디어를 얻어보세요." href="/home/share">
@@ -171,6 +168,7 @@ export default function Home(props) {
         justifyContent:"safe center",
         gap:"10px",
         overflowX:"scroll",
+        marginTop: "2.5vh"
       }}>
         {
           photos.slice(1,5).map((photo, i)=>{

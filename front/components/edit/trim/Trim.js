@@ -6,6 +6,7 @@ import Tilter from "@/components/Tilter";
 import editStyles from "../edit.module.css";
 import { useEffect, useState } from "react";
 import { Page } from "@/app/edit/edit.module";
+import RotateBtn from "@/components/RotateBtn";
 
 /** @param {{page:Page}} page */
 export default function Trim({page}) {
@@ -98,17 +99,17 @@ export default function Trim({page}) {
           textAlign:"center",
           margin:"0px",
         }}>{rotateVal}°</p>
-      </div>
-      <div style={{
-        display:"flex",
-        justifyContent:"space-between",
-        margin: "0px 4vw"
-      }}>
+        </div>
+        <div style={{
+          display:"flex",
+          justifyContent:"space-between",
+          margin: "0px 4vw"
+        }}>
         <div onClick={()=>{page?.rotate(90, true)}}>
-          <BigBtn src={"/edit/trim/rotate_anticlock.png"} iconWidth={32} size={52} />
+          <RotateBtn src={"/edit/trim/rotate_anticlock.png"} iconWidth={32} size={52} />
         </div>
         <div onClick={()=>{page?.rotate(-90, true)}}>
-          <BigBtn src={"/edit/trim/rotate_clock.png"} iconWidth={32} size={52} />
+          <RotateBtn src={"/edit/trim/rotate_clock.png"} iconWidth={32} size={52} />
         </div>
       </div>
     </div>

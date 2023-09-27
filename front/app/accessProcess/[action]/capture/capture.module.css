@@ -1,5 +1,4 @@
 #captureAmount{
-    width: 100%;
     font-size: 11vw;
     font-weight: 700;
     caret-color: #FFD56A;
@@ -8,13 +7,15 @@
     outline:none;
     margin:0px;
     padding:0px;
+    overflow: visible;
 }
 
 .inputInfo{
     height: 5vh;
-    font-size: 11vw;
+    font-size: 9vw;
     font-weight: 700;
-    color: #212121;
+    letter-spacing: 0.5vw;
+    color: #303030;
     pointer-events: none;
     line-height: normal;
     margin:0px;
@@ -27,7 +28,6 @@
     align-items: baseline;
     top: 20vh;
     left: 5vw;
-    width: 92vw;
 }
 
 /* .placeholder{

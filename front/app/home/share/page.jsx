@@ -1,11 +1,11 @@
 'use client'
-import BigBtn from "@/components/BigBtn";
 import { useEffect, useRef, useState } from "react";
 import shareStyles from "./share.module.css";
 import axios from "axios";
 import Share from "@/entity/Share";
+import CheeseMapBtn from "@/components/CheeseMapBtn";
 
-export default function MyCheese() {
+export default function SharePage() {
   const [location, setLocation] = useState();
   const [isLocated, setIsLocated] = useState(false);
   const [indexes, setIndexes] = useState([]);
@@ -134,13 +134,7 @@ export default function MyCheese() {
           }
             <span className="subtitle" style={{fontSize:22, fontWeight:400, letterSpacing: 1}}>최근에 공유된 사진이에요.</span>
         </div>
-        <BigBtn  enabled="true"
-          href="/home/cheeseMap"
-          src="/map_x4.png"
-          size="60px"
-          iconWidth="26px"
-          iconHeight="23px"
-        />
+        <CheeseMapBtn />
       </div>
       <div
         ref={sharesContainer}

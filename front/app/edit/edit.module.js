@@ -1,3 +1,6 @@
+import axios from "axios";
+import JSZip from "jszip";
+
 const MARGIN = 1.1;
 const LINE_WIDTH = 0.003;
 const HITBOX_SIZE = 0.12;
@@ -30,7 +33,7 @@ class Page{
         this.touchLayer.canvas.style.visibility="hidden";
     }
 
-    static setTouchLayer(page_, type){
+    static setTouchLayer(page_, type, setObjectEditting){
         if(!page_) return;
         if(!type) this.disableTouchLayer();
         console.log("setTouchLayer", type);
@@ -73,6 +76,9 @@ class Page{
                 this.touchLayer.canvas.ontouchend = ()=>{page_.handleTextTouchEnd()};
                 break;
             
+            case "object":
+                this.touchLayer.canvas.ontouchstart = (e)=>{page_.handleObjectTouchStart(e)};
+                page_.setObjectEditting = setObjectEditting;
             default:
                 break;
         }
@@ -703,6 +709,39 @@ class Page{
     }
 
     handleTextTouchEnd(){
+    }
+    
+    async handleObjectTouchStart(e){
+        console.log("object touch");
+        this.setObjectEditting(false);
+        Page.disableTouchLayer();
+        this.touched = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
+        const {x, y} = this.touched;
+        console.log(x, y);
+
+        const data = new FormData();
+        let blob = await fetch(this.src).then(r => r.blob());
+        data.append('file', blob);
+        try{
+            const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/object_remove?x=${parseInt(x-this.getLayer("image").x)}&y=${parseInt(y-this.getLayer("image").y)}`,
+                data,
+                {responseType: 'blob',}
+            )
+            // unzip res.data
+            const zip = new JSZip();
+            const zipFiles = await zip.loadAsync(res.data);
+            
+            const fileData = await zipFiles.files["edited_image.jpg"].async('blob');
+            console.log(fileData);
+            // const blob2 = await fetch(`data:image/jpeg;base64,${fileData}`).then(r => r.blob());
+            // console.log(blob2);
+            
+            this.setImage(URL.createObjectURL(fileData));
+            this.src = URL.createObjectURL(fileData);
+        }
+        catch(err) {
+            console.log(err);
+        }
     }
 }
 

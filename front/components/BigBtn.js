@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-function BigBtn({enabled, href, size, src, text, iconWidth, iconHeight, children}) {
+function BigBtn({enabled, href, src, text, iconWidth, iconHeight, children}) {
     return (
         <Link href={enabled? href:""}>
             <div
@@ -10,14 +10,12 @@ function BigBtn({enabled, href, size, src, text, iconWidth, iconHeight, children
                 <button style={{
                     justifyContent:"center",
                     alignItems:"center",
-                    borderRadius: "40px",
+                    borderRadius: "16px",
                     backgroundColor: `${enabled? "#FFD56A":"#FEFBF6"}`,
                     border: "none",
                     boxShadow: "1px 1px 10px 1px rgba(0, 0, 0, 0.10)",
-                    width: size,
-                    height: size,
-                    margin:0,
-                    padding:0,
+                    width: "42vw",
+                    height: "13vh",
                     lineHeight:"normal",
                 }}>
                     <img

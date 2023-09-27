@@ -2,7 +2,6 @@
 
 import './globals.css'
 import { Noto_Sans_KR } from 'next/font/google'
-import Script from 'next/script'
 import { SessionProvider } from 'next-auth/react';
 
 const noto_Sans_KR = Noto_Sans_KR({

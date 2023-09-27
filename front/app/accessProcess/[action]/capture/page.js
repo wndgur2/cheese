@@ -13,7 +13,7 @@ export default function Amount(props) {
      * @type {[Branch, Function]}
      */
     const [branch, setBranch] = useState();
-    const [amount, setAmount] = useState("");
+    const [amount, setAmount] = useState(0);
     const action = props.params.action;
 
     useEffect(()=>{
@@ -64,16 +64,13 @@ export default function Amount(props) {
                 maxLength={"2"}
                 pattern="[0-9]*"
                 onChange={handleInputChange}
-                placeholder='몇 장을 찍을까요?'
             />
-            {amount?
-                <span className={captureStyles.inputInfo}>
-                    장
-                </span>:<></>
-            }
+            <span className={captureStyles.inputInfo}>
+                장 촬영할게요.
+            </span>
         </div>
 
-    {amount ?
+    {amount>0?
         <Link href={"/capture?amount="+amount}>
             <div className="next">
                 <span style={{

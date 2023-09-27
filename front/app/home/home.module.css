@@ -4,8 +4,8 @@
 
 .bigBtnWrapper{
     display: flex;
-    justify-content: space-around;
-    margin: 4.5vh 0px 4.5vh 0px;
+    justify-content: space-between;
+    margin: 0px 0px 4.5vh 0px;
 }
 
 .navbar{
