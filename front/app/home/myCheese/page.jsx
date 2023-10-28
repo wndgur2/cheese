@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react"
 import { useSession } from "next-auth/react";
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import myCheeseStyles from "./myCheese.module.css";
 import axios from "axios";
@@ -11,7 +11,7 @@ import Timelapse from "@/components/myCheese/Timelapse";
 import Share from "@/components/myCheese/Share";
 import Payment from "@/components/myCheese/Payment";
 
-async function getUserData(id, auth, refresh){
+async function getUserData(id, auth, refresh, router){
   try{
     const res = await axios.get(`http://${process.env.NEXT_PUBLIC_API}/customer/${id}`, {
       headers:{
@@ -30,7 +30,7 @@ async function getUserData(id, auth, refresh){
       payments: res.data.data.payments?.reverse(),
     }
   } catch(error){
-    console.log(error);
+    signOut({callbackUrl: "/home/signin?callbackUrl=/home/myCheese"});
     return ;
   }
 }
@@ -63,7 +63,11 @@ export default function MyCheese(){
   useEffect(()=>{
     if(session.status == "unauthenticated") router.replace("/login");
     else if(session.status == "authenticated"){
-      getUserData(session.data.user.id, session.data.user.authorization, session.data.user["refresh-token"])
+      getUserData(session.data.user.id,
+        session.data.user.authorization,
+        session.data.user["refresh-token"],
+        router
+      )
       .then((res)=>{
         setUserData(res);
       })

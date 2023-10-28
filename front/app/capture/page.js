@@ -4,40 +4,14 @@ import { useEffect, useRef, useState} from "react";
 import captureStyles from "./capture.module.css";
 import TextBtn from "@/components/TextBtn";
 import axios from "axios";
-import { useSession } from "next-auth/react";
+import queueStyle from "../home/queue.module.css";
 import savePhotosOnDevice from "@/api/savePhotosOnDevice";
 import savePhotosOnCloud from "@/api/savePhotosOnCloud";
 import sharePhotos from "@/api/sharePhotos";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
-
-const LOCAL_TEST = true;
-
-// @shlee, 백엔드 Queue 삭제
-// function addToQueue(roomN, uuid) {
-//   // send post request to server to add to queue
-//   const url = `http://${process.env.NEXT_PUBLIC_API}/cameraQueue/${roomN}`;
-//   axios.post(url, null, {
-//     params: {
-//       device: uuid,
-//     },
-//   })
-//     .then((res) => console.log(res))
-//     .catch((err) => console.log(err));
-// }
-
-function enterRoom(roomN, uuid) {
-  // send post request to server to enter the room
-  // const url = `http://172.30.1.62:8080/branch/${roomN}/stream`;
-  const url = `http://${process.env.NEXT_PUBLIC_API}/branch/${roomN}/stream`;
-  axios.post(url, null, {
-    params: {
-      device: uuid,
-    },
-  })
-    .then((res) => console.log(res))
-    .catch((err) => console.log(err));
-}
+const LOCAL_TEST = false;
 
 function exitRoom(roomN, uuid) {
   // send post request to server to exit the room
@@ -50,7 +24,6 @@ function exitRoom(roomN, uuid) {
     .then((res) => console.log(res))
     .catch((err) => console.log(err));
 }
-
 
 async function getPose(localVideoRef, setPose) {
   const poses = [];
@@ -80,8 +53,19 @@ async function getPose(localVideoRef, setPose) {
   }
 }
 
+function getQueue(roomN, uuid, setQueueLength){
+  console.log("GET QUEUE.;");
+  axios.get(`http://${process.env.NEXT_PUBLIC_API}/cameraQueue/${roomN}`, {
+    params: { device: uuid }
+  }).then(res=>{
+    setQueueLength(res.data.data['length_queue']);
+    if(res.data.data['length_queue'] > 0) setTimeout(()=>{getQueue(roomN, uuid, setQueueLength);}, 1000);
+  } ).catch(err=>{
+    console.log(err);
+  })
+}
 
-export default function Capture(props) {
+export default function Capture() {
   const session = useSession({
     required: false,
     onUnauthenticated() {
@@ -89,6 +73,7 @@ export default function Capture(props) {
     },
   });
 
+  // capturing variables
   const [amount, setAmount] = useState(0);
   const [capturedAmount, setCapturedAmount] = useState(0);
   const [time, setTime] = useState(15);
@@ -96,10 +81,15 @@ export default function Capture(props) {
   const [captures, setCaptures] = useState([]);
   const [isEnd, setIsEnd] = useState(false);
   const [pose, setPose] = useState(null);
+  const [socketR, setSocketR] = useState(null);
   const remoteVideoRef = useRef();
   const localVideoRef = useRef();
   const shutter = useRef();
   const router = useRouter();
+
+  // queue variables
+  const [capturing, setCapturing] = useState(false);
+  const [queueLength, setQueueLength] = useState(1);
 
   // streaming variables
   let localStream, socket, roomN, myPeerConnection, uuid, tId;
@@ -114,51 +104,53 @@ export default function Capture(props) {
   };
 
   // WebRTC media
-  const mediaConstraints = {
-    audio: false,
-    video: true
-  };
+  const mediaConstraints = {offerToReceiveVideo: true};
   
   useEffect(()=>{
+    let branch = JSON.parse(localStorage.getItem("branch"));
+    if(!branch) router.push("/home/cheeseMap");
+    else roomN = branch.id;
     uuid = localStorage.getItem("uuid");
-    roomN = JSON.parse(localStorage.getItem("branch")).id;
-
-    // @shlee, 백엔드 Queue 삭제
-    // addToQueue(roomN, uuid);
-    setAmount(props.searchParams.amount);
+    setAmount(localStorage.getItem("amount"));
     
     socket = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API}/signal`);
-    
-    // @shlee, enterRoom 순서 변경 (socket 연결 후 enterRoom)
-    enterRoom(roomN, uuid);
-
     setSocketListeners(socket);
+    setSocketR(socket);
+    getQueue(roomN, uuid, setQueueLength);
   },[]);
 
-  // @shlee, 웹 소켓 연결 끊어야 함. (ex. 뒤로가기 등 해당 URL이 아닐 시에도 끊겨야 됨)
   useEffect(()=>{
+    if(!capturing) return;
     if(amount==0) return;
-    if(capturedAmount >= amount) {
-      endCapture();
-      exitRoom(JSON.parse(localStorage.getItem("branch")).id, localStorage.getItem("uuid"));
-    }
+    if(capturedAmount >= amount) endCapture();
   }, [capturedAmount])
 
   useEffect(()=>{
+    if(!capturing) return;
     if(isEnd) clearTimeout(tId);
     else if(time==0) {
       handleShutterClick();
       setTime(15);
     } else{
-      tId = setTimeout(()=>{
-        setTime(time-1);
-      }, 1000);
-
+      tId = setTimeout(()=>{setTime(time-1);}, 1000);
       //포즈 추천
-      getPose(localVideoRef, setPose);
+      // getPose(localVideoRef, setPose);
     }
   }, [time]);
 
+  useEffect(()=>{
+    if(!isEnd) return;
+    // exitRoom(JSON.parse(localStorage.getItem("branch")).id, localStorage.getItem("uuid"));
+    stop(socketR);
+  }, [isEnd])
+
+  useEffect(()=>{
+    if(capturing) return;
+    if(queueLength==0){
+      setCapturing(true);
+      tId = setTimeout(()=>{setTime(time-1);}, 1000);
+    }
+  }, [queueLength]);
 
   function capturePhoto() {
     var canvas = document.createElement("canvas");
@@ -172,11 +164,11 @@ export default function Capture(props) {
     const url = canvas.toDataURL("image/jpeg");
     let newCaptures = [...captures];
     newCaptures.push(url);
-    // console.log(url);
     setCaptures(newCaptures);
   }
 
   function shutterEffect(){
+    if(!shutter.current) return;
     shutter.current.style.opacity = 1;
     setTimeout(()=>{
       shutter.current.style.opacity = 0;
@@ -189,7 +181,6 @@ export default function Capture(props) {
     setCapturedAmount(capturedAmount+1);
     clearTimeout(tId);
     setTime(15);
-    // console.log(captures);
   }
 
   function handleSharePhoto() {
@@ -239,51 +230,67 @@ export default function Capture(props) {
 
   return (
     <div>
-      <div ref={shutter} className={captureStyles.shutterEffect}></div>
-      { LOCAL_TEST ?
-        <video id={captureStyles.stream} ref={localVideoRef} autoPlay playsInline></video>:
-        <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
-      }
-      { pose?
-        <img style={{
-          position: "absolute",
-          transform: "translate(-50%, -50%) rotate(90deg)",
-          opacity: 0.5,
-          top: "45%",
-          left: "50%",
-          width: "30%",
-          height: "30%",
-          objectFit: "cover",
-          zIndex: 1,
-        }} src={pose}/> : <></>
-      }
-      <div className={captureStyles.functions}>
-        <div className={captureStyles.rotate}>
-          <img id={captureStyles.rotate} src="/capture/rotate.png" />
-        </div>
-        <div className={captureStyles.shutter} 
-          onClick={handleShutterClick}>
-          <img id={captureStyles.shutter} src="/capture/shutter.png" />
-        </div>
-        <div className={captureStyles.timer}>
-          <img id={captureStyles.timer} src="/capture/timer.png" />
-          <span>{time}</span>
-        </div>
-        <div className={captureStyles.amount}>
-          <span>{capturedAmount+1 <= amount ? capturedAmount+1:amount}/{amount}</span>
-        </div>
-      </div>
-      {capturedAmount ==amount &&
-        <div className={captureStyles.alertWrapper}>
-          <div className="alert">
-            <span className='title'>촬영이 끝났어요.</span> <br/>
-            <span className='subtitle'>사진을 기기에 저장할게요.</span> <br/><br/>
-            <TextBtn href={"/edit?photos=true"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
-            <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
-            <div onClick={handleSharePhoto}><TextBtn color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn></div>
-            <TextBtn href={"/home"} color="#FEFBF6">홈으로</TextBtn>
+      {
+        capturing? <div>
+          <div ref={shutter} className={captureStyles.shutterEffect}></div>
+          { LOCAL_TEST ?
+            <video id={captureStyles.stream} ref={localVideoRef} autoPlay playsInline></video>:
+            <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
+          }
+          { pose?
+            <img style={{
+              position: "absolute",
+              transform: "translate(-50%, -50%) rotate(90deg)",
+              opacity: 0.5,
+              top: "45%",
+              left: "50%",
+              width: "30%",
+              height: "30%",
+              objectFit: "cover",
+              zIndex: 1,
+            }} src={pose}/> : <></>
+          }
+          <div className={captureStyles.functions}>
+            <div className={captureStyles.rotate}>
+              <img id={captureStyles.rotate} src="/capture/rotate.png" />
+            </div>
+            <div className={captureStyles.shutter} 
+              onClick={handleShutterClick}>
+              <img id={captureStyles.shutter} src="/capture/shutter.png" />
+            </div>
+            <div className={captureStyles.timer}>
+              <img id={captureStyles.timer} src="/capture/timer.png" />
+              <span>{time}</span>
+            </div>
+            <div className={captureStyles.amount}>
+              <span>{capturedAmount+1 <= amount ? capturedAmount+1:amount}/{amount}</span>
+            </div>
           </div>
-        </div>
+          { isEnd?
+            <div className={captureStyles.alertWrapper}>
+              <div className="alert">
+                <span className='title'>촬영이 끝났어요.</span> <br/>
+                <span className='subtitle'>사진을 기기에 저장할게요.</span> <br/><br/>
+                <TextBtn href={"/edit?photos=true"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
+                <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
+                <div onClick={handleSharePhoto}><TextBtn color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn></div>
+                <TextBtn href={"/home"} color="#FEFBF6">홈으로</TextBtn>
+              </div>
+            </div>:<></>
+          }
+          </div>:
+          <div className="container">
+            <div className={queueStyle.textBox}>
+              <span style={{fontWeight: 700}}>촬영 대기중</span><span>입니다.</span> <br/>
+              <span>내 앞에 대기자가</span>&nbsp;
+              <span style={{fontWeight: 700}}>{queueLength}명</span>&nbsp;<span>있어요.</span>
+            </div>
+            <div className={queueStyle.dots}>
+              <div className={queueStyle.dot} id={queueStyle.d1} />
+              <div className={queueStyle.dot} id={queueStyle.d2} />
+              <div className={queueStyle.dot} id={queueStyle.d3} />
+            </div>
+          </div>
       }
     </div>
   );
@@ -292,18 +299,21 @@ export default function Capture(props) {
   function setSocketListeners(socket) {
     // add an event listener to get to know when a connection is open
     socket.onopen = function() {
+      
       console.log('WebSocket connection opened to Room: #' + roomN + " from " + localStorage.getItem("uuid"));
       // send a message to the server to join selected room with Web Socket
       sendToServer({
-        from: localStorage.getItem("uuid"),
-        type: 'device_join',
+        from: uuid,
+        type: 'camera_join',
         data: roomN
       });
+
+      handlePeerConnection();
     };
 
     // a listener for the socket being closed event
     socket.onclose = function(message) {
-      console.log('Socket has been closed');
+      console.log('Socket has been closed.' + message);
     };
 
     // an event listener to handle socket errors
@@ -318,29 +328,24 @@ export default function Capture(props) {
     //webrtc_client
     socket.onmessage = function(msg) {
       let message = JSON.parse(msg.data);
+      console.log(message);
       switch (message.type) {
-        // case "text":
-        //   console.log('Text message from ' + message.from + ' received: ' + message.data);
-        //   break;
-        case "camera_offer":
+        case "device_camera_offer":
           console.log('Signal OFFER received');
           handleOfferMessage(message);
           break;
-        case "camera_answer":
+        case "device_camera_answer":
           console.log('Signal ANSWER received');
           handleAnswerMessage(message);
           break;
-        case "camera_ice":
+        case "device_camera_ice":
           console.log('Signal ICE Candidate received');
           handleNewICECandidateMessage(message);
           break;
-        case "camera_join":
-          console.log('Client is starting to ' + (message.data === "true)" ? 'negotiate' : 'wait for a peer'));
-          handlePeerConnection(message);
-          break;
-        case "device_join":
-        case "printer_join":
-          break;
+        case "device_camera_join":
+            log('Client is starting to ' + (message.data === "true" ? 'negotiate' : 'wait for a peer'));
+            handlePeerConnection(message);
+            break;
         default:
           handleErrorMessage('Wrong type message received from server');
       }
@@ -352,10 +357,11 @@ export default function Capture(props) {
     console.error(message);
   }
 
-  // use JSON format to send WebSocket message
-  function sendToServer(msg) {
+  // use JSON format to send WebSocket message {from, type, data}
+  function sendToServer(msg, socketR) {
     let msgJSON = JSON.stringify(msg);
-    socket.send(msgJSON);
+    if(socketR) socketR.send(msgJSON);
+    else socket.send(msgJSON);
   }
 
   // initialize media stream
@@ -365,49 +371,47 @@ export default function Capture(props) {
         track.stop();
       });
     }
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then(getLocalMediaStream).catch(handleGetUserMediaError);
+    if(LOCAL_TEST) {
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(getLocalMediaStream).catch(handleGetUserMediaError);
+    }
   }
   
   // add MediaStream to local video element and to the Peer
   function getLocalMediaStream(mediaStream) {
       localStream = mediaStream;
-      if(LOCAL_TEST) {
-        localVideoRef.current.srcObject = mediaStream;
-        
-        // record video
-        let mediaRecorder_ = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
-        mediaRecorder_.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            blobs_recorded.push(event.data);
-          }
-        };
+      localVideoRef.current.srcObject = mediaStream;
+      
+      // record video
+      let mediaRecorder_ = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
+      mediaRecorder_.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          blobs_recorded.push(event.data);
+        }
+      };
 
-        mediaRecorder_.onstop = () => {
-          setCaptures((cptrs)=>{
-            savePhotosOnDevice(cptrs, new Blob(blobs_recorded, { type: 'video/webm' }));
-            if(session.status == "authenticated")
-              saveTimelapseOnCloud(roomN, new Blob(blobs_recorded, { type: 'video/webm' }), session);
-            return cptrs;
-          })
-        };
-        
-        mediaRecorder_.start(1000);
+      mediaRecorder_.onstop = () => {
+        setCaptures((cptrs)=>{
+          savePhotosOnDevice(cptrs, new Blob(blobs_recorded, { type: 'video/webm' }));
+          if(session.status == "authenticated")
+            saveTimelapseOnCloud(roomN, new Blob(blobs_recorded, { type: 'video/webm' }), session);
+          return cptrs;
+        })
+      };
+      
+      mediaRecorder_.start(1000);
 
-        setMediaRecorder(mediaRecorder_);
-      }
+      setMediaRecorder(mediaRecorder_);
       localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
   }
 
   // create peer connection, get media, start negotiating when second participant appears
   function handlePeerConnection(message) {
     createPeerConnection();
-    getMedia(mediaConstraints);
-    console.log(message);
-    // console.log(message.data==="true");
-    if (message.data === "true") {
-        myPeerConnection.onnegotiationneeded = handleNegotiationNeededEvent;
-    }
+    // getMedia(mediaConstraints);
+    // if (message.data === "true") {
+      myPeerConnection.onnegotiationneeded = handleNegotiationNeededEvent;
+    // }
   }
 
   function createPeerConnection() {
@@ -441,7 +445,7 @@ export default function Capture(props) {
     if (event.candidate) {
       sendToServer({
         from: localStorage.getItem("uuid"),
-        type: 'device_camera_ice',
+        type: 'camera_ice',
         candidate: event.candidate
       });
       console.log('ICE Candidate Event: ICE candidate sent');
@@ -461,13 +465,13 @@ export default function Capture(props) {
   // 2. set local media description
   // 3. send the description as an offer on media format, resolution, etc
   function handleNegotiationNeededEvent() {
-    myPeerConnection.createOffer().then(function(offer) {
+    myPeerConnection.createOffer(mediaConstraints).then(function(offer) {
       return myPeerConnection.setLocalDescription(offer);
     })
     .then(function() {
       sendToServer({
         from: localStorage.getItem("uuid"),
-        type: 'device_camera_offer',
+        type: 'camera_offer',
         sdp: myPeerConnection.localDescription
       });
       console.log('Negotiation Needed Event: SDP offer sent');
@@ -480,56 +484,24 @@ export default function Capture(props) {
 
   function handleOfferMessage(message) {
       console.log('Accepting Offer Message');
-      console.log(message);
       let desc = new RTCSessionDescription(message.sdp);
-      //TODO test this
-      if (desc != null && message.sdp != null) {
-          console.log('RTC Signalling state: ' + myPeerConnection.signalingState);
-          myPeerConnection.setRemoteDescription(desc)
-          .then(function () {
-              console.log("Set up local media stream");
-              return navigator.mediaDevices.getUserMedia(mediaConstraints);
-          })
-          .then(function (stream) {
-              console.log("-- Local video stream obtained");
-              localStream = stream;
-
-              // try {
-              //     localVideo = localStream;
-              // } catch (error) {
-              //     // localVideo.src = window.URL.createObjectURL(stream);
-              // }
-
-              console.log("-- Adding stream to the RTCPeerConnection");
-              localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
-          })
-          .then(function () {
-              console.log("-- Creating answer");
-              // Now that we've successfully set the remote description, we need to
-              // start our stream up locally then create an SDP answer. This SDP
-              // data describes the local end of our call, including the codec
-              // information, options agreed upon, and so forth.
-              return myPeerConnection.createAnswer();
-          })
-          .then(function (answer) {
-              console.log("-- Setting local description after creating answer");
-              // We now have our answer, so establish that as the local description.
-              // This actually configures our end of the call to match the settings
-              // specified in the SDP.
-              return myPeerConnection.setLocalDescription(answer);
-          })
-          .then(function () {
-              console.log("Sending answer packet back to other peer");
-              sendToServer({
-                  from: localStorage.getItem("uuid"),
-                  type: 'device_camera_answer',
-                  sdp: myPeerConnection.localDescription
-              });
-
-          })
-          // .catch(handleGetUserMediaError);
-          .catch(handleErrorMessage)
-      }
+      myPeerConnection.setRemoteDescription(desc)
+      .then(function () {
+          return myPeerConnection.createAnswer();
+      })
+      .then(function (answer) {
+          return myPeerConnection.setLocalDescription(answer);
+      })
+      .then(function () {
+          console.log("Sending answer packet back to other peer");
+          sendToServer({
+              from: localStorage.getItem("uuid"),
+              type: 'camera_answer',
+              sdp: myPeerConnection.localDescription
+          });
+      })
+      .catch(handleGetUserMediaError)
+      .catch(handleErrorMessage)
   }
 
   function handleAnswerMessage(message) {
@@ -547,14 +519,14 @@ export default function Capture(props) {
     myPeerConnection.addIceCandidate(candidate).catch(handleErrorMessage);
   }
 
-  function stop() {
+  function stop(socketR) {
     // send a message to the server to remove this client from the room clients list
     console.log("Send 'leave' message to server");
     sendToServer({
       from: localStorage.getItem("uuid"),
       type: 'leave',
       data: roomN
-    });
+    }, socketR);
 
     if (myPeerConnection) {
       console.log('Close the RTCPeerConnection');
@@ -585,8 +557,8 @@ export default function Capture(props) {
       myPeerConnection = null;
 
       console.log('Close the socket');
-      if (socket != null) {
-          socket.close();
+      if (socketR != null) {
+          socketR.close();
       }
     }
   }

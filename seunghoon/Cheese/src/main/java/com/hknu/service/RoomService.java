@@ -17,42 +17,66 @@ import com.hknu.util.Parser;
 public class RoomService {
 	@Autowired
 	private Parser parser;
-    private final Set<Room> rooms = new TreeSet<>(Comparator.comparing(Room::getId));
+	private final Set<Room> rooms = new TreeSet<>(Comparator.comparing(Room::getId));
 
-    public Set<Room> getRooms() {
-        final TreeSet<Room> defensiveCopy = new TreeSet<>(Comparator.comparing(Room::getId));
-        defensiveCopy.addAll(rooms);
+	public Set<Room> getRooms() {
+		final TreeSet<Room> defensiveCopy = new TreeSet<>(Comparator.comparing(Room::getId));
+		defensiveCopy.addAll(rooms);
 
-        return defensiveCopy;
-    }
+		return defensiveCopy;
+	}
 
-    public Boolean addRoom(final Room room) {
-        return rooms.add(room);
-    }
+	public Boolean addRoom(final Room room) {
+		return rooms.add(room);
+	}
 
-    public Optional<Room> findRoomByStringId(final String sid) {
-        // simple get() because of parser errors handling
-        return rooms.stream().filter(r -> r.getId().equals(parser.parseId(sid).get())).findAny();
-    }
+	public Optional<Room> findRoomByStringId(final String sid) {
+		return rooms.stream().filter(r -> r.getId().equals(parser.parseId(sid).get())).findAny();
+	}
 
-    public Integer getRoomId(Room room) {
-        return room.getId();
-    }
+	public Integer getRoomId(Room room) {
+		return room.getId();
+	}
 
-    public Map<String, WebSocketSession> getClients(final Room room) {
-        return Optional.ofNullable(room)
-                .map(r -> Collections.unmodifiableMap(r.getClients()))
-                .orElse(Collections.emptyMap());
-    }
+	public Map<String, WebSocketSession> getDeviceClient(final Room room) {
+		return Optional.ofNullable(room)
+				.map(r -> Collections.unmodifiableMap(r.getDeviceClient()))
+				.orElse(Collections.emptyMap());
+	}
 
-    public WebSocketSession addClient(
-    		final Room room, 
-    		final String name, 
-    		final WebSocketSession session) {
-        return room.getClients().put(name, session);
-    }
+	public Map<String, WebSocketSession> getCameraClient(final Room room) {
+		return Optional.ofNullable(room)
+				.map(r -> Collections.unmodifiableMap(r.getCameraClient()))
+				.orElse(Collections.emptyMap());
+	}
+	
+	public Map<String, WebSocketSession> getPrinterClient(final Room room) {
+		return Optional.ofNullable(room)
+				.map(r -> Collections.unmodifiableMap(r.getPrinterClient()))
+				.orElse(Collections.emptyMap());
+	}
+	
+	public WebSocketSession addDeviceClient(final Room room, final String name, final WebSocketSession session) {
+		return room.getDeviceClient().put(name, session);
+	}
 
-    public WebSocketSession removeClientByName(final Room room, final String name) {
-        return room.getClients().remove(name);
-    }
+	public WebSocketSession addCameraClient(final Room room, final String name, final WebSocketSession session) {
+		return room.getCameraClient().put(name, session);
+	}
+	
+	public WebSocketSession addPrinterClient(final Room room, final String name, final WebSocketSession session) {
+		return room.getPrinterClient().put(name, session);
+	}
+	
+	public WebSocketSession removeDeviceClientByName(final Room room, final String name) {
+		return room.getDeviceClient().remove(name);
+	}
+
+	public WebSocketSession removeCameraClientByName(final Room room, final String name) {
+		return room.getCameraClient().remove(name);
+	}
+	
+	public WebSocketSession removePrinterClientByName(final Room room, final String name) {
+		return room.getPrinterClient().remove(name);
+	}
 }

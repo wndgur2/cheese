@@ -1,6 +1,5 @@
 'use client';
 
-import BigBtn from "@/components/BigBtn";
 import ImageText from "@/components/ImageText";
 import Tilter from "@/components/Tilter";
 import editStyles from "../edit.module.css";

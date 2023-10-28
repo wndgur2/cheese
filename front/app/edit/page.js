@@ -19,13 +19,11 @@ import Script from "next/script";
 
 export default function Edit({searchParams}) {
   const router = useRouter();
-
   const [nav, setNav] = useState("Ai");
   const [scrollTop, setScrollTop] = useState(0);
   const [hideNavbar, setHideNavbar] = useState(false);
   const [pageIndex, setPageIndex] = useState(-1);
   const [pages, setPages] = useState([]);
-
   const addButton = useRef();
 
   const navs = [
@@ -131,8 +129,10 @@ export default function Edit({searchParams}) {
   }
 
   // useEffects
-
   useEffect(()=>{
+    window.addEventListener("beforeunload", (e)=>{ // 이것만 하고 자동 저장
+      e.preventDefault()
+    })
     Page.init();
     if(searchParams.photos=="true"){
       let newPages = [];
@@ -226,41 +226,27 @@ export default function Edit({searchParams}) {
             })}
           </div>
           <div className="alignCenter"
-            onClick={()=>{
-              if(confirm("정말 종료하시겠습니까?"))
+            onClick={(e)=>{
                 router.push("/home");
             }}>
             <img src="/edit/exit.png" width={60} />
           </div>
         </div>
-        
         <div className={editStyles.preview} id="preview">
         </div>
-        
         <div>
           <div className="alignCenter" id={editStyles.functionBar}>
             <div className="alignCenter" style={{ gap:10 }}>
-              {/* <div className="alignCenter">
-                <div className="alignCenter" id={editStyles.undoWrapper}>
-                  <img src="/edit/undo.png" width={24} />
-                </div>
-                <div className="alignCenter" id={editStyles.doWrapper}>
-                  <img src="/edit/redo.png" width={24} />
-                </div>
-              </div> */}
-
               <div className="alignCenter">
                 <img src="/edit/reset.png" width={60} />
               </div>
             </div>
-
             <div className="alignCenter" style={{gap:10}}>
               <div className="alignCenter" onClick={save}>
                 <img src="/edit/save.png" width={60} /><a id="link"></a>
               </div>
             </div>
           </div>
-
           <div
             className={editStyles.editBody}
             style={{overflowY:"scroll"}}

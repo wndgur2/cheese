@@ -7,7 +7,6 @@ import TextBtn from '@/components/TextBtn';
 import axios from 'axios';
 import SharedPhoto from '@/entity/SharedPhoto';
 import Branch from '@/entity/Branch';
-import { PyScript, PyScriptProvider } from 'pyscript-react';
 import CheeseMapBtn from '@/components/CheeseMapBtn';
 
 function guid() {
@@ -64,7 +63,6 @@ async function getBranch(setBranch, branchId) {
 }
 
 export default function Home(props) {
-  const [uid, setUid] = useState();
   const [branch, setBranch] = useState();
   const [isLocated, setIsLocated] = useState(false);
   const [photos, setPhotos] = useState([]);
@@ -83,7 +81,6 @@ export default function Home(props) {
 
     if (localStorage.getItem("uuid") === null)
       localStorage.setItem("uuid", guid());
-    setUid(localStorage.getItem("uuid"));
   }, []);
 
   useEffect(()=>{
@@ -93,17 +90,14 @@ export default function Home(props) {
 
   return (
     <div className='container' style={{height:"calc(96vh - 64px)", overflowY:"scroll"}}>
-      <div>
-        {/* <PyScriptProvider>
-        <PyScript>display("Hello world!")</PyScript>
-        </PyScriptProvider> */}
-      </div>
       <div className='alignCenter'>
-        <div style={{width:"100%"}}>
+        <div style={{width:"100%", paddingLeft: "1vw"}}>
           {branch?
             <div>
               <span className='title'>{branch.name.length < 7?"치즈한장":""} {branch.name}</span> <br/>
-              <span className='subtitle'>{branch.address}</span>
+              <span className='subtitle' style={{whiteSpace:"nowrap"}}>{
+                branch.address.length < 12? branch.address: branch.address.slice(0, 12).trim() + "..."
+              }</span>
             </div>
             :
             <div>
@@ -113,19 +107,25 @@ export default function Home(props) {
         </div>
         <CheeseMapBtn/>
       </div>
-      {/* <p>session.status : {session.status}</p> */}
       { isLocated?
           photos.length?
           <img src={"data:image/png;base64," + photos[0].photoImage} width={"100%"}
             style={{
-              borderRadius:"16px",
+              borderRadius:"10px",
               margin:"2.5vh 0 2.5vh 0",
               maxHeight:"30vh",
               objectFit: "cover",
               boxShadow: "1px 1px 10px 1px rgba(0, 0, 0, 0.10)",
             }}
           />
-          :<div>No shared photos yet.</div>
+          :<img src={"/samples/3.jpeg"} width={"100%"}
+            style={{
+            borderRadius:"10px",
+            margin:"2.5vh 0 2.5vh 0",
+            maxHeight:"30vh",
+            objectFit: "cover",
+            boxShadow: "1px 1px 10px 1px rgba(0, 0, 0, 0.10)",
+          }}></img>
         :
         <TextBtn href="/home/cheeseMap" color="#FFD56A"
           type="big"
@@ -135,28 +135,14 @@ export default function Home(props) {
       }
 
       <div className={homeStyles.bigBtnWrapper}>
-        {/* <BigBtn
-          enabled={true}
-          href="/edit"
-          src="/edit_x4.png"
-          size="80px"
-          iconWidth="37px"
-          iconHeight="30px"
-        >편집</BigBtn> */}
         <BigBtn enabled={isLocated}
           href="/accessProcess/capture"
           src="/cheese_empty_37_30_x4.png"
-          size="40vw"
-          iconWidth="37px"
-          iconHeight="30px"
         >촬영</BigBtn>
         <BigBtn
           enabled={isLocated}
           href="/accessProcess/print"
           src="/print_x4.png"
-          size="40vw"
-          iconWidth="37px"
-          iconHeight="32px"
         >인화</BigBtn>
       </div>
       
@@ -177,7 +163,7 @@ export default function Home(props) {
               style={{
                 maxWidth:"80vw",
                 maxHeight:"30vh",
-                borderRadius:"5px",
+                borderRadius:"10px",
                 boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
                 objectFit: "cover",
             }}/>

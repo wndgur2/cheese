@@ -1,11 +1,9 @@
-import cv2mask
+import cv2
 import numpy as np
-
 
 def get_roi(detected_img, bboxes, box_num):
     return detected_img[bboxes[box_num][1]:bboxes[box_num][3], 
                         bboxes[box_num][0]:bboxes[box_num][2]]
-
 
 def smooth_face(cfg, detected_img, bboxes):
     output_img = detected_img.copy()

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import TextBtn from "@/components/TextBtn";
 import Branch from "@/entity/Branch";
 import Script from "next/script";
+import { useRouter } from 'next/navigation';
 
 async function getData(url, setBranches) {
   let branches = [];
@@ -29,6 +30,7 @@ export default function CheeseMap() {
   const [branches, setBranches] = useState([]);
   const [currentPosition, setCurrentPosition] = useState();
   const [ready, setReady] = useState(false);
+  const router = useRouter();
 
   let markers = [], infoWindows = [], i=0, map, icon;
 
@@ -42,6 +44,7 @@ export default function CheeseMap() {
     initMap();
     getData(`http://${process.env.NEXT_PUBLIC_API}/branch`, setBranches).then((res)=>{
       if(res==[]) return;
+      if(!res) return;
       for (const branch of res){
         const contentString = 
           `<div style="padding:8px; border-radius:20px; background-color:#FFFFFF;">
@@ -81,28 +84,26 @@ export default function CheeseMap() {
   // map thing
   function initMap(){
     let mapOptions = {
-      center: new naver.maps.LatLng(37.7222592, 126.7027989),
-      zoom: 5
+      center: new naver.maps.LatLng(37.3562829, 127.0442308),
+      zoom: 9
     };
     map = new naver.maps.Map('map', mapOptions);
 
     navigator.geolocation.getCurrentPosition((pos) => {
       const current_position = new naver.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-      map.morph(current_position, 5);
+      map.morph(current_position, 10);
       setCurrentPosition(current_position);
     });
   }
 
   function markerClickHandler(idx) {
     return ()=>{
-      var marker = markers[idx],
-        infoWindow = infoWindows[idx];
+      var marker = markers[idx], infoWindow = infoWindows[idx];
 
-      if (infoWindow.getMap()) {
+      if(infoWindow.getMap())
         infoWindow.close();
-      } else {
+      else
         infoWindow.open(map, marker);
-      }
     }
   }
 
@@ -120,28 +121,29 @@ export default function CheeseMap() {
       distance *= 1000;
       p = 'm';
     }
-  distance =  parseFloat(distance.toFixed(0));
+    distance =  parseFloat(distance.toFixed(0));
   
-    return distance.toString() + p
+    return distance.toString() + p;
   }
 
   return (
     <div className="container" style={{overflowY:"scroll", height:"calc(96vh - 64px)"}}>
+      <div onClick={()=>{router.back()}}><img src='/back.png' width={28}/></div>
       <Script
         src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_MAP_PUBLIC}`}
-        onReady={()=>{
-          setReady(true);
-        }}
+        onReady={()=>{setReady(true);}}
       ></Script>
       <span className="title" style={{fontSize:30}}>치즈맵</span> <br/>
-      <span className="subtitle" style={{letterSpacing:0}}>지점을 선택하고 현장 기능을 이용하세요.</span>
+      <p className="subtitle"
+        style={{ letterSpacing:0 }}>
+        지점을 선택하고 현장 기능을 이용하세요.
+      </p>
       <div id="map" style={{
         width:"100%", height:"300px",
         borderRadius: 10,
         boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
         margin: "5vh 0px 5vh 0px",
       }}></div>
-
       {branches.map((branch, i)=>{
         return (
           <div key={i}>
@@ -152,8 +154,9 @@ export default function CheeseMap() {
         )
       })}
       <div onClick={()=>{localStorage.removeItem("branch")}}>
-        <TextBtn href={`/home`} color="#FFD56A"
-        >위치 없애기</TextBtn>
+        <TextBtn href={`/home`} color="#FEFBF6">
+          현장이 아니에요.
+        </TextBtn>
       </div>
       <br/>
       <br/>

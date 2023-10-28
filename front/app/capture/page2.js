@@ -11,7 +11,7 @@ import sharePhotos from "@/api/sharePhotos";
 import { useRouter } from "next/navigation";
 import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
 
-const LOCAL_TEST = true;
+const LOCAL_TEST = false;
 
 function addToQueue(roomN, uuid) {
   // send post request to server to add to queue
@@ -151,7 +151,7 @@ export default function Capture(props) {
       }, 1000);
 
       //포즈 추천
-      getPose(localVideoRef, setPose);
+      // getPose(localVideoRef, setPose);
     }
   }, [time]);
 

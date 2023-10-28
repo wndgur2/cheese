@@ -34,10 +34,9 @@ public class ServletAppContext implements WebMvcConfigurer, WebSocketConfigurer 
 	
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(signalHandler(), "/signal")
-			.setAllowedOrigins("*");
+        registry.addHandler(signalHandler(), "/signal").setAllowedOrigins("*");
 	}
-	
+
     @Bean
     public WebSocketHandler signalHandler() {
         return new SignalHandler();
@@ -46,8 +45,8 @@ public class ServletAppContext implements WebMvcConfigurer, WebSocketConfigurer 
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(8192);
-        container.setMaxBinaryMessageBufferSize(8192);
+        container.setMaxTextMessageBufferSize(1024 * 1024 * 20);
+        container.setMaxBinaryMessageBufferSize(1024 * 1024 * 20);
         return container;
     }
 }

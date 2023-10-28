@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import captureStyles from "./capture.module.css";
@@ -39,6 +38,11 @@ export default function Amount(props) {
                 setAmount(inputVal);
     }
 
+    const handleCapture = ()=>{
+        localStorage.setItem("amount", amount);
+        router.push("/capture");
+    }
+
   return (
     <div>
         <div
@@ -71,18 +75,16 @@ export default function Amount(props) {
         </div>
 
     {amount>0?
-        <Link href={"/capture?amount="+amount}>
-            <div className="next">
-                <span style={{
-                    fontSize: 22,
-                    fontWeight: 500,
-                    letterSpacing: 1.4,
-                    paddingRight:20,
-                    textAlign:"right",
-                    width: "100%",
-                }}>{amount*branch.shooting_cost}원 결제하기</span>
-            </div>
-        </Link>:
+        <div className="next" onClick={handleCapture}>
+            <span style={{
+                fontSize: 22,
+                fontWeight: 500,
+                letterSpacing: 1.4,
+                paddingRight:20,
+                textAlign:"right",
+                width: "100%",
+            }}>{amount*branch.shooting_cost}원 결제하기</span>
+        </div>:
             <div className={`next ${apStyles.disabled}`}>
                 <span style={{
                     fontSize: 19,
