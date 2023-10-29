@@ -91,7 +91,7 @@ function start() {
 
     // a listener for the socket being closed event
     socket.onclose = function(message) {
-        log('Socket has been closed');
+        log('Socket has been closed', message);
     };
 
     // an event listener to handle socket errors
@@ -167,11 +167,6 @@ function getMedia(constraints) {
 
 // create peer connection, get media, start negotiating when second participant appears
 function handlePeerConnection(message) {
-    sendToServer({
-        from: localUserName,
-        type: 'device_camera_join',
-        data: roomN
-    });
     createPeerConnection();
     getMedia(mediaConstraints);
     console.log(message.data);
@@ -339,9 +334,7 @@ function printImage(imageUrl) {
             printWindow.document.write('<img style="max-width: 720px; max-height: 480px;" src="' + imageUrl + '">');
             printWindow.document.write('</div></body></html>');
             printWindow.document.close();
-            // setTimeout(function(){
-                printWindow.print();
-            // }, 3000);
+            printWindow.print();
         }
         printWindow.onafterprint = function () {
             printWindow.close();

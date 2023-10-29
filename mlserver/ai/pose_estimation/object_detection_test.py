@@ -34,6 +34,8 @@ def pose_recommendation(num):
         pose_img = cv2.imread('./ai/pose_estimation/cheese_pose_image/image3.PNG')
     elif num == 4:
         pose_img = cv2.imread('./ai/pose_estimation/cheese_pose_image/image4.PNG')
+    else :
+        pose_img = cv2.imread('./ai/pose_estimation/cheese_pose_image/image0.PNG')
     return pose_img
 
 

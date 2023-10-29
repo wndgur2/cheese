@@ -34,7 +34,7 @@ export const authOptions = {
             params: req.query
           })
           console.log("??????");
-          console.log("RES: ", res);
+          console.log("RES: ", res.data);
           return {
             id:res.data.data.id,
             email:req.query.email,

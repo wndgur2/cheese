@@ -7,8 +7,7 @@ export default async function savePhotosOnCloud(roomN, photos, session) {
         try{
             const data = new FormData();
             const blob = dataURItoBlob(photo);
-            // console.log(blob);
-            data.append("image", blob);
+            data.append("data", blob);
             const res = await axios.post(url, data, {
                 headers: {
                     authorization: session.data.user.authorization,

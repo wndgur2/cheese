@@ -38,6 +38,10 @@ export default function Amount(props) {
                 setAmount(inputVal);
     }
 
+    const handleAbort = (e)=>{
+        console.log(e);
+    }
+
     const handleCapture = ()=>{
         localStorage.setItem("amount", amount);
         router.push("/capture");
@@ -68,6 +72,7 @@ export default function Amount(props) {
                 maxLength={"2"}
                 pattern="[0-9]*"
                 onChange={handleInputChange}
+                onAbort={handleAbort}
             />
             <span className={captureStyles.inputInfo}>
                 장 촬영할게요.

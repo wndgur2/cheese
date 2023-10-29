@@ -1,98 +1,92 @@
 "use client";
 
 import { useEffect, useRef, useState} from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import captureStyles from "./capture.module.css";
+import queueStyle from "../home/queue.module.css";
 import TextBtn from "@/components/TextBtn";
 import axios from "axios";
-import queueStyle from "../home/queue.module.css";
 import savePhotosOnDevice from "@/api/savePhotosOnDevice";
 import savePhotosOnCloud from "@/api/savePhotosOnCloud";
 import sharePhotos from "@/api/sharePhotos";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
-const LOCAL_TEST = false;
 
-function exitRoom(roomN, uuid) {
-  // send post request to server to exit the room
-  const url = `http://${process.env.NEXT_PUBLIC_API}/branch/${roomN}/stream`;
-  axios.delete(url, {
-    params: {
-      device: uuid,
-    },
-  })
-    .then((res) => console.log(res))
-    .catch((err) => console.log(err));
-}
+// function exitRoom(roomN, uuid) {
+//   // send post request to server to exit the room
+//   const url = `http://${process.env.NEXT_PUBLIC_API}/branch/${roomN}/stream`;
+//   axios.delete(url, {
+//     params: {
+//       device: uuid,
+//     },
+//   })
+//     .then((res) => console.log(res))
+//     .catch((err) => console.log(err));
+// }
 
-async function getPose(localVideoRef, setPose) {
-  const poses = [];
-  try{
-    const data = new FormData();
-    
-    // capture from video
-    var canvas = document.createElement("canvas");
-    if(LOCAL_TEST) var video = localVideoRef.current;
-    else var video = remoteVideoRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas
-      .getContext("2d")
-      .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-    const url = canvas.toDataURL("image/jpeg");
-
-    let blob = await fetch(url).then(r => r.blob());
-    data.append('image', blob);
-    const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/pose_estimation`,
-    data, {
-      responseType: 'blob',
-    })
-    setPose(URL.createObjectURL(res.data));
-  } catch(err) {
-    console.log(err);
+function getPose(imageUrl, setPose) {
+    try{
+      const data = new FormData();
+      fetch(imageUrl).then(r => r.blob()).then((blob) => {
+        data.append('image', blob);
+        axios.post(
+          `http://${process.env.NEXT_PUBLIC_AI_API}/ai/pose_estimation`,
+          data,
+          {
+            responseType: 'blob',
+          }
+        ).then((res) =>{
+          let url = URL.createObjectURL(res.data);
+          setPose(url);
+        })
+      })
+    } catch(err) {
+      console.log(err);
+    }
   }
-}
 
-function getQueue(roomN, uuid, setQueueLength){
+function getQueue(roomN, uuid, setQueueLength, socket){
   console.log("GET QUEUE.;");
   axios.get(`http://${process.env.NEXT_PUBLIC_API}/cameraQueue/${roomN}`, {
     params: { device: uuid }
   }).then(res=>{
-    setQueueLength(res.data.data['length_queue']);
-    if(res.data.data['length_queue'] > 0) setTimeout(()=>{getQueue(roomN, uuid, setQueueLength);}, 1000);
+    let len = res.data.data['length_queue'];
+    setQueueLength(len);
+    if(len > 0) setTimeout(()=>{getQueue(roomN, uuid, setQueueLength, socket);}, 1000);
+    else {
+      socket.send(JSON.stringify({
+        from: uuid,
+        type: 'camera_join',
+        data: roomN
+      }));
+      console.log("JOIN MESSAGE SENT");
+    }
+    return len;
   } ).catch(err=>{
     console.log(err);
   })
 }
 
 export default function Capture() {
-  const session = useSession({
-    required: false,
-    onUnauthenticated() {
-      // redirect("/home/signin");
-    },
-  });
+  const session = useSession({required: false});
 
-  // capturing variables
   const [amount, setAmount] = useState(0);
   const [capturedAmount, setCapturedAmount] = useState(0);
   const [time, setTime] = useState(15);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [captures, setCaptures] = useState([]);
-  const [isEnd, setIsEnd] = useState(false);
+  const [mediaRecorderR, setMediaRecorderR] = useState(null);
+  const [capturesR, setCapturesR] = useState([]);
   const [pose, setPose] = useState(null);
   const [socketR, setSocketR] = useState(null);
+  const [isStart, setIsStart] = useState(false);
+  const [isEnd, setIsEnd] = useState(false);
+  const [startRecord, setStartRecord] = useState(false);
+  const [queueLength, setQueueLength] = useState(1);
   const remoteVideoRef = useRef();
-  const localVideoRef = useRef();
   const shutter = useRef();
   const router = useRouter();
 
-  // queue variables
-  const [capturing, setCapturing] = useState(false);
-  const [queueLength, setQueueLength] = useState(1);
-
   // streaming variables
-  let localStream, socket, roomN, myPeerConnection, uuid, tId;
+  let mediaRecorder, socket, roomN, myPeerConnection, uuid, tId;
   let blobs_recorded = [];
 
   // WebRTC STUN servers
@@ -116,55 +110,84 @@ export default function Capture() {
     socket = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API}/signal`);
     setSocketListeners(socket);
     setSocketR(socket);
-    getQueue(roomN, uuid, setQueueLength);
+    getQueue(roomN, uuid, setQueueLength, socket);
   },[]);
 
   useEffect(()=>{
-    if(!capturing) return;
+    if(!isStart) return;
     if(amount==0) return;
     if(capturedAmount >= amount) endCapture();
   }, [capturedAmount])
 
   useEffect(()=>{
-    if(!capturing) return;
-    if(isEnd) clearTimeout(tId);
+    if(!isStart) return;
+    if(isEnd) return;
+    tId = setTimeout(()=>{setTime(time-1);}, 1000);
+  }, [isStart]);
+
+  useEffect(()=>{
+    if(!isStart) return;
+    if(!startRecord) return;
+    if(isEnd) return;
+    if(!remoteVideoRef.current.srcObject) return;
+    mediaRecorder = new MediaRecorder(remoteVideoRef.current.srcObject);
+    setMediaRecorderR(mediaRecorder);
+    mediaRecorder.ondataavailable = function(event) {
+      if (event.data && event.data.size > 0) {
+        blobs_recorded.push(event.data);
+      }
+    }
+    mediaRecorder.start(1000);
+  }, [startRecord]);
+
+  useEffect(()=>{
+    if(!isStart) return;
+    if(isEnd) return;
     else if(time==0) {
       handleShutterClick();
       setTime(15);
     } else{
       tId = setTimeout(()=>{setTime(time-1);}, 1000);
-      //포즈 추천
-      // getPose(localVideoRef, setPose);
+      if(startRecord) {
+        // capture from video
+        var canvas = document.createElement("canvas");
+        var video = remoteVideoRef.current;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas
+          .getContext("2d")
+          .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const url = canvas.toDataURL("image/jpeg");
+        getPose(url, setPose);
+      }
     }
   }, [time]);
 
   useEffect(()=>{
     if(!isEnd) return;
-    // exitRoom(JSON.parse(localStorage.getItem("branch")).id, localStorage.getItem("uuid"));
     stop(socketR);
   }, [isEnd])
 
   useEffect(()=>{
-    if(capturing) return;
+    if(isStart) return;
     if(queueLength==0){
-      setCapturing(true);
+      setIsStart(true);
       tId = setTimeout(()=>{setTime(time-1);}, 1000);
     }
   }, [queueLength]);
 
   function capturePhoto() {
     var canvas = document.createElement("canvas");
-    if(LOCAL_TEST) var video = localVideoRef.current;
-    else var video = remoteVideoRef.current;
+    var video = remoteVideoRef.current;
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas
       .getContext("2d")
       .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
     const url = canvas.toDataURL("image/jpeg");
-    let newCaptures = [...captures];
+    let newCaptures = [...capturesR];
     newCaptures.push(url);
-    setCaptures(newCaptures);
+    setCapturesR(newCaptures);
   }
 
   function shutterEffect(){
@@ -188,7 +211,7 @@ export default function Capture() {
       alert("로그인이 필요해요.");
       router.push("/home/signin?callbackUrl=/home/myCheese?save=true");
     } else{
-      sharePhotos(captures, session);
+      sharePhotos(capturesR, session);
       alert("사진을 공유했어요.");
       router.push("/home/share");
     }
@@ -199,16 +222,29 @@ export default function Capture() {
     const roomN = branch.id;
     const cost = branch.shooting_cost * amount;
     setIsEnd(true);
-    mediaRecorder?.stop(); 
+    mediaRecorderR?.stop(); 
 
-    localStorage.setItem("photos", JSON.stringify(captures));
 
-    if(session.status == "authenticated") {
-      savePhotosOnCloud(roomN, captures, session);
+    let blob = new Blob(blobs_recorded, {
+      type: 'video/webm'
+    });
+
+    setCapturesR((cptrs)=>{
+      savePhotosOnDevice(cptrs, blob);
+      localStorage.setItem("photos", JSON.stringify(cptrs));
+      return cptrs;
+    });
+    
+    if(session.status == "authenticated"){
+      console.log("blob: ", blob);
+      saveTimelapseOnCloud(roomN, blob, session);
+      setCapturesR((cptrs)=>{
+        savePhotosOnCloud(roomN, cptrs, session);
+        return cptrs;
+      });
       
       // post timelapse video to server
       // const videoUrl = process.env.NEXT_PUBLIC_API + `/cloud/${session.data.user.id}/timelapse`;
-
       // post payment data to server
       const paymentUrl = `http://${process.env.NEXT_PUBLIC_API}/branch/${roomN}/payment`;
       axios.post(paymentUrl, null, {
@@ -231,28 +267,25 @@ export default function Capture() {
   return (
     <div>
       {
-        capturing? <div>
+        isStart? <div>
           <div ref={shutter} className={captureStyles.shutterEffect}></div>
-          { LOCAL_TEST ?
-            <video id={captureStyles.stream} ref={localVideoRef} autoPlay playsInline></video>:
-            <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
-          }
+          <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
           { pose?
-            <img style={{
-              position: "absolute",
-              transform: "translate(-50%, -50%) rotate(90deg)",
-              opacity: 0.5,
-              top: "45%",
-              left: "50%",
-              width: "30%",
-              height: "30%",
-              objectFit: "cover",
-              zIndex: 1,
-            }} src={pose}/> : <></>
+            <div style={{backgroundColor:"rgba(0,0,0,0)"}}>
+              <img style={{
+                position: "absolute",
+                transform: "translate(-50%, -50%) rotate(90deg)",
+                top: "70%",
+                left: "20%",
+                maxWidth: "50%",
+                maxHeight: "50%",
+                mixBlendMode: "lighten",
+              }} src={pose}/>
+            </div>: <></>
           }
           <div className={captureStyles.functions}>
             <div className={captureStyles.rotate}>
-              <img id={captureStyles.rotate} src="/capture/rotate.png" />
+              {/* <img id={captureStyles.rotate} src="/capture/rotate.png" /> */}
             </div>
             <div className={captureStyles.shutter} 
               onClick={handleShutterClick}>
@@ -304,7 +337,7 @@ export default function Capture() {
       // send a message to the server to join selected room with Web Socket
       sendToServer({
         from: uuid,
-        type: 'camera_join',
+        type: 'join_camera_queue',
         data: roomN
       });
 
@@ -342,10 +375,6 @@ export default function Capture() {
           console.log('Signal ICE Candidate received');
           handleNewICECandidateMessage(message);
           break;
-        case "device_camera_join":
-            log('Client is starting to ' + (message.data === "true" ? 'negotiate' : 'wait for a peer'));
-            handlePeerConnection(message);
-            break;
         default:
           handleErrorMessage('Wrong type message received from server');
       }
@@ -362,47 +391,6 @@ export default function Capture() {
     let msgJSON = JSON.stringify(msg);
     if(socketR) socketR.send(msgJSON);
     else socket.send(msgJSON);
-  }
-
-  // initialize media stream
-  function getMedia(constraints) {
-    if (localStream) {
-      localStream.getTracks().forEach(track => {
-        track.stop();
-      });
-    }
-    if(LOCAL_TEST) {
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then(getLocalMediaStream).catch(handleGetUserMediaError);
-    }
-  }
-  
-  // add MediaStream to local video element and to the Peer
-  function getLocalMediaStream(mediaStream) {
-      localStream = mediaStream;
-      localVideoRef.current.srcObject = mediaStream;
-      
-      // record video
-      let mediaRecorder_ = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
-      mediaRecorder_.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          blobs_recorded.push(event.data);
-        }
-      };
-
-      mediaRecorder_.onstop = () => {
-        setCaptures((cptrs)=>{
-          savePhotosOnDevice(cptrs, new Blob(blobs_recorded, { type: 'video/webm' }));
-          if(session.status == "authenticated")
-            saveTimelapseOnCloud(roomN, new Blob(blobs_recorded, { type: 'video/webm' }), session);
-          return cptrs;
-        })
-      };
-      
-      mediaRecorder_.start(1000);
-
-      setMediaRecorder(mediaRecorder_);
-      localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
   }
 
   // create peer connection, get media, start negotiating when second participant appears
@@ -457,6 +445,7 @@ export default function Capture() {
     if(remoteVideoRef.current){
       console.log("EVENT STREAMS: ", event.streams);
       remoteVideoRef.current.srcObject = event.streams[0];
+      setStartRecord(true);
     }
   }
 

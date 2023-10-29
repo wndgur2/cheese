@@ -24,6 +24,7 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://172.30.1.78:3000",
 ]
 
 app.add_middleware(
@@ -179,9 +180,7 @@ async def select_object_add_inpainting(image: UploadFile):
     edited_image = objects_detected(image)
     filepath = 'edit_image.jpg'
     cv2.imwrite(filepath, edited_image)
-
     data = image_to_file(edited_image)
-
     return StreamingResponse(BytesIO(data), media_type="image/jpeg")
 
 

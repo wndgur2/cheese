@@ -1,11 +1,19 @@
+.inputAmount{
+    display: flex;
+    align-items: baseline;
+    margin-top: 5vh;
+}
+
 #captureAmount{
+    width: 30vw;
     font-size: 11vw;
     font-weight: 700;
+    text-align: end;
     caret-color: #FFD56A;
     background:none;
     border:none;
     outline:none;
-    margin:0px;
+    margin: 0px 5vw 0px 0px;
     padding:0px;
     overflow: visible;
 }
@@ -20,15 +28,9 @@
     line-height: normal;
     margin:0px;
     padding:0px;
+    white-space: nowrap;
 }
 
-.inputAmount{
-    position: absolute;
-    display: flex;
-    align-items: baseline;
-    top: 20vh;
-    left: 5vw;
-}
 
 /* .placeholder{
     z-index: 1;
