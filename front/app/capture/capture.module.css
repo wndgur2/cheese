@@ -1,7 +1,7 @@
 #stream{
     position: absolute;
     transform: rotate(90deg);
-    width: 82vh;
+    width: 100vh;
     height: 100vw;
     background-color: #999;
     transform-origin: bottom left;
@@ -15,41 +15,47 @@
     left: 0px;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: baseline;
     width: 100vw;
     height: 18vh;
-    background-color: #000;
+    background-color: rgba(0,0,0,0.3);
 }
 
 .functions span{
     color: #EEE;
     font-size: 8vw;
 }
-.functions div{
+
+#shutter{
+    position: absolute;
+    top: 6vw;
+    left: 38vw;
+    width: 24vw;
     transform-origin: center;
     transform: rotate(90deg);
 }
 
-#shutter{
-    width: 24vw;
-}
-
 .rotate{
+    position: absolute;
+    left: -4vw;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 26vw;
-}
-
-#rotate{
-    width: 80%;
+    width: 50vw;
+    background-color: rgba(0,0,0,0);
 }
 
 .timer{
-    width: 10vw;
+    position: absolute;
+    left: 68vw;
     display: flex;
     align-items: center;
     justify-content: center;
+    transform-origin: center;
+    transform: rotate(90deg);
+    width: 12vw;
+    padding: 0px;
+    margin:0px;
 }
 
 #timer{
@@ -57,7 +63,16 @@
 }
 
 .amount{
-    width: 10vw;
+    position: absolute;
+    left: 80vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+    transform: rotate(90deg);
+    width: 20vw;
+    padding: 0px;
+    margin:0px;
 }
 
 .alertWrapper{

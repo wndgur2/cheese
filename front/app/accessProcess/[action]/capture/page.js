@@ -12,7 +12,8 @@ export default function Amount(props) {
      * @type {[Branch, Function]}
      */
     const [branch, setBranch] = useState();
-    const [amount, setAmount] = useState(0);
+    const [amount, setAmount] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const action = props.params.action;
 
     useEffect(()=>{
@@ -32,18 +33,20 @@ export default function Amount(props) {
     },[]);
 
     const handleInputChange = (e)=>{
+        let newErrorMessage = "";
         const inputVal = e.target.value;
-        if(e.target.validity.valid)
-            if(inputVal.length <=2)
-                setAmount(inputVal);
-    }
-
-    const handleAbort = (e)=>{
-        console.log(e);
+        if(Number.parseInt(inputVal) > 10){
+            newErrorMessage = "10장 이하만 가능해요.";
+        } else if(Number.parseInt(inputVal) < 1){
+            newErrorMessage = "1장 이상만 가능해요.";
+        }
+        setErrorMessage(newErrorMessage);
+        if(newErrorMessage) return;
+        setAmount(inputVal);
     }
 
     const handleCapture = ()=>{
-        localStorage.setItem("amount", amount);
+        localStorage.setItem("amount", Number.parseInt(amount).toString());
         router.push("/capture");
     }
 
@@ -67,17 +70,22 @@ export default function Amount(props) {
                 id={captureStyles.captureAmount}
                 type='number'
                 value={amount}
-                max={40}
                 min={0}
                 maxLength={"2"}
                 pattern="[0-9]*"
                 onChange={handleInputChange}
-                onAbort={handleAbort}
+                placeholder='0'
+                onAbortCapture={()=>{console.log("abortCapture")}}
+                onAbort={()=>{console.log("abort")}}
             />
             <span className={captureStyles.inputInfo}>
                 장 촬영할게요.
             </span>
+
         </div>
+        <p className="error" style={{ margin: "4vh 0vw 3vh 0vw"}}>
+            {errorMessage}
+        </p>
 
     {amount>0?
         <div className="next" onClick={handleCapture}>

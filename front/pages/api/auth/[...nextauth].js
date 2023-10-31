@@ -4,7 +4,7 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import KakaoProvider from 'next-auth/providers/kakao';
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getSession } from "next-auth/react";
+import { getSession } from "next-auth/react"
 
 export const authOptions = {
   providers: [

@@ -24,6 +24,8 @@ export default function Edit({searchParams}) {
   const [hideNavbar, setHideNavbar] = useState(false);
   const [pageIndex, setPageIndex] = useState(-1);
   const [pages, setPages] = useState([]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreen = useRef();
   const addButton = useRef();
 
   const navs = [
@@ -180,7 +182,7 @@ export default function Edit({searchParams}) {
   }, [pages])
 
   return (
-    <div>
+    <div ref={fullscreen}>
       <Script src="http://cdn.jsdelivr.net/g/filesaver.js" />
       <div className={editStyles.topContainer}>
         <div style={{ display:"flex", justifyContent:"space-between"}}>
@@ -237,8 +239,27 @@ export default function Edit({searchParams}) {
         <div>
           <div className="alignCenter" id={editStyles.functionBar}>
             <div className="alignCenter" style={{ gap:10 }}>
-              <div className="alignCenter">
-                <img src="/edit/reset.png" width={60} />
+              <div className="alignCenter" 
+                onClick={()=>{
+                  if(isFullscreen){
+                    document.exitFullscreen();
+                    setIsFullscreen(false);
+                  }
+                  else{
+                    fullscreen.current.requestFullscreen();
+                    setIsFullscreen(true);
+                  }
+                }}
+                style={{
+                  backgroundColor:"#fefbf6",
+                  borderRadius:"30px",
+                  boxShadow: "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
+                  height:"48px",
+                  padding: "1vw 2vw 1vw 2vw"
+                }}
+              >
+                <span>전체화면</span>
+                {/* <img src="/edit/reset.png" width={60} onClick={()=>{fullscreen.current.requestFullscreen();}}/> */}
               </div>
             </div>
             <div className="alignCenter" style={{gap:10}}>

@@ -11,18 +11,7 @@ import savePhotosOnDevice from "@/api/savePhotosOnDevice";
 import savePhotosOnCloud from "@/api/savePhotosOnCloud";
 import sharePhotos from "@/api/sharePhotos";
 import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
-
-// function exitRoom(roomN, uuid) {
-//   // send post request to server to exit the room
-//   const url = `http://${process.env.NEXT_PUBLIC_API}/branch/${roomN}/stream`;
-//   axios.delete(url, {
-//     params: {
-//       device: uuid,
-//     },
-//   })
-//     .then((res) => console.log(res))
-//     .catch((err) => console.log(err));
-// }
+import terminateSocket from "@/api/terminateSocket";
 
 function getPose(imageUrl, setPose) {
     try{
@@ -38,21 +27,24 @@ function getPose(imageUrl, setPose) {
         ).then((res) =>{
           let url = URL.createObjectURL(res.data);
           setPose(url);
-        })
+        }).catch((err) => {
+          console.log(err);
+        }
+        );
       })
     } catch(err) {
       console.log(err);
     }
   }
 
-function getQueue(roomN, uuid, setQueueLength, socket){
+function getQueue(roomN, uuid, setQueueLength, socket, setQueueRequests){
   console.log("GET QUEUE.;");
   axios.get(`http://${process.env.NEXT_PUBLIC_API}/cameraQueue/${roomN}`, {
     params: { device: uuid }
   }).then(res=>{
     let len = res.data.data['length_queue'];
     setQueueLength(len);
-    if(len > 0) setTimeout(()=>{getQueue(roomN, uuid, setQueueLength, socket);}, 1000);
+    if(len > 0) setQueueRequests((reqs) => reqs+1);
     else {
       socket.send(JSON.stringify({
         from: uuid,
@@ -81,8 +73,10 @@ export default function Capture() {
   const [isEnd, setIsEnd] = useState(false);
   const [startRecord, setStartRecord] = useState(false);
   const [queueLength, setQueueLength] = useState(1);
+  const [queueRequests, setQueueRequests] = useState(0);
   const remoteVideoRef = useRef();
   const shutter = useRef();
+  const fullscreen = useRef();
   const router = useRouter();
 
   // streaming variables
@@ -101,6 +95,10 @@ export default function Capture() {
   const mediaConstraints = {offerToReceiveVideo: true};
   
   useEffect(()=>{
+    window.onbeforeunload = function(event) {
+      event.preventDefault();
+    }
+
     let branch = JSON.parse(localStorage.getItem("branch"));
     if(!branch) router.push("/home/cheeseMap");
     else roomN = branch.id;
@@ -110,19 +108,33 @@ export default function Capture() {
     socket = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API}/signal`);
     setSocketListeners(socket);
     setSocketR(socket);
-    getQueue(roomN, uuid, setQueueLength, socket);
+    getQueue(roomN, uuid, setQueueLength, socket, setQueueRequests);
   },[]);
+
+  useEffect(()=>{
+    if(isStart) return;
+    if(queueRequests==0) return;
+    setTimeout(()=>{
+      getQueue(JSON.parse(localStorage.getItem("branch")).id, localStorage.getItem("uuid"), setQueueLength, socketR, setQueueRequests);}
+    , 1000);
+  }, [queueRequests]);
 
   useEffect(()=>{
     if(!isStart) return;
     if(amount==0) return;
     if(capturedAmount >= amount) endCapture();
-  }, [capturedAmount])
+  }, [capturedAmount]);
 
   useEffect(()=>{
     if(!isStart) return;
     if(isEnd) return;
+    try{
+      fullscreen.current.requestFullscreen();
+    } catch(err){
+      console.log(err);
+    }
     tId = setTimeout(()=>{setTime(time-1);}, 1000);
+
   }, [isStart]);
 
   useEffect(()=>{
@@ -158,7 +170,7 @@ export default function Capture() {
           .getContext("2d")
           .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const url = canvas.toDataURL("image/jpeg");
-        getPose(url, setPose);
+        // getPose(url, setPose);
       }
     }
   }, [time]);
@@ -264,70 +276,6 @@ export default function Capture() {
     }
   }
 
-  return (
-    <div>
-      {
-        isStart? <div>
-          <div ref={shutter} className={captureStyles.shutterEffect}></div>
-          <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
-          { pose?
-            <div style={{backgroundColor:"rgba(0,0,0,0)"}}>
-              <img style={{
-                position: "absolute",
-                transform: "translate(-50%, -50%) rotate(90deg)",
-                top: "70%",
-                left: "20%",
-                maxWidth: "50%",
-                maxHeight: "50%",
-                mixBlendMode: "lighten",
-              }} src={pose}/>
-            </div>: <></>
-          }
-          <div className={captureStyles.functions}>
-            <div className={captureStyles.rotate}>
-              {/* <img id={captureStyles.rotate} src="/capture/rotate.png" /> */}
-            </div>
-            <div className={captureStyles.shutter} 
-              onClick={handleShutterClick}>
-              <img id={captureStyles.shutter} src="/capture/shutter.png" />
-            </div>
-            <div className={captureStyles.timer}>
-              <img id={captureStyles.timer} src="/capture/timer.png" />
-              <span>{time}</span>
-            </div>
-            <div className={captureStyles.amount}>
-              <span>{capturedAmount+1 <= amount ? capturedAmount+1:amount}/{amount}</span>
-            </div>
-          </div>
-          { isEnd?
-            <div className={captureStyles.alertWrapper}>
-              <div className="alert">
-                <span className='title'>촬영이 끝났어요.</span> <br/>
-                <span className='subtitle'>사진을 기기에 저장할게요.</span> <br/><br/>
-                <TextBtn href={"/edit?photos=true"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
-                <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
-                <div onClick={handleSharePhoto}><TextBtn color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn></div>
-                <TextBtn href={"/home"} color="#FEFBF6">홈으로</TextBtn>
-              </div>
-            </div>:<></>
-          }
-          </div>:
-          <div className="container">
-            <div className={queueStyle.textBox}>
-              <span style={{fontWeight: 700}}>촬영 대기중</span><span>입니다.</span> <br/>
-              <span>내 앞에 대기자가</span>&nbsp;
-              <span style={{fontWeight: 700}}>{queueLength}명</span>&nbsp;<span>있어요.</span>
-            </div>
-            <div className={queueStyle.dots}>
-              <div className={queueStyle.dot} id={queueStyle.d1} />
-              <div className={queueStyle.dot} id={queueStyle.d2} />
-              <div className={queueStyle.dot} id={queueStyle.d3} />
-            </div>
-          </div>
-      }
-    </div>
-  );
-
   // 소켓 리스너 정의
   function setSocketListeners(socket) {
     // add an event listener to get to know when a connection is open
@@ -340,12 +288,12 @@ export default function Capture() {
         type: 'join_camera_queue',
         data: roomN
       });
-
       handlePeerConnection();
     };
 
     // a listener for the socket being closed event
     socket.onclose = function(message) {
+      terminateSocket(JSON.parse(localStorage.getItem("branch")).id, localStorage.getItem("uuid"));
       console.log('Socket has been closed.' + message);
     };
 
@@ -551,4 +499,64 @@ export default function Capture() {
       }
     }
   }
+
+  return (
+    <div>
+      {
+        isStart? <div ref={fullscreen}>
+          <div ref={shutter} className={captureStyles.shutterEffect}></div>
+          <video id={captureStyles.stream} ref={remoteVideoRef} autoPlay playsInline></video>
+          <div className={captureStyles.functions}>
+            <div className={captureStyles.rotate}>
+              { pose?
+                <img style={{
+                  position: "absolute",
+                  maxWidth: "32vh",
+                  maxHeight: "32vw",
+                  mixBlendMode: "lighten",
+                  transformOrigin: "center",
+                  transform: "rotate(90deg)",
+                }} src={pose}/>: <></>
+              }
+            </div>
+            <div className={captureStyles.shutter} 
+              onClick={handleShutterClick}>
+              <img id={captureStyles.shutter} src="/capture/shutter.png" />
+            </div>
+            <div className={captureStyles.timer}>
+              <img id={captureStyles.timer} src="/capture/timer.png" />
+              <span>{time}</span>
+            </div>
+            <div className={captureStyles.amount}>
+              <span>{capturedAmount+1 <= amount ? capturedAmount+1:amount}/{amount}</span>
+            </div>
+          </div>
+          { isEnd?
+            <div className={captureStyles.alertWrapper}>
+              <div className="alert">
+                <span className='title'>촬영이 끝났어요.</span> <br/>
+                <span className='subtitle'>사진을 기기에 저장할게요.</span> <br/><br/>
+                <TextBtn href={"/edit?photos=true"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
+                <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
+                <div onClick={handleSharePhoto}><TextBtn color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn></div>
+                <TextBtn href={"/home"} color="#FEFBF6">홈으로</TextBtn>
+              </div>
+            </div>:<></>
+          }
+          </div>:
+          <div className="container">
+            <div className={queueStyle.textBox}>
+              <span style={{fontWeight: 700}}>촬영 대기중</span><span>입니다.</span> <br/>
+              <span>내 앞에 대기자가</span>&nbsp;
+              <span style={{fontWeight: 700}}>{queueLength}명</span>&nbsp;<span>있어요.</span>
+            </div>
+            <div className={queueStyle.dots}>
+              <div className={queueStyle.dot} id={queueStyle.d1} />
+              <div className={queueStyle.dot} id={queueStyle.d2} />
+              <div className={queueStyle.dot} id={queueStyle.d3} />
+            </div>
+          </div>
+      }
+    </div>
+  );
 }
