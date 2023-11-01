@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import printStyles from "./print.module.css";
 import apStyles from "../ap.module.css";
-import { file } from 'jszip';
 
 let socket, roomN, uuid;
 
@@ -29,7 +28,15 @@ export default function Amounts(props) {
     const handleDecreaseClick = (i)=>{
         let newAmounts = amounts;
         if(newAmounts[i] <= 0) newAmounts[i] = 0;
-        else newAmounts[i] -= 1;
+        else {
+            newAmounts[i] -= 1;
+            if(newAmounts[i] == 0){
+                newAmounts.splice(i, 1);
+                let newFileObjs = fileObjs;
+                newFileObjs.splice(i, 1);
+                setFileObjs([...newFileObjs]);
+            }
+        }
         setAmounts([...newAmounts]);
     }
 
@@ -52,15 +59,16 @@ export default function Amounts(props) {
 
     function handlePrint(){
         console.log("sending photos to server");
-        // DATAURL to ArrayBuffer
-        const imageDataUrl = fileObjs[0]; // image src
-        sendToServer(
-            {
-                from: uuid,
-                type: 'print',
-                data: imageDataUrl
-            }
-        );
+        for(let i=0; i<fileObjs.length; i++){
+            for(let j=0; j<amounts[i]; j++)
+                sendToServer(
+                    {
+                        from: uuid,
+                        type: 'print',
+                        data: fileObjs[i]
+                    }
+                );
+        }
         router.push("/home/printQueue");
     }
 
