@@ -324,21 +324,17 @@ function handlePrintRequest(message){
     printImage(objectURL);
 }
 function printImage(imageUrl) {
-    var img = new Image();
-    img.src = imageUrl;
-    img.onload = function () {
-        var printWindow = window.open('', '_blank');
-        printWindow.onload = function () {
-            printWindow.document.write('<html><head><title>Print Data URL</title></head><body>');
-            printWindow.document.write('<div style="width: 720px; height: 480px; display:flex; justify-content:center; align-items: center;">');
-            printWindow.document.write('<img style="max-width: 720px; max-height: 480px;" src="' + imageUrl + '">');
-            printWindow.document.write('</div></body></html>');
-            printWindow.document.close();
-            printWindow.print();
-        }
-        printWindow.onafterprint = function () {
-            printWindow.close();
-        };
+    var printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>Print Data URL</title></head><body>');
+    printWindow.document.write('<div style="width: 720px; height: 480px; display:flex; justify-content:center; align-items: center;">');
+    printWindow.document.write('<img style="max-width: 720px; max-height: 480px;" src="' + imageUrl + '">');
+    printWindow.document.write('</div></body></html>');
+    printWindow.document.close();
+    printWindow.onload = function () {
+        printWindow.print();
+    }
+    printWindow.onafterprint = function () {
+        printWindow.close();
     };
 }
 
