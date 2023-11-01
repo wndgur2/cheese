@@ -64,19 +64,52 @@ export default function Edit({searchParams}) {
         }
     }
 
+    async function getResultImages(){
+        let files = [];
+        const promises = pages.map(async (p) => {
+            const url = await fetch(p.save())
+            .then(response => response.url);
+            files.push(url);
+        });
+        await Promise.all(promises);
+        return files;
+    }
+
+    async function getResultBlobs(){
+        let files = [];
+        const promises = pages.map(async (p) => {
+            const imageBlob = await fetch(p.save())
+            .then(response => response.blob());
+            files.push(new File([imageBlob], 'filename.jpg'));
+        });
+        await Promise.all(promises);
+        return files;
+    }
+
+    function printResults(){
+        let db;
+        const request = indexedDB.open("MyTestDatabase");
+        request.onerror = (event) => {
+            console.error("Why didn't you allow my web app to use IndexedDB?!");
+        };
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            console.log("indexed db opened?")
+        };
+        // getResultImages().then((files)=>{
+        //     if(!confirm("편집한 사진을 인화하시겠어요?")) return;
+        //     localStorage.setItem("photos", JSON.stringify(files));
+        //     router.push("/print/print?photos=true");
+        // }).catch((err)=>{
+        //     console.log(err);
+        // });
+    }
+
     const save = async ()=>{
         console.log("Save");
-        let files = [];
-
-        const promises = pages.map(async (p) => {
-            const imageBlob = await fetch(p.save()).then(response => response.blob());
-            files.push(new File([imageBlob], 'filename.jpg'));
-            console.log(files);
-        });
-
-        await Promise.all(promises).catch((e)=>{console.log(e)});
         const zip = new JSZip();
-
+        const files = await getResultBlobs();
+        console.log(files);
         files.forEach((file, i)=>{
             zip.file("photo" + i + ".png", file, { base64: true });
         })
@@ -173,9 +206,8 @@ export default function Edit({searchParams}) {
     }, [nav])
 
     useEffect(()=>{
-        if(pageIndex >= 0){
-            pages[pageIndex].show();
-        }
+        if(pageIndex < 0) return;
+        pages[pageIndex].show();
     }, [pageIndex])
 
     useEffect(()=>{
@@ -237,13 +269,13 @@ export default function Edit({searchParams}) {
                     </div>
                     <div className="alignCenter"
                         onClick={(e)=>{
+                            if(confirm("편집 내용이 사라져요. 정말 나가시겠습니까?"))
                                 router.push("/home");
                         }}>
                         <img src="/edit/exit.png" width={60} />
                     </div>
                 </div>
-                <div className={editStyles.preview} id="preview">
-                </div>
+                <div className={editStyles.preview} id="preview" />
                 <div>
                     <div className="alignCenter" id={editStyles.functionBar}>
                         <div className="alignCenter" style={{ gap:10 }}>
@@ -271,6 +303,9 @@ export default function Edit({searchParams}) {
                             </div>
                         </div>
                         <div className="alignCenter" style={{gap:10}}>
+                            <div className="alignCenter" onClick={printResults}>
+                                <img src="/edit/print.png" width={60} /><a id="link"></a>
+                            </div>
                             <div className="alignCenter" onClick={save}>
                                 <img src="/edit/save.png" width={60} /><a id="link"></a>
                             </div>
