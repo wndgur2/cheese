@@ -117,14 +117,14 @@ html, body{
 }
 .loader{
     position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100vw;
-    height: 100vh;
+    top: 20vh;
+    left: 20vw;
+    width: 60vw;
+    height: 60vh;
     display:flex;
     align-items:center;
     justify-content:center;
-    animation: lds-hourglass 0.9s infinite;
+    animation: lds-hourglass 0.7s infinite;
 }
 @keyframes lds-hourglass {
     0% {

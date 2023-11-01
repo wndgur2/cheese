@@ -57,7 +57,7 @@ export default function Amounts(props) {
         sendToServer(
             {
                 from: uuid,
-                type: 'device_printer',
+                type: 'print',
                 data: imageDataUrl
             }
         );
@@ -180,11 +180,13 @@ export default function Amounts(props) {
         
             console.log('WebSocket connection opened to Room: #' + roomN + " from " + localStorage.getItem("uuid"));
             // send a message to the server to join selected room with Web Socket
-            sendToServer({
-                from: uuid,
-                type: 'device_join',
-                data: roomN
-            });
+            sendToServer(
+                {
+                    from: uuid,
+                    type: 'printer_join',
+                    data: roomN
+                }
+            );
 
             setPrinterEnabled(true);
         };

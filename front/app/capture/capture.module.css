@@ -3,7 +3,6 @@
     transform: rotate(90deg);
     width: 100vh;
     height: 100vw;
-    background-color: #999;
     transform-origin: bottom left;
     margin-top: -100vw;
     object-fit: cover;
@@ -11,19 +10,19 @@
 
 .functions{
     position: absolute;
-    top: 82vh;
+    top: 84vh;
     left: 0px;
     display: flex;
     align-items: center;
     justify-content: baseline;
     width: 100vw;
-    height: 18vh;
-    background-color: rgba(0,0,0,0.3);
+    height: 16vh;
+    filter: drop-shadow(0vh 0vh 1vw #000);
 }
 
 .functions span{
     color: #EEE;
-    font-size: 8vw;
+    font-size: 10vw;
 }
 
 #shutter{

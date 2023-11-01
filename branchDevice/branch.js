@@ -1,12 +1,4 @@
 'use strict';
-
-function guid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
 let localStream, myPeerConnection, socket, localVideoTracks;
 const roomN= "2";
 const localUserName = "한경대점 2";
@@ -73,6 +65,14 @@ function start() {
                 handlePeerConnection(message);
                 break;
 
+            case "printer_join":
+                log('Client joined to print');
+                break;
+
+            case "leave":
+                stop();
+                break;
+
             default:
                 handleErrorMessage('Wrong type message received from server');
         }
@@ -102,25 +102,25 @@ function start() {
 
 function stop() {
     // send a message to the server to remove this client from the room clients list
-    log("Send 'leave' message to server");
-    sendToServer({
-        from: localUserName,
-        type: 'leave',
-        data: roomN
-    });
+    // log("Send 'leave' message to server");
+    // sendToServer({
+    //     from: localUserName,
+    //     type: 'leave',
+    //     data: roomN
+    // });
 
     if (myPeerConnection) {
         log('Close the RTCPeerConnection');
 
         // disconnect all our event listeners
-        myPeerConnection.onicecandidate = null;
-        myPeerConnection.ontrack = null;
-        myPeerConnection.onnegotiationneeded = null;
-        myPeerConnection.oniceconnectionstatechange = null;
-        myPeerConnection.onsignalingstatechange = null;
-        myPeerConnection.onicegatheringstatechange = null;
-        myPeerConnection.onnotificationneeded = null;
-        myPeerConnection.onremovetrack = null;
+        // myPeerConnection.onicecandidate = null;
+        // myPeerConnection.ontrack = null;
+        // myPeerConnection.onnegotiationneeded = null;
+        // myPeerConnection.oniceconnectionstatechange = null;
+        // myPeerConnection.onsignalingstatechange = null;
+        // myPeerConnection.onicegatheringstatechange = null;
+        // myPeerConnection.onnotificationneeded = null;
+        // myPeerConnection.onremovetrack = null;
 
         // if (localVideo.srcObject) {
         //     localVideo.srcObject.getTracks().forEach(track => track.stop());
@@ -130,12 +130,12 @@ function stop() {
 
         // close the peer connection
         myPeerConnection.close();
-        myPeerConnection = null;
+        // myPeerConnection = null;
 
-        log('Close the socket');
-        if (socket != null) {
-            socket.close();
-        }
+        // log('Close the socket');
+        // if (socket != null) {
+        //     socket.close();
+        // }
     }
 }
 

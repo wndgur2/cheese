@@ -3,9 +3,6 @@
 import './globals.css'
 import { Noto_Sans_KR } from 'next/font/google'
 import { SessionProvider } from 'next-auth/react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import terminateSocket from '@/api/terminateSocket';
 
 const noto_Sans_KR = Noto_Sans_KR({
   subsets: ['latin'],
@@ -13,16 +10,13 @@ const noto_Sans_KR = Noto_Sans_KR({
 })
 
 export default function RootLayout({ children }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [oldPathname, setOldPathname] = useState("");
-  useEffect(() => {
-    console.log("OLD: ", oldPathname, "NEW: ", pathname);
-    if(pathname != "/capture" && oldPathname == "/capture") {
-      terminateSocket(JSON.parse(localStorage.getItem("branch")).id, localStorage.getItem("uuid"));
-    }
-    setOldPathname(pathname);
-  }, [pathname]);
+  // useEffect(() => {
+  //   console.log("OLD: ", oldPathname, "NEW: ", pathname);
+  //   if(oldPathname == "/capture") {
+  //     terminateSocket(JSON.parse(localStorage.getItem("branch")).id, localStorage.getItem("uuid"));
+  //   }
+  //   setOldPathname(pathname);
+  // }, [pathname]);
   return (
     <html lang="en">
       <head>
