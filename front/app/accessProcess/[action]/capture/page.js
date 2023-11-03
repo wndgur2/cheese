@@ -6,7 +6,7 @@ import captureStyles from "./capture.module.css";
 import apStyles from "../ap.module.css";
 import Branch from '@/entity/Branch';
 
-export default function Amount(props) {
+export default function Amount() {
     const router = useRouter();
     /**
      * @type {[Branch, Function]}
@@ -14,19 +14,11 @@ export default function Amount(props) {
     const [branch, setBranch] = useState();
     const [amount, setAmount] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const action = props.params.action;
 
     useEffect(()=>{
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if(!branch_){
             router.push("/home/cheeseMap");
-        }
-
-        if(action=="capture") localStorage.setItem("action", "capture");
-        else if(action=="print") localStorage.setItem("action", "print");
-        else{
-            console.log("ERR [...action] page: Wrong action given.");
-            router.push("/home");
         }
         
         setBranch(branch_);

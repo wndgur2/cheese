@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import printStyles from "./print.module.css";
 import apStyles from "../ap.module.css";
+import loadPhotosIdx from '@/api/loadPhotosIdx';
 
 let socket, roomN, uuid;
 
-export default function Amounts(props) {
-    const action = props.params.action;
+export default function Amounts({searchParams}) {
     const router = useRouter();
 
     const input = useRef();
@@ -17,6 +17,44 @@ export default function Amounts(props) {
     const [fileObjs, setFileObjs] = useState([]);
     const [printerEnabled, setPrinterEnabled] = useState(false);
 
+    function loadPhotos(photos){
+        let newFileObjs = photos;
+        let newAmounts = [];
+        for(let photo of photos) newAmounts.push(1);
+        setFileObjs(newFileObjs);
+        setAmounts(newAmounts);
+    }
+
+    function clearPhotos(){
+        console.log("clear photos");
+        // clear photos from indexed db
+        let db;
+        const request = indexedDB.open("CheeseDB");
+        request.onerror = (event) => {
+            console.error("Why didn't you allow my web app to use IndexedDB?!");
+        };
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            console.log("indexed db opened")
+
+            //load images from indexed db
+            const transaction = db.transaction(["photos"], "readwrite");
+            const photos = transaction.objectStore("photos");
+            const request = photos.clear();
+            request.onerror = (event) => {
+                console.error("Why didn't you allow my web app to use IndexedDB?!");
+            };
+            request.onsuccess = (event) => {
+                console.log("indexed db cleared")
+            };
+        };
+        request.onupgradeneeded = (event) => {
+            // create an object store called "photos"
+            db = event.target.result;
+            db.createObjectStore("photos", { autoIncrement: true });
+            console.log("indexed db created/updated");
+        }
+    }
 
     const handleAddClick = (i)=>{
         let newAmounts = amounts;
@@ -75,24 +113,16 @@ export default function Amounts(props) {
     useEffect(()=>{
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if(!branch_) router.push("/home/cheeseMap");
-        roomN = branch_.id;
+        else roomN = branch_.id;
         uuid = localStorage.getItem("uuid");
-
-        if(action=="capture") localStorage.setItem("action", "capture");
-        else if(action=="print") localStorage.setItem("action", "print");
-        else{
-            console.log("ERR [...action] page: Wrong action given.");
-            router.push("/home");
-        }
-        
         setBranch(branch_);
-
-        // const url = `http://${process.env.NEXT_PUBLIC_API}/branch/${branch_.id}/print`;
-        // axios.post(url, null, { params: { device: localStorage.getItem("uuid"), } })
-        // .then((res) => console.log(res))
-        // .catch((err) => console.log(err));
         socket = new WebSocket(`ws://${process.env.NEXT_PUBLIC_API}/signal`);
         setSocketListeners(socket);
+        if(searchParams.photos) loadPhotosIdx(loadPhotos);
+
+        return ()=>{
+            clearPhotos();
+        }
     },[]);
 
   return (

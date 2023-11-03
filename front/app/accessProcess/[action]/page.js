@@ -7,25 +7,25 @@ import { useEffect, useState } from 'react';
 import Script from 'next/script';
 
 export default function Action(props) {
-    const router = useRouter();
-    const [branch, setBranch] = useState("...");
-    const [ready, setReady] = useState(false);
-
     const action = props.params.action;
     
+    const router = useRouter();
+    const [branch, setBranch] = useState("...");
+    const [isMapLoaded, setIsMapLoaded] = useState(false);
+    
     useEffect(()=>{
-        if(!ready) return;
+        if(!isMapLoaded) return;
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if(!branch_){
             router.push("/home/cheeseMap");
             return;
         }
 
-        if(action=="capture"){
+        if(action=="capture")
             localStorage.setItem("action", "capture");
-        } else if(action=="print"){
+        else if(action=="print")
             localStorage.setItem("action", "print");
-        } else{
+        else{
             console.log("ERR [...action] page: Wrong action given.");
             router.push("/home");
         }
@@ -48,14 +48,14 @@ export default function Action(props) {
             icon: icon
         });
         map.morph(new naver.maps.LatLng(branch_.latitude, branch_.longitude), 16);
-    },[ready]);
+    },[isMapLoaded]);
 
   return (
     <div>
         <Script
             src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_MAP_PUBLIC}`}
             onReady={()=>{
-                setReady(true);
+                setIsMapLoaded(true);
             }}
         ></Script>
         <div
