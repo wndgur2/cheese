@@ -15,7 +15,10 @@ const peerConnectionConfig = {
 // WebRTC media
 const mediaConstraints = {
     audio: false,
-    video: true
+    video: {
+        width: { ideal: 1920 },  // Specify the width you want here
+        height: { ideal: 1080 }   // Specify the height you want here
+    }
 };
 
 // on page load runner
@@ -156,9 +159,7 @@ function sendToServer(msg) {
 // initialize media stream
 function getMedia(constraints) {
     if (localStream) {
-        localStream.getTracks().forEach(track => {
-            track.stop();
-        });
+        localStream.getTracks().forEach(track => {track.stop();});
     }
 
     navigator.mediaDevices.getUserMedia(constraints)
