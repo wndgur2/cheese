@@ -1,9 +1,9 @@
 #stream{
     position: absolute;
     transform: rotate(90deg);
+    transform-origin: bottom left;
     width: 100vh;
     height: 100vw;
-    transform-origin: bottom left;
     margin-top: -100vw;
     object-fit: cover;
 }
