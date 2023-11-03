@@ -16,6 +16,8 @@ import { Page } from "./edit.module";
 
 import JSZip from "jszip"
 import Script from "next/script";
+import savePhotosIdx from "@/api/savePhotosIdx";
+import loadPhotosIdx from "@/api/loadPhotosIdx";
 
 export default function Edit({searchParams}) {
     const router = useRouter();
@@ -28,7 +30,6 @@ export default function Edit({searchParams}) {
 
     const fullscreen = useRef();
     const addButton = useRef();
-    const pagesRef = useRef(setPages);
 
     const navs = [
         ["Ai", "AI"],
@@ -64,6 +65,12 @@ export default function Edit({searchParams}) {
         }
     }
 
+    function loadCaptures(captures){
+        let newPages = [];
+        for(let photo of captures) newPages.push(new Page(photo));
+        setPages([...newPages]);
+    }
+
     async function getResultImages(){
         let files = [];
         const promises = pages.map(async (p) => {
@@ -86,23 +93,11 @@ export default function Edit({searchParams}) {
         return files;
     }
 
-    function printResults(){
-        let db;
-        const request = indexedDB.open("MyTestDatabase");
-        request.onerror = (event) => {
-            console.error("Why didn't you allow my web app to use IndexedDB?!");
-        };
-        request.onsuccess = (event) => {
-            db = event.target.result;
-            console.log("indexed db opened?")
-        };
-        // getResultImages().then((files)=>{
-        //     if(!confirm("편집한 사진을 인화하시겠어요?")) return;
-        //     localStorage.setItem("photos", JSON.stringify(files));
-        //     router.push("/print/print?photos=true");
-        // }).catch((err)=>{
-        //     console.log(err);
-        // });
+    async function printResults(){
+        const images = await getResultImages();
+        savePhotosIdx(images, ()=>{
+            router.push("/accessProcess/print/print?photos=true");
+        });
     }
 
     const save = async ()=>{
@@ -172,12 +167,7 @@ export default function Edit({searchParams}) {
             return true;
         }
         Page.init();
-        let newPages = [];
-        if(searchParams.photos=="true"){
-            for(let photo of JSON.parse(localStorage.getItem("photos")))
-                newPages.push(new Page(photo));
-            setPages([...newPages]);
-        } 
+        if(searchParams.photos=="true") loadPhotosIdx(loadCaptures);
         else addButton.current.click();
 
         return(()=>{

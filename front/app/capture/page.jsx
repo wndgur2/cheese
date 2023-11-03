@@ -11,6 +11,7 @@ import savePhotosOnDevice from "@/api/savePhotosOnDevice";
 import savePhotosOnCloud from "@/api/savePhotosOnCloud";
 import sharePhotos from "@/api/sharePhotos";
 import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
+import savePhotosIdx from "@/api/savePhotosIdx";
 
 function getPose(imageUrl, setPose) {
         try{
@@ -63,7 +64,7 @@ export default function Capture() {
 
     const [amount, setAmount] = useState(0);
     const [capturedAmount, setCapturedAmount] = useState(0);
-    const [timer, setTimer] = useState(20);
+    const [timer, setTimer] = useState(30);
     const [mediaRecorderR, setMediaRecorderR] = useState(null);
     const [capturesR, setCapturesR] = useState([]);
     const [pose, setPose] = useState(null);
@@ -145,7 +146,6 @@ export default function Capture() {
     useEffect(()=>{
         if(!isStart) return;
         if(isEnd) return;
-        createVideoElement();
         if(document.fullscreenElement) return;
         // fullscreen.current.requestFullscreen().then(()=>{
         //     console.log("fullscreen");
@@ -175,7 +175,7 @@ export default function Capture() {
         if(isEnd) return;
         else if(timer==0) {
             handleShutterClick();
-            setTimer(20);
+            setTimer(30);
         } else{
             tId = setTimeout(()=>{setTimer(timer-1);}, 1000);
             if(startRecord) {
@@ -220,7 +220,7 @@ export default function Capture() {
         capturePhoto();
         setCapturedAmount(capturedAmount+1);
         clearTimeout(tId);
-        setTimer(20);
+        setTimer(30);
     }
 
     function handleSharePhoto() {
@@ -239,7 +239,7 @@ export default function Capture() {
         const roomN = branch.id;
         const cost = branch.shooting_cost * amount;
         setIsEnd(true);
-        mediaRecorderR?.stop(); 
+        mediaRecorderR?.stop();
 
         let blob = new Blob(blobs_recorded, {
             type: 'video/webm'
@@ -247,8 +247,7 @@ export default function Capture() {
 
         setCapturesR((cptrs)=>{
             savePhotosOnDevice(cptrs, blob);
-            console.log(JSON.stringify(cptrs));
-            localStorage.setItem("photos", JSON.stringify(cptrs));
+            savePhotosIdx(cptrs);
             return cptrs;
         });
         
@@ -289,8 +288,6 @@ export default function Capture() {
         videoElement.setAttribute("playsinline", "");
         videoElement.setAttribute("muted", "");
         videoElement.setAttribute("id", captureStyles.stream);
-        videoElement.setAttribute("width", "100%");
-        videoElement.setAttribute("height", "100%");
         document.getElementById("video").appendChild(videoElement);
         remoteVideoRef.current = videoElement;
     }
@@ -523,6 +520,7 @@ export default function Capture() {
                                 <img src='/cheese_512.png' width={"50%"} />
                             </div>
                         }
+                        <video ref={remoteVideoRef} id={captureStyles.stream} autoPlay playsInline muted></video>
                     </div>
                     <div className={captureStyles.functions}
                         style={{top:"76vh", paddingBottom:"8vh"}}>
@@ -556,7 +554,7 @@ export default function Capture() {
                                 <span className='title'>촬영이 끝났어요.</span> <br/>
                                 <span className='subtitle'>사진을 기기에 저장할게요.</span> <br/><br/>
                                 <TextBtn href={"/edit?photos=true"} color="#FFD56A" content="촬영한 사진을 바로 편집해보세요.">바로 편집하기</TextBtn>
-                                <TextBtn href={"/home"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
+                                <TextBtn href={"/accessProcess/print/print?photos=true"} color="#FFD56A" content="촬영한 사진을 바로 인화하세요.">바로 인화하기</TextBtn>
                                 <div onClick={handleSharePhoto}><TextBtn color="#FFD56A" content="촬영한 사진을 공유해보세요.">사진 공유하기</TextBtn></div>
                                 <TextBtn href={"/home"} color="#FEFBF6">홈으로</TextBtn>
                             </div>
