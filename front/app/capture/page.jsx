@@ -14,28 +14,28 @@ import saveTimelapseOnCloud from "@/api/saveTimelapseOnCloud";
 import savePhotosIdx from "@/api/savePhotosIdx";
 
 function getPose(imageUrl, setPose) {
-        try{
-            const data = new FormData();
-            fetch(imageUrl).then(r => r.blob()).then((blob) => {
-                data.append('image', blob);
-                axios.post(
-                    `http://${process.env.NEXT_PUBLIC_AI_API}/ai/pose_estimation`,
-                    data,
-                    {
-                        responseType: 'blob',
-                    }
-                ).then((res) =>{
-                    let url = URL.createObjectURL(res.data);
-                    setPose(url);
-                }).catch((err) => {
-                    console.log(err);
+    try{
+        const data = new FormData();
+        fetch(imageUrl).then(r => r.blob()).then((blob) => {
+            data.append('image', blob);
+            axios.post(
+                `http://${process.env.NEXT_PUBLIC_AI_API}/ai/pose_estimation`,
+                data,
+                {
+                    responseType: 'blob',
                 }
-                );
-            })
-        } catch(err) {
-            console.log(err);
-        }
+            ).then((res) =>{
+                let url = URL.createObjectURL(res.data);
+                setPose(url);
+            }).catch((err) => {
+                console.log(err);
+            }
+            );
+        })
+    } catch(err) {
+        console.log(err);
     }
+}
 
 function getQueue(roomN, uuid, setQueueLength, socket, setQueueRequests){
     console.log("GET QUEUE.;");
@@ -74,6 +74,7 @@ export default function Capture() {
     const [startRecord, setStartRecord] = useState(false);
     const [queueLength, setQueueLength] = useState(1);
     const [queueRequests, setQueueRequests] = useState(0);
+    const [blobs_recorded, setBlobs_recorded] = useState([]);
 
     const remoteVideoRef = useRef();
     const shutter = useRef();
@@ -82,7 +83,6 @@ export default function Capture() {
 
     // streaming variables
     let mediaRecorder, socket, roomN, myPeerConnection, uuid, tId;
-    let blobs_recorded = [];
 
     // WebRTC STUN servers
     const peerConnectionConfig = {
@@ -146,12 +146,16 @@ export default function Capture() {
     useEffect(()=>{
         if(!isStart) return;
         if(isEnd) return;
-        if(document.fullscreenElement) return;
-        // fullscreen.current.requestFullscreen().then(()=>{
-        //     console.log("fullscreen");
-        // }).catch((err)=>{
-        //     console.log("fullscreen err");
-        // })
+        let fullscreenRequest = fullscreen.current.requestFullscreen ||
+            fullscreen.current.webkitEnterFullScreen ||
+            fullscreen.current.webkitRequestFullscreen ||
+            fullscreen.current.msRequestFullscreen ||
+            fullscreen.current.mozRequestFullscreen;
+        fullscreenRequest.call(fullscreen.current).then(()=>{
+            console.log("fullscreen");
+        }).catch((err)=>{
+            console.log(err);
+        });
     }, [isStart]);
 
     useEffect(()=>{
@@ -164,7 +168,11 @@ export default function Capture() {
         setMediaRecorderR(mediaRecorder);
         mediaRecorder.ondataavailable = function(event) {
             if (event.data && event.data.size > 0) {
-                blobs_recorded.push(event.data);
+                setBlobs_recorded((blobs)=>{
+                    let newBlobs = [...blobs];
+                    newBlobs.push(event.data);
+                    return newBlobs;
+                });
             }
         }
         mediaRecorder.start(1000);
@@ -188,7 +196,7 @@ export default function Capture() {
                     .getContext("2d")
                     .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
                 const url = canvas.toDataURL("image/jpeg");
-                // getPose(url, setPose);
+                getPose(url, setPose);
             }
         }
     }, [timer]);
@@ -240,7 +248,6 @@ export default function Capture() {
         const cost = branch.shooting_cost * amount;
         setIsEnd(true);
         mediaRecorderR?.stop();
-
         let blob = new Blob(blobs_recorded, {
             type: 'video/webm'
         });
@@ -522,20 +529,22 @@ export default function Capture() {
                         }
                         <video ref={remoteVideoRef} id={captureStyles.stream} autoPlay playsInline muted></video>
                     </div>
+                    <div className={captureStyles.rotate}>
+                        { pose?
+                            <img style={{
+                                position: "absolute",
+                                top: "78vh",
+                                left: "-4vw",
+                                maxWidth: "32vh",
+                                maxHeight: "32vw",
+                                mixBlendMode: "lighten",
+                                transformOrigin: "center",
+                                transform: "rotate(90deg)",
+                            }} src={pose}/>: <></>
+                        }
+                    </div>
                     <div className={captureStyles.functions}
                         style={{top:"76vh", paddingBottom:"8vh"}}>
-                        <div className={captureStyles.rotate}>
-                            { pose?
-                                <img style={{
-                                    position: "absolute",
-                                    maxWidth: "32vh",
-                                    maxHeight: "32vw",
-                                    mixBlendMode: "lighten",
-                                    transformOrigin: "center",
-                                    transform: "rotate(90deg)",
-                                }} src={pose}/>: <></>
-                            }
-                        </div>
                         <div className={captureStyles.shutter} 
                             onClick={handleShutterClick}>
                             <img id={captureStyles.shutter} src="/capture/shutter.png" />
