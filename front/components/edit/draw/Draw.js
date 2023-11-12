@@ -10,7 +10,8 @@ import { Page } from "@/app/edit/edit.module";
 
 export default function Draw({page}) {
   const MAX_BRUSH_SIZE = 500;
-  const states = ["pen", "eraser", "bucket"];
+  const states = ["pen", "eraser"];
+  // const states = ["pen", "eraser", "bucket"];
   const [state, setState] = useState(states[0]);
   const [brushSize, setBrushSize] = useState(12);
   const [color, setColor] = useState("#000000");

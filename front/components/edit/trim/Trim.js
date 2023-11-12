@@ -19,23 +19,24 @@ export default function Trim({page}) {
       src: "/edit/trim/free.png",
       text: "자유롭게",
       ratio: null
-    }, {
-      src: "/edit/trim/1_1.png",
-      text: "1:1",
-      ratio: [1, 1]
-    }, {
-      src: "/edit/trim/4_3.png",
-      text: "4:3",
-      ratio: [4, 3]
-    }, {
-      src: "/edit/trim/16_9.png",
-      text: "16:9",
-      ratio: [16, 9]
-    }, {
-      src: "/edit/trim/16_10.png",
-      text: "16:10",
-      ratio: [16, 10]
     },
+    // {
+    //   src: "/edit/trim/1_1.png",
+    //   text: "1:1",
+    //   ratio: [1, 1]
+    // }, {
+    //   src: "/edit/trim/4_3.png",
+    //   text: "4:3",
+    //   ratio: [4, 3]
+    // }, {
+    //   src: "/edit/trim/16_9.png",
+    //   text: "16:9",
+    //   ratio: [16, 9]
+    // }, {
+    //   src: "/edit/trim/16_10.png",
+    //   text: "16:10",
+    //   ratio: [16, 10]
+    // },
   ]
 
   const handleCropClick = (ratio, i)=>{
@@ -64,11 +65,12 @@ export default function Trim({page}) {
         <span style={{
           width:"100%",
           textAlign:"center"
-        }}>사진 비율</span>
+        }}>자르기</span>
         <div style={{
           display:"flex",
           overflowX: "scroll",
           alignItems:"baseline",
+          justifyContent:"center",
           width: "100%",
           marginTop: "3vh",
         }}>
