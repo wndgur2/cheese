@@ -5,7 +5,7 @@ import axios from "axios";
 import { useState } from "react";
 import { Page } from "@/app/edit/edit.module";
 
-export default function Ai({page}) {
+export default function Ai({page, setLoading}) {
   const [extracting, setExtracting] = useState(false);
   const [objectEditting, setObjectEditting] = useState(false);
   
@@ -29,6 +29,7 @@ export default function Ai({page}) {
     const data = new FormData();
     let blob = await fetch(page.src).then(r => r.blob());
     data.append('file', blob);
+    setLoading(true);
     try{
       const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/skin_smoothing`,
         data, {
@@ -38,6 +39,9 @@ export default function Ai({page}) {
       page.src = URL.createObjectURL(res.data);
     } catch(err) {
       console.log(err);
+    }
+    finally{
+      setLoading(false);
     }
   }
 
@@ -53,6 +57,7 @@ export default function Ai({page}) {
     const data = new FormData();
     let blob = await fetch(page.src).then(r => r.blob());
     data.append('file', blob);
+    setLoading(true);
     try{
       const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/body_reshape`,
         data, {
@@ -62,6 +67,9 @@ export default function Ai({page}) {
       page.src = URL.createObjectURL(res.data);
     } catch(err) {
       console.log(err);
+    }
+    finally{
+      setLoading(false);
     }
   }
 
@@ -77,6 +85,7 @@ export default function Ai({page}) {
     const data = new FormData();
     let blob = await fetch(page.src).then(r => r.blob());
     data.append('file', blob);
+    setLoading(true);
     try{
       const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/color_filter`,
         data, {
@@ -86,6 +95,9 @@ export default function Ai({page}) {
       page.src = URL.createObjectURL(res.data);
     } catch(err) {
       console.log(err);
+    }
+    finally{
+      setLoading(false);
     }
   }
 
@@ -120,7 +132,6 @@ export default function Ai({page}) {
 
     // blob2
     let filtered_image = await fetch(filtered_src).then(r => r.blob());
-    console.log(filtered_image);
     data.append('filtered_image', filtered_image);
     
     try{
@@ -150,7 +161,6 @@ export default function Ai({page}) {
     try{
       const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/filter_generate_with_value`,
         data)
-      console.log(res.data);
 
       const filter_ = {
         brightness: 100+res.data.brightness*2,
@@ -169,10 +179,15 @@ export default function Ai({page}) {
     }
   }
 
-  function startObjectEdit(){ // 다시 돌아갈 방법
+  function startObjectEdit(){
     if(!page) return;
     setObjectEditting(true);
-    Page.setTouchLayer(page, "object", setObjectEditting);
+    Page.setTouchLayer(page, "object", setObjectEditting, setLoading);
+  }
+
+  function cancelObjectEdit(){
+    setObjectEditting(false);
+    Page.disableTouchLayer();
   }
 
   return (
@@ -204,8 +219,17 @@ export default function Ai({page}) {
         </div>
       </div>
       {objectEditting? 
-        <div>
-          삭제할 피사체를 터치하세요.
+        <div onClick={cancelObjectEdit}>
+          <LongBtn>
+            <img src="/edit/ai/object.png" width={32} />
+            <span style={{
+              fontSize:16,
+              color: "#212121",
+              fontWeight: 500
+            }}>
+              삭제할 피사체를 터치하세요.
+            </span>
+          </LongBtn>
         </div>: <div onClick={startObjectEdit}>
           <LongBtn>
             <img src="/edit/ai/object.png" width={32} />

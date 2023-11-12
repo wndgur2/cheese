@@ -27,6 +27,7 @@ export default function Edit({searchParams}) {
     const [pageIndex, setPageIndex] = useState(-1);
     const [pages, setPages] = useState([]);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const fullscreen = useRef();
     const addButton = useRef();
@@ -45,7 +46,7 @@ export default function Edit({searchParams}) {
     const renderChild = ()=>{
         switch (nav) {
             case "Ai":
-                return <Ai page = {pages[pageIndex]} />
+                return <Ai page = {pages[pageIndex]} setLoading = {setLoading} />
             case "Trim":
                 return <Trim page = {pages[pageIndex]} />
             case "Draw":
@@ -305,8 +306,22 @@ export default function Edit({searchParams}) {
                         className={editStyles.editBody}
                         style={{overflowY:"scroll"}}
                         onScroll={(e)=>{handleBodyScroll(e.target.scrollTop)}}
-                    >
-                        {renderChild()}
+                    >   
+                        {
+                            loading?
+                            <div>
+                                <div className="loader"
+                                    style={{
+                                        position: "relative",
+                                        height:"0vh",
+                                    }}>
+                                    <img src='/cheese_512.png' width={"50%"} />
+                                </div>
+                                <p style={{width:"100%", textAlign:"center", marginTop:"30vh"}}>처리중이에요</p>
+                            </div>
+                                :
+                            renderChild()
+                        }
                         <br/>
                         <br/>
                         <br/>

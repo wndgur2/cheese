@@ -33,7 +33,7 @@ class Page{
         this.touchLayer.canvas.style.visibility="hidden";
     }
 
-    static setTouchLayer(page_, type, setObjectEditting){
+    static setTouchLayer(page_, type, setObjectEditting, setLoading){
         if(!page_) return;
         if(!type) this.disableTouchLayer();
         console.log("setTouchLayer", type);
@@ -79,6 +79,7 @@ class Page{
             case "object":
                 this.touchLayer.canvas.ontouchstart = (e)=>{page_.handleObjectTouchStart(e)};
                 page_.setObjectEditting = setObjectEditting;
+                page_.setLoading = setLoading;
             default:
                 break;
         }
@@ -387,6 +388,7 @@ class Page{
     }
 
     handleCropTouchStart(e){
+        console.log("CropTouch");
         const {x, y} = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
         this.touched.x = x;
         this.touched.y = y;
@@ -714,6 +716,7 @@ class Page{
     async handleObjectTouchStart(e){
         console.log("object touch");
         this.setObjectEditting(false);
+        this.setLoading(true);
         Page.disableTouchLayer();
         this.touched = convertXY(this.width, this.height, e.touches[0].clientX, e.touches[0].clientY - e.target.offsetTop)
         const {x, y} = this.touched;
@@ -723,7 +726,8 @@ class Page{
         let blob = await fetch(this.src).then(r => r.blob());
         data.append('file', blob);
         try{
-            const res = await axios.post(`http://${process.env.NEXT_PUBLIC_AI_API}/ai/object_remove?x=${parseInt(x-this.getLayer("image").x)}&y=${parseInt(y-this.getLayer("image").y)}`,
+            const res = await axios.post(
+                `http://${process.env.NEXT_PUBLIC_AI_API}/ai/object_remove?x=${parseInt(x-this.getLayer("image").x)}&y=${parseInt(y-this.getLayer("image").y)}`,
                 data,
                 {responseType: 'blob',}
             )
@@ -741,6 +745,9 @@ class Page{
         }
         catch(err) {
             console.log(err);
+        }
+        finally{
+            this.setLoading(false);
         }
     }
 }
@@ -787,7 +794,7 @@ class Layer{
 
     setImage(src){
         let image = new Image();
-        console.log(this.src, " to ", src);
+        // console.log(this.src, " to ", src);
         this.src = src;
         image.src = src;
         image.onload = ()=>{
@@ -837,11 +844,11 @@ class Layer{
     }
 
     drawText(text, bold, strike, underline, font, color){
-        console.log(font);
+        // console.log(font);
         this.ctx.font = `${bold? "bold":""} ${this.height}px ${font.class.style.fontFamily}`;
         // this.ctx.font = `${bold? "bold":""} 248px ${font.style.fontFamily}`;
-        console.log(this.ctx.font);
-        console.log(this.ctx.textBaseline)
+        // console.log(this.ctx.font);
+        // console.log(this.ctx.textBaseline)
         // if(strike) this.ctx.font += " strike";
         // if(underline) this.ctx.font += " underline";
         this.ctx.lineWidth = 10;
