@@ -2,7 +2,7 @@
 let localStream, myPeerConnection, socket, localVideoTracks;
 const roomN= "2";
 const localUserName = "한경대점 2";
-const IP = "localhost";
+const IP = "192.168.100.100";
 
 // WebRTC STUN servers
 const peerConnectionConfig = {
@@ -16,8 +16,13 @@ const peerConnectionConfig = {
 const mediaConstraints = {
     audio: false,
     video: {
-        width: { ideal: 1920 },  // Specify the width you want here
-        height: { ideal: 1080 }   // Specify the height you want here
+        width:
+        {
+            ideal: 1920,
+        },  // Specify the width you want here
+        height: {
+            ideal: 1080,
+        }   // Specify the height you want here
     }
 };
 

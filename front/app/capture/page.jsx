@@ -217,6 +217,8 @@ export default function Capture() {
 
     function shutterEffect(){
         if(!shutter.current) return;
+        let audio = new Audio('/capture/shutter1.mp3');
+        audio.play();
         shutter.current.style.opacity = 1;
         setTimeout(()=>{
             shutter.current.style.opacity = 0;

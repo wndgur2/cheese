@@ -1,10 +1,12 @@
 #stream{
     position: absolute;
-    transform: rotate(90deg);
+    transform: rotate(90deg) scaleX(-1);
     transform-origin: bottom left;
     width: 100vh;
     height: 100vw;
-    margin-top: -100vw;
+    /* top: 0vh; */
+    left: 0vh;
+    bottom: 0vh;
     object-fit: cover;
 }
 
