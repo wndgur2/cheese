@@ -8,6 +8,7 @@ import axios from 'axios';
 import SharedPhoto from '@/entity/SharedPhoto';
 import Branch from '@/entity/Branch';
 import CheeseMapBtn from '@/components/CheeseMapBtn';
+import { useSearchParams } from 'next/navigation';
 
 function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -62,16 +63,18 @@ async function getBranch(setBranch, branchId) {
   }
 }
 
-export default function Home(props) {
+export default function Home() {
   const [branch, setBranch] = useState();
   const [isLocated, setIsLocated] = useState(false);
   const [photos, setPhotos] = useState([]);
+  const params = useSearchParams();
 
   useEffect(()=>{
     let localBranch = JSON.parse(localStorage.getItem("branch"));
-    if(props.searchParams.branchId){
-      getBranch(setBranch, props.searchParams.branchId);
-      getSharedPhotos(setPhotos, 1, props.searchParams.branchId);
+    let paramBranchId = params.get("branchId");
+    if(paramBranchId){
+      getBranch(setBranch, paramBranchId);
+      getSharedPhotos(setPhotos, 1, paramBranchId);
     } else if (localBranch){
       setBranch(localBranch);
       getSharedPhotos(setPhotos, 1, localBranch.id)

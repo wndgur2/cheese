@@ -3,10 +3,11 @@
 import Input from "@/components/Input";
 import LongBtn from "@/components/LongBtn";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function SignIn(props) {
+export default function SignIn() {
+  const callbackUrl = useSearchParams().get("callbackUrl");
   let session = useSession();
   let router = useRouter();
 
@@ -22,7 +23,7 @@ export default function SignIn(props) {
     const res = await signIn("cheese", {redirect:false}, {email, password});
     console.log(res);
     if(res.error == null){
-      window.location.href=props.searchParams.callbackUrl? props.searchParams.callbackUrl:"/home";
+      window.location.href=callbackUrl? callbackUrl:"/home";
     } else{
       setError("회원 정보가 일치하지 않습니다.");
     }

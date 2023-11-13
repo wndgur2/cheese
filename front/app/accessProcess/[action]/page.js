@@ -2,12 +2,13 @@
 
 import TextBtn from '@/components/TextBtn';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Script from 'next/script';
 
-export default function Action(props) {
-    const action = props.params.action;
+
+export default function Action() {
+    const action = useParams().action;
     
     const router = useRouter();
     const [branch, setBranch] = useState("...");
