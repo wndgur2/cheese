@@ -64,7 +64,7 @@ export default function Capture() {
 
     const [amount, setAmount] = useState(0);
     const [capturedAmount, setCapturedAmount] = useState(0);
-    const [timer, setTimer] = useState(30);
+    const [timer, setTimer] = useState(60);
     const [mediaRecorderR, setMediaRecorderR] = useState(null);
     const [capturesR, setCapturesR] = useState([]);
     const [pose, setPose] = useState(null);
@@ -183,7 +183,7 @@ export default function Capture() {
         if(isEnd) return;
         else if(timer==0) {
             handleShutterClick();
-            setTimer(30);
+            setTimer(60);
         } else{
             tId = setTimeout(()=>{setTimer(timer-1);}, 1000);
             if(startRecord) {
@@ -196,7 +196,7 @@ export default function Capture() {
                     .getContext("2d")
                     .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
                 const url = canvas.toDataURL("image/jpeg");
-                getPose(url, setPose);
+                // getPose(url, setPose);
             }
         }
     }, [timer]);
@@ -230,7 +230,7 @@ export default function Capture() {
         capturePhoto();
         setCapturedAmount(capturedAmount+1);
         clearTimeout(tId);
-        setTimer(30);
+        setTimer(60);
     }
 
     function handleSharePhoto() {
