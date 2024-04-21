@@ -1,0 +1,171 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+		 					 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>Cheese</groupId>
+	<artifactId>Cheese</artifactId>
+	<version>0.1.0v</version>
+	<packaging>war</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+					<release>11</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.4.0</version>
+			</plugin>
+		</plugins>
+	</build>
+	<!-- Library Version Control -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<org.projectlombok-version>1.18.26</org.projectlombok-version>
+		<org.slf4j-api-version>2.0.7</org.slf4j-api-version>
+		<org.apache.logging.log4j-core-version>2.20.0</org.apache.logging.log4j-core-version>
+		<org.apache.logging.log4j-api-version>2.20.0</org.apache.logging.log4j-api-version>
+		<javax.servlet-version>4.0.1</javax.servlet-version>
+		<javax.websocket-version>1.1</javax.websocket-version>
+		<org.springframework-webmvc-version>5.3.29</org.springframework-webmvc-version>
+		<org.springframework-websocket-version>5.3.29</org.springframework-websocket-version>
+		<org.springframework-jdbc-version>5.3.29</org.springframework-jdbc-version>
+		<org.springframework-data-redis-version>2.5.12</org.springframework-data-redis-version>
+		<org.springframework-security-crypto-version>5.8.5</org.springframework-security-crypto-version>
+		<io.lettuce-core-version>6.2.4.RELEASE</io.lettuce-core-version>
+		<mysql-connector-java-version>8.0.17</mysql-connector-java-version>
+		<io.jsonwebtoken-jjwt-api-version>0.11.5</io.jsonwebtoken-jjwt-api-version>
+		<io.jsonwebtoken-jjwt-impl-version>0.11.5</io.jsonwebtoken-jjwt-impl-version>
+		<io.jsonwebtoken-jjwt-jackson-version>0.11.5</io.jsonwebtoken-jjwt-jackson-version>
+		<com.fasterxml.jackson.core-databind-version>2.15.2</com.fasterxml.jackson.core-databind-version>
+		<org.python-jython-version>2.7.3</org.python-jython-version>
+	</properties>
+	<!-- Library Setting -->
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId> 
+			<artifactId>lombok</artifactId> 
+			<version>${org.projectlombok-version}</version> 
+			<scope>provided</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+		<dependency>
+    		<groupId>org.slf4j</groupId>
+    		<artifactId>slf4j-api</artifactId>
+    		<version>${org.slf4j-api-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+   			<artifactId>log4j-core</artifactId>
+   	 		<version>${org.apache.logging.log4j-core-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+		<dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+    		<artifactId>log4j-api</artifactId>
+    		<version>${org.apache.logging.log4j-api-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-util -->
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-util</artifactId>
+			<version>8.0.30</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
+		<dependency>
+    		<groupId>org.apache.tomcat.embed</groupId>
+    		<artifactId>tomcat-embed-core</artifactId>
+    		<version>10.1.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+		<dependency>
+    		<groupId>javax.servlet</groupId>
+    		<artifactId>javax.servlet-api</artifactId>
+    		<version>${javax.servlet-version}</version>
+    		<scope>provided</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.websocket/javax.websocket-api -->
+		<dependency>
+    		<groupId>javax.websocket</groupId>
+    		<artifactId>javax.websocket-api</artifactId>
+    		<version>${javax.websocket-version}</version>
+    		<scope>provided</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${org.springframework-webmvc-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-websocket -->
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-websocket</artifactId>
+    		<version>${org.springframework-websocket-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
+		<dependency>
+    		<groupId>org.springframework</groupId>
+    		<artifactId>spring-jdbc</artifactId>
+    		<version>${org.springframework-jdbc-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis -->
+		<dependency>
+    		<groupId>org.springframework.data</groupId>
+    		<artifactId>spring-data-redis</artifactId>
+    		<version>${org.springframework-data-redis-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto -->
+		<dependency>
+    		<groupId>org.springframework.security</groupId>
+    		<artifactId>spring-security-crypto</artifactId>
+    		<version>${org.springframework-security-crypto-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.lettuce/lettuce-core -->
+		<dependency>
+    		<groupId>io.lettuce</groupId>
+    		<artifactId>lettuce-core</artifactId>
+    		<version>${io.lettuce-core-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+    		<groupId>mysql</groupId>
+    		<artifactId>mysql-connector-java</artifactId>
+    		<version>${mysql-connector-java-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
+		<dependency>
+    		<groupId>io.jsonwebtoken</groupId>
+    		<artifactId>jjwt-api</artifactId>
+    		<version>${io.jsonwebtoken-jjwt-api-version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl -->
+		<dependency>
+    		<groupId>io.jsonwebtoken</groupId>
+    		<artifactId>jjwt-impl</artifactId>
+    		<version>${io.jsonwebtoken-jjwt-impl-version}</version>
+    		<scope>runtime</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
+		<dependency>
+    		<groupId>io.jsonwebtoken</groupId>
+    		<artifactId>jjwt-jackson</artifactId>
+    		<version>${io.jsonwebtoken-jjwt-jackson-version}</version>
+    		<scope>runtime</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+		<dependency>
+    		<groupId>com.fasterxml.jackson.core</groupId>
+    		<artifactId>jackson-databind</artifactId>
+    		<version>${com.fasterxml.jackson.core-databind-version}</version>
+		</dependency>
+	</dependencies>
+</project>

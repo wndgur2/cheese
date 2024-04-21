@@ -1,0 +1,27 @@
+.share{
+    display: flex;
+    border-top: solid 1px #EEE;
+    flex-flow: column nowrap;
+}
+
+.info{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2vh 2vw 1vh 2vw;
+}
+
+.images{
+    display: flex;
+    overflow: auto;
+    align-items: center;
+    height: 35vh;
+    scroll-snap-type: x mandatory;
+}
+
+.image{
+    min-width: 100vw;
+    height: 100%;
+    object-fit:cover;
+    scroll-snap-align: center;
+}

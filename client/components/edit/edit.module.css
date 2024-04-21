@@ -1,0 +1,172 @@
+.topContainer{
+    background-color:#F9F7F6;
+    height:100vh;
+}
+#album{
+    display:flex;
+    align-items: center;
+    padding: 2vw;
+    height: 7vh;
+    width: 100%;
+    gap:16px;
+    overflow-x:scroll;
+}
+
+.page{
+    height: 100%;
+}
+
+#add{
+    padding: 2vw;
+    height: 7vh;
+}
+
+#curWrapper{
+    display:flex;
+    align-items: center;
+    
+    width: 25vw;
+    height: 100%;
+}
+
+#curPage{
+    width: 25vw;
+    height: 100%;
+    opacity: 0.5;
+}
+
+#pageControlWrapper{
+    display: flex;
+    align-items: center;
+    width: 25vw;
+    height: 100%;
+    margin-left:-25vw;
+}
+
+#pageControl{
+    outline: solid #FFC121 1vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.control{
+    width: 26px;
+    height: 26px;
+    object-fit: cover;
+}
+
+.preview{
+    overflow: hidden;
+    background-color: #000;
+    height: 35vh;
+    width: 100%;
+}
+
+.preview canvas{
+    height: 35vh;
+    width: 100%;
+    position: absolute;
+}
+
+#functionBar{
+    height:48px;
+    justify-content:space-between;
+    margin: 1vh 2vw;
+}
+
+#undoWrapper{
+    background-color: #FEFBF6;
+    width: 60px;
+    height: 48px;
+    border-radius: 30px 0px 0px 30px;
+    border-right-color: #CCCCCC;
+    border-right-width: 0.5px;
+    border-right-style: solid;
+    box-shadow: 1px 1px 3px 1px rgba(0, 0, 0, 0.05);
+    justify-content: center;
+}
+
+#doWrapper{
+    background-color:#FEFBF6;
+    width: 60px;
+    height: 48px;
+    border-radius: 0px 30px 30px 0px;
+    box-shadow: 1px 1px 3px 1px rgba(0, 0, 0, 0.05);
+    justify-content: center;
+}
+
+.editBody{
+    overflow-y:scroll;
+    overflow-x:visible;
+    height: calc((53vh - 48px));
+    margin: 1vh 2vw;
+}
+
+#navBar{
+    position: absolute;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    overflow-x: scroll;
+    gap: 3vw;
+    width:100%;
+    height:64px;
+
+    bottom:0px;
+    left:0px;
+    font-size: 12px;
+    font-weight: 350;
+    letter-spacing: 0.6px;
+    background-color:#FEFBF6;
+    box-shadow: 0px -1px 5px 1px rgba(0, 0, 0, 0.05);
+    transition: bottom 0.15s ease-in;
+}
+
+.editWrapper{
+    display:flex;
+    flex-direction: column;
+    flex-wrap:wrap;
+    justify-content:space-around;
+    align-items:center;
+    margin:2vh 0px;
+    padding: 2vh 3vw;
+
+    background-color: #FEFBF6;
+    
+    color: #212121;
+    font-size: 16px;
+    font-weight: 500;
+
+    border-radius: 12px;
+    box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.1);
+}
+
+.editEntity{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-evenly;
+    align-items:center;
+    
+    margin:1vh 0px;
+    
+    font-size: 16px;
+    font-weight: 500;
+
+    color: #212121;
+    background-color: #FEFBF6;
+
+    border-radius: 12px;
+    border: 1px solid #ddd;
+}
+
+.extractBtn{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: none;
+    background: none;
+}

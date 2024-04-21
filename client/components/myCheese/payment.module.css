@@ -1,0 +1,37 @@
+.payment{
+    border-radius: 5px;
+    border: 1px solid #DDD;
+    background: #FEFBF6;
+    margin: 1.7vh 4vw;
+    padding: 1.2vh 3.2vw;
+    color: #212121;
+}
+
+.payment div{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+    line-height: 4vh;
+    font-size: 4.5vw;
+}
+
+.createdAt{
+    font-weight: 300;
+}
+
+.branch{
+    font-weight: 400;
+}
+
+.isCapture{
+    font-weight: 500;
+}
+
+.amount{
+    font-weight: 500;
+}
+
+.cost{
+    font-weight: 500;
+}

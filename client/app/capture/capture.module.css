@@ -1,0 +1,99 @@
+#stream{
+    position: absolute;
+    transform: rotate(90deg) scaleX(-1);
+    transform-origin: bottom left;
+    width: 100vh;
+    height: 100vw;
+    /* top: 0vh; */
+    left: 0vh;
+    bottom: 0vh;
+    object-fit: cover;
+}
+
+.functions{
+    position: absolute;
+    top: 84vh;
+    left: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: baseline;
+    width: 100vw;
+    height: 16vh;
+    filter: drop-shadow(0vh 0vh 1vw #000);
+}
+
+.functions span{
+    color: #EEE;
+    font-size: 10vw;
+}
+
+#shutter{
+    position: absolute;
+    top: 6vw;
+    left: 38vw;
+    width: 24vw;
+    transform-origin: center;
+    transform: rotate(90deg);
+}
+
+.rotate{
+    position: absolute;
+    left: -4vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50vw;
+    background-color: rgba(0,0,0,0);
+}
+
+.timer{
+    position: absolute;
+    left: 68vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+    transform: rotate(90deg);
+    width: 12vw;
+    padding: 0px;
+    margin:0px;
+}
+
+#timer{
+    width: 10vw;
+}
+
+.amount{
+    position: absolute;
+    left: 80vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+    transform: rotate(90deg);
+    width: 20vw;
+    padding: 0px;
+    margin:0px;
+}
+
+.alertWrapper{
+    position:absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0vh;
+    left: 0vw;
+    background-color: rgba(0, 0, 0, 0.50);
+}
+
+.shutterEffect{
+    position: absolute;
+    z-index: 2;
+    width: 100vw;
+    height: 100vh;
+    top: 0vh;
+    left: 0vw;
+    background-color: #000;
+    opacity: 0;
+    pointer-events: none;
+    animation: shutter 0.5s;
+}

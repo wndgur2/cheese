@@ -1,0 +1,61 @@
+.inputAmount{
+    display: flex;
+    align-items: baseline;
+    margin-top: 5vh;
+}
+
+#captureAmount{
+    width: 30vw;
+    font-size: 11vw;
+    font-weight: 700;
+    text-align: end;
+    caret-color: #FFD56A;
+    background:none;
+    border:none;
+    outline:none;
+    margin: 0px 5vw 0px 0px;
+    padding:0px;
+    overflow: visible;
+}
+
+.inputInfo{
+    height: 5vh;
+    font-size: 9vw;
+    font-weight: 700;
+    letter-spacing: 0.5vw;
+    color: #303030;
+    pointer-events: none;
+    line-height: normal;
+    margin:0px;
+    padding:0px;
+    white-space: nowrap;
+}
+
+
+/* .placeholder{
+    z-index: 1;
+    position: absolute;
+    font-size:36px;
+    font-weight: 700;
+    color: #9f9f9f;
+    pointer-events: none;
+} */
+
+.rightText{
+    color:#343434;
+    text-align: right;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: 4.8px;
+    margin: 0;
+    margin-top: 3vh;
+}
+
+.b{
+    font-size: 32px;
+}
+
+.s{
+    font-size: 30px;
+}

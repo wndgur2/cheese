@@ -1,0 +1,146 @@
+body{
+}
+
+html, body{
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    max-width: 720px;
+    margin:0px;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+    display: none;
+}
+  
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    color: #212121;
+    text-decoration: none;
+}
+
+.container{
+    padding: 2vh 4vw 0vh 4vw;
+}
+
+.alignCenter{
+    display:flex;
+    align-items:center;
+    justify-content: center;
+}
+
+.title{
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1.82px;
+    margin: 0px;
+    font-style: normal;
+    line-height: normal;
+    color: #212121;
+    white-space: nowrap;
+}
+
+.subtitle{
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 1.82px;
+    margin: 0px;
+    line-height: normal;
+    color: #555;
+}
+
+.dots{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1vw;
+}
+
+.dotsWrapper{
+    width: 100%;
+    height: 4vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dot{
+    height: 1.5vw;
+    width: 1.5vw;
+    background-color: #D9D9D9;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dotFilled{
+    height: 1.5vw;
+    width: 1.5vw;
+    background-color: #FFB800;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.next{
+    position:absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 64px;
+    background-color: #FFD56A;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.error{
+    color:#FF0000;
+    text-align: center;
+    font-size: 16;
+    font-weight: 300;
+    width: 100%;
+    min-height: 2vh;
+}
+
+.alert{
+    position:absolute;
+    width:90vw;
+    top:15vh;
+    left:0vw;
+    padding: 5vh 5vw;
+    border-radius: 10px;
+    background: #FEFBF6;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+.loader{
+    position: absolute;
+    top: 20vh;
+    left: 20vw;
+    width: 60vw;
+    height: 60vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    animation: lds-hourglass 0.7s infinite;
+}
+@keyframes lds-hourglass {
+    0% {
+        transform: rotate(0);
+        animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    }
+    20% {
+        transform: rotate(10deg);
+        animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    }
+    50% {
+        transform: rotate(180deg);
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    100% {
+        transform: rotate(360deg);
+        animation-timing-function: ease-in-out;
+    }
+}

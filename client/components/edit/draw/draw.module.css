@@ -1,0 +1,17 @@
+.navWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border:solid;
+    border-radius:100px;
+    border-color: #DDDDDD;
+    background-color: #F5F5F5;
+    height:56px;
+    width:56px;
+}
+
+#selected{
+    background-color: #FEFBF6;
+    border-color: #FFC121;
+    border-width: 2px;
+}
