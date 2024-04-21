@@ -41,4 +41,22 @@ yarn-error.log*
 next-env.d.ts
 
 .vscode
-raspCommands.txt
+
+### Eclipse ###
+.apt_generated_tests
+.settings
+.classpath
+.factorypath
+.project
+target
+build
+
+### IntelliJ IDEA ###
+*.iml
+.idea
+out
+gen
+
+.properties
+application.properties
+server/Cheese/src/main/resources/application.properties
