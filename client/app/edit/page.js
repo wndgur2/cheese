@@ -16,8 +16,8 @@ import { Page } from "./edit.module";
 
 import JSZip from "jszip";
 import Script from "next/script";
-import savePhotosIdx from "@/api/savePhotosIdx";
-import loadPhotosIdx from "@/api/loadPhotosIdx";
+import savePhotosIdx from "@/disabled_apis/savePhotosIdx";
+import loadPhotosIdx from "@/disabled_apis/loadPhotosIdx";
 
 export default function Edit({ searchParams }) {
     const router = useRouter();
@@ -394,8 +394,8 @@ export default function Edit({ searchParams }) {
                             <NavBtn
                                 src={`/edit/${
                                     nav == name[0]
-                                        ? name[0] + "_accent"
-                                        : name[0]
+                                        ? name[0].toLowerCase() + "_accent"
+                                        : name[0].toLowerCase()
                                 }.png`}
                                 width="24"
                                 active={nav == name[0]}

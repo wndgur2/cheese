@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
-  let router = useRouter();
-  useEffect(()=>{
-    router.replace("/home");
-  }, []);
+    let router = useRouter();
+    useEffect(() => {
+        router.replace("/home");
+    }, []);
 
-  return (
-    <div>
-      <div className='loader'>
-        <img src='/cheese_512.png' width={"50%"} />
-      </div>
-    </div>
-  )
+    return (
+        <div>
+            <div className="loader">
+                <img src="/cheese_512.png" width={"50%"} />
+            </div>
+        </div>
+    );
 }

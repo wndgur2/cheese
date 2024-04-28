@@ -175,14 +175,27 @@ export default function Home() {
                     ></img>
                 )
             ) : (
-                <TextBtn
-                    href="/home/cheeseMap"
-                    color="#FFD56A"
-                    type="big"
-                    content="현장에서 촬영과 인화를 할 수 있어요."
-                >
-                    지점을 선택해주세요.
-                </TextBtn>
+                <>
+                    <img
+                        src={"/samples/placeholder.jpeg"}
+                        width={"100%"}
+                        style={{
+                            borderRadius: "10px",
+                            margin: "2.5vh 0 0 0",
+                            maxHeight: "30vh",
+                            objectFit: "cover",
+                            boxShadow: "1px 1px 10px 1px rgba(0, 0, 0, 0.10)",
+                        }}
+                    ></img>
+                    <TextBtn
+                        href="/home/cheeseMap"
+                        color="#FFD56A"
+                        type="big"
+                        content="현장에서 촬영과 인화를 할 수 있어요."
+                    >
+                        지점을 선택해주세요.
+                    </TextBtn>
+                </>
             )}
 
             <div className={homeStyles.bigBtnWrapper}>

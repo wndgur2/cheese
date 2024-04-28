@@ -967,7 +967,6 @@ class Layer {
 
     setImage(src) {
         let image = new Image();
-        // console.log(this.src, " to ", src);
         this.src = src;
         image.src = src;
         image.onload = () => {
