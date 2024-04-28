@@ -1,5 +1,9 @@
 <p>
   <h1 align="center"><a href="https://cheesee.vercel.app/">🧀 치즈한장</a></h1>
+  <p align="center"><a href="https://cheesee.vercel.app/">https://cheesee.vercel.app/</a> </p>
+  <p align="center">
+    * 서버 배포가 중단되었습니다. (api 작동하지 않음)
+  </p>
   <h3 align="center"> 모바일 웹을 활용한 야외 포토 부스 서비스 </h3>
   <p align="center">
     Nextjs, Java Spring, FastAPI, MySQL, Redis, Tensorflow, WebRTC
