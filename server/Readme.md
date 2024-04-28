@@ -9,18 +9,6 @@
   Public Docker Image: leejunghyeok/cheese-redis:1.2
 </p>
 
-<!-- <p align="center">
-  <a href="http://cheese.ap-northeast-2.elasticbeanstalk.com/branch">
- try out GET API (지점 정보)
- </a> -->
-</p>
-
-<p align="center">
-  <a href="https://github.com/wndgur2/cheese/">
-    치즈한장 통합 레포지토리  
-  </a>
-</p>
-
 ## 서버, DB 배포 기록
 
 <details>
