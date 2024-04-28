@@ -16,7 +16,7 @@ import com.hknu.entity.Customer;
 public class CustomerDaoImpl extends BaseDao<Customer> {
 	@Autowired
 	public CustomerDaoImpl(DataSource dataSource) {
-		super(dataSource, "Customers", "customer_id");
+		super(dataSource, "customers", "customer_id");
 	}
 	
 	@Override

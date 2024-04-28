@@ -19,7 +19,7 @@ import com.hknu.entity.Payment;
 public class PaymentDaoImpl extends BaseDao<Payment> {
 	@Autowired
 	public PaymentDaoImpl(DataSource dataSource) {
-		super(dataSource, "Payments", "payment_id");
+		super(dataSource, "payments", "payment_id");
 	}
 	
 	@Override

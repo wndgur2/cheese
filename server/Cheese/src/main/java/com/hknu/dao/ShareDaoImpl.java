@@ -19,7 +19,7 @@ import com.hknu.entity.Share;
 public class ShareDaoImpl extends BaseDao<Share> {
 	@Autowired
 	public ShareDaoImpl(DataSource dataSource) {
-		super(dataSource, "Share", "share_id");
+		super(dataSource, "share", "share_id");
 	}
 	
 	@Override

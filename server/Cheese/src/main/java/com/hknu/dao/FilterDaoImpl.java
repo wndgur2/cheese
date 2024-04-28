@@ -18,7 +18,7 @@ import com.hknu.entity.Filter;
 public class FilterDaoImpl extends BaseDao<Filter> {
 	@Autowired
 	public FilterDaoImpl(DataSource dataSource) {
-		super(dataSource, "Filters", "filter_id");
+		super(dataSource, "filters", "filter_id");
 	}
 	
 	@Override

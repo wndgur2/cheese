@@ -18,7 +18,7 @@ import com.hknu.entity.SharedPhoto;
 public class SharedPhotoDaoImpl extends BaseDao<SharedPhoto> {
 	@Autowired
 	public SharedPhotoDaoImpl(DataSource dataSource) {
-		super(dataSource, "Sharedphoto", "shared_photo_id");
+		super(dataSource, "sharedphoto", "shared_photo_id");
 	}
 	
 	@Override

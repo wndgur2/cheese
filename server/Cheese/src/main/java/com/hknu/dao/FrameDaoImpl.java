@@ -18,7 +18,7 @@ import com.hknu.entity.Frame;
 public class FrameDaoImpl extends BaseDao<Frame> {
 	@Autowired
 	public FrameDaoImpl(DataSource dataSource) {
-		super(dataSource, "Frames", "frame_id");
+		super(dataSource, "frames", "frame_id");
 	}
 	
 	@Override

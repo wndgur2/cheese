@@ -1,0 +1,9 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+.idea/
+application.properties
+*.jar
+*.class
+target/
+.vscode/

@@ -14,7 +14,7 @@ import com.hknu.entity.Branch;
 public class BranchDaoImpl extends BaseDao<Branch> {
 	@Autowired
 	public BranchDaoImpl(DataSource dataSource) {
-		super(dataSource, "Branches", "branch_id");
+		super(dataSource, "branches", "branch_id");
 	}
 	
 	@Override

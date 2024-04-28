@@ -19,7 +19,7 @@ import com.hknu.entity.Photograph;
 public class PhotographDaoImpl extends BaseDao<Photograph> {
 	@Autowired
 	public PhotographDaoImpl(DataSource dataSource) {
-		super(dataSource, "Photographs", "photograph_id");
+		super(dataSource, "photographs", "photograph_id");
 	}
 	
 	@Override

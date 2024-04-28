@@ -51,7 +51,7 @@ public class RootAppContext {
     	RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
     	configuration.setHostName(environment.getProperty("spring.redis.host"));
     	configuration.setPort(Integer.parseInt(environment.getProperty("spring.redis.port")));
-    	configuration.setPassword(environment.getProperty("spring.redis.password"));
+    	// configuration.setPassword(environment.getProperty("spring.redis.password"));
     	return new LettuceConnectionFactory(configuration);
     }
     

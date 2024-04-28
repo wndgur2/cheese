@@ -3,7 +3,6 @@ package com.hknu.service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
 
 import javax.lang.model.type.NullType;
 
@@ -24,11 +23,11 @@ public class ManagerService {
 	private String manager_file_location;
 	@Value("${cheese.manager-email}")
     private String manager_email;
+	@Value("${cheese.manager-password}")
+	private String manager_password;
 	
 	public ResponseEntity<ResponseDto<NullType>> loginManager(String password) {
-		String managerPassword = getManagerByPassword(password);
-		
-		if (managerPassword.equals(password)) {
+		if (manager_password.equals(password)) {
 			String accessToken = this.tokenService.generateAccessToken(manager_email);
 			String refreshToken = this.tokenService.generateRefreshToken(manager_email);
 			
@@ -66,21 +65,6 @@ public class ManagerService {
 					HttpStatus.OK);
 		}
 		throw new CustomException("관리자 권한이 필요합니다.");
-	}
-	
-	public String getManagerByPassword(String password) {
-		try {
-			Scanner scanner = new Scanner(new File(manager_file_location));
-			
-			if (scanner.hasNext()) {
-				String managerPassword = scanner.next();
-				scanner.close();
-				return managerPassword;
-			}
-		} catch (IOException e) {
-			System.out.println(String.format("manager file read error, %s", e));
-		}
-		return null;
 	}
 	
 	public void updateManager(String password) {

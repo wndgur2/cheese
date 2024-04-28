@@ -19,7 +19,7 @@ import com.hknu.entity.Timelapse;
 public class TimelapseDaoImpl extends BaseDao<Timelapse> {
 	@Autowired
 	public TimelapseDaoImpl(DataSource dataSource) {
-		super(dataSource, "Timelapses", "timelapse_id");
+		super(dataSource, "timelapses", "timelapse_id");
 	}
 	
 	@Override

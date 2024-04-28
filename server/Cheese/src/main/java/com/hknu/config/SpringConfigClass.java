@@ -21,7 +21,7 @@ public class SpringConfigClass implements WebApplicationInitializer {
 		// DispatcherServlet을 등록하기 위한 설정
 	    AnnotationConfigWebApplicationContext servletAppContext = new AnnotationConfigWebApplicationContext();
 		servletAppContext.register(ServletAppContext.class);
-		
+
 		// DispatcherServlet 등록
 		DispatcherServlet dispatcherServlet = new DispatcherServlet(servletAppContext);
 		ServletRegistration.Dynamic servlet = servletContext.addServlet("dispatcher", dispatcherServlet);
@@ -32,20 +32,20 @@ public class SpringConfigClass implements WebApplicationInitializer {
 		AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();
 		rootAppContext.register(RootAppContext.class);
 		rootAppContext.refresh();
-		
+
 		MultipartConfigElement multipartConfigElement = rootAppContext.getBean(MultipartConfigElement.class);
 		servlet.setMultipartConfig(multipartConfigElement);
-		
+
 		// Listener 설정
 		ContextLoaderListener listener = new ContextLoaderListener(rootAppContext);
 		servletContext.addListener(listener);
-		
+
 //		 Parameter Encoding 설정
 //		 "dispatcher"라는 이름으로 등록된 dispatcherServlet 서블릿이 받아드리는 요청에 대해 이 Encoding filter를 통과시킴
 		FilterRegistration.Dynamic filter = servletContext.addFilter("encodingFilter", CharacterEncodingFilter.class);
 		filter.setInitParameter("encoding", "UTF-8");
 		filter.addMappingForServletNames(null, false, "dispatcher");
-		
+
 		FilterRegistration.Dynamic corsFilter = servletContext.addFilter("corsFilter", CorsFilter.class);
 		corsFilter.addMappingForServletNames(null, false, "*");
 	}

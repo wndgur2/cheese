@@ -1,0 +1,7 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+        "Name": "leejunghyeok/cheese-redis:1.2"
+    },
+    "Ports": [{ "ContainerPort": "8080" }]
+}

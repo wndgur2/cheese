@@ -18,7 +18,7 @@ import com.hknu.entity.Sticker;
 public class StickerDaoImpl extends BaseDao<Sticker> {
 	@Autowired
 	public StickerDaoImpl(DataSource dataSource) {
-		super(dataSource, "Stickers", "sticker_id");
+		super(dataSource, "stickers", "sticker_id");
 	}
 	
 	@Override
