@@ -215,7 +215,9 @@ export default function Edit({ searchParams }) {
 
     return (
         <div ref={fullscreen}>
-            <Script src="http://cdn.jsdelivr.net/g/filesaver.js" />
+            {/* <Script src="http://cdn.jsdelivr.net/g/filesaver.js" /> */}
+            <Script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js" />
+
             <div className={editStyles.topContainer}>
                 <div
                     style={{ display: "flex", justifyContent: "space-between" }}
@@ -293,122 +295,112 @@ export default function Edit({ searchParams }) {
                     </div>
                 </div>
                 <div className={editStyles.preview} id="preview" />
-                <div>
-                    <div className="alignCenter" id={editStyles.functionBar}>
-                        <div className="alignCenter" style={{ gap: 10 }}>
-                            <div
-                                className="alignCenter"
-                                onClick={() => {
-                                    if (isFullscreen) {
-                                        document.exitFullscreen();
-                                        setIsFullscreen(false);
-                                    } else {
-                                        fullscreen.current.requestFullscreen();
-                                        setIsFullscreen(true);
-                                    }
-                                }}
-                                style={{
-                                    backgroundColor: "#fefbf6",
-                                    borderRadius: "30px",
-                                    boxShadow:
-                                        "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
-                                    height: "48px",
-                                    padding: "0.5vh 1vh",
-                                }}
-                            >
-                                <span style={{ fontSize: "2vh" }}>
-                                    전체화면
-                                </span>
-                                {/* <img src="/edit/reset.png" width={60} onClick={()=>{fullscreen.current.requestFullscreen();}}/> */}
-                            </div>
-                        </div>
-                        <div className="alignCenter" style={{ gap: 10 }}>
-                            <div className="alignCenter" onClick={printResults}>
-                                <img src="/edit/print.png" width={60} />
-                                <a id="link"></a>
-                            </div>
-                            <div className="alignCenter" onClick={save}>
-                                <img src="/edit/save.png" width={60} />
-                                <a id="link"></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        className={editStyles.editBody}
-                        style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            overflowY: "scroll",
-                        }}
-                        onScroll={(e) => {
-                            handleBodyScroll(e.target.scrollTop);
-                        }}
-                    >
-                        {loading ? (
-                            <div>
-                                <div
-                                    className="loader"
-                                    style={{
-                                        position: "relative",
-                                        height: "0vh",
-                                    }}
-                                >
-                                    <img src="/cheese_512.png" width={"30vh"} />
-                                </div>
-                                <p
-                                    style={{
-                                        width: "100%",
-                                        textAlign: "center",
-                                        marginTop: "30vh",
-                                    }}
-                                >
-                                    처리중이에요
-                                </p>
-                            </div>
-                        ) : (
-                            renderChild()
-                        )}
-                        <br />
-                        <br />
-                        <br />
-                        <br />
-                        <br />
-                    </div>
-                </div>
-            </div>
-            <div
-                id={editStyles.navBar}
-                style={{
-                    bottom: hideNavbar ? "-64px" : "0px",
-                }}
-            >
-                {navs.map((name, i) => {
-                    return (
+                <div className="alignCenter" id={editStyles.functionBar}>
+                    <div className="alignCenter" style={{ gap: 10 }}>
                         <div
-                            key={i}
+                            className="alignCenter"
                             onClick={() => {
-                                setNav(name[0]);
+                                if (isFullscreen) {
+                                    document.exitFullscreen();
+                                    setIsFullscreen(false);
+                                } else {
+                                    fullscreen.current.requestFullscreen();
+                                    setIsFullscreen(true);
+                                }
+                            }}
+                            style={{
+                                backgroundColor: "#fefbf6",
+                                borderRadius: "30px",
+                                boxShadow:
+                                    "1px 1px 5px 1px rgba(0, 0, 0, 0.08)",
+                                height: "48px",
+                                padding: "0.5vh 1vh",
                             }}
                         >
-                            <NavBtn
-                                src={`/edit/${
-                                    nav == name[0]
-                                        ? name[0].toLowerCase() + "_accent"
-                                        : name[0].toLowerCase()
-                                }.png`}
-                                width="24"
-                                active={nav == name[0]}
-                                accentColor="#2A2A2A"
-                                accentFontColor={
-                                    nav == name[0] ? "#FFD56A" : ""
-                                }
-                            >
-                                {name[1]}
-                            </NavBtn>
+                            <span style={{ fontSize: "2vh" }}>전체화면</span>
+                            {/* <img src="/edit/reset.png" width={60} onClick={()=>{fullscreen.current.requestFullscreen();}}/> */}
                         </div>
-                    );
-                })}
+                    </div>
+                    <div className="alignCenter" style={{ gap: 10 }}>
+                        <div className="alignCenter" onClick={printResults}>
+                            <img src="/edit/print.png" width={60} />
+                            <a id="link"></a>
+                        </div>
+                        <div className="alignCenter" onClick={save}>
+                            <img src="/edit/save.png" width={60} />
+                            <a id="link"></a>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    className={editStyles.editBody}
+                    onScroll={(e) => {
+                        handleBodyScroll(e.target.scrollTop);
+                    }}
+                >
+                    {loading ? (
+                        <div>
+                            <div
+                                className="loader"
+                                style={{
+                                    position: "relative",
+                                    height: "0vh",
+                                }}
+                            >
+                                <img src="/cheese_512.png" width={"30vh"} />
+                            </div>
+                            <p
+                                style={{
+                                    width: "100%",
+                                    textAlign: "center",
+                                    marginTop: "30vh",
+                                }}
+                            >
+                                처리중이에요
+                            </p>
+                        </div>
+                    ) : (
+                        renderChild()
+                    )}
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                </div>
+                <div
+                    id={editStyles.navBar}
+                    style={{
+                        bottom: hideNavbar ? "-64px" : "0px",
+                    }}
+                >
+                    {navs.map((name, i) => {
+                        return (
+                            <div
+                                key={i}
+                                onClick={() => {
+                                    setNav(name[0]);
+                                }}
+                            >
+                                <NavBtn
+                                    src={`/edit/${
+                                        nav == name[0]
+                                            ? name[0].toLowerCase() + "_accent"
+                                            : name[0].toLowerCase()
+                                    }.png`}
+                                    width="24"
+                                    active={nav == name[0]}
+                                    accentColor="#2A2A2A"
+                                    accentFontColor={
+                                        nav == name[0] ? "#FFD56A" : ""
+                                    }
+                                >
+                                    {name[1]}
+                                </NavBtn>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

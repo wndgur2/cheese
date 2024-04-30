@@ -5,7 +5,13 @@ const MARGIN = 1.1;
 const LINE_WIDTH = 0.003;
 const HITBOX_SIZE = 0.12;
 
-function convertXY(width, height, inputX, inputY) {
+function convertXY(width, height, e) {
+    let inputX = e.touches
+        ? e.touches[0].clientX
+        : e.clientX - e.target.offsetLeft;
+    let inputY = e.touches
+        ? e.touches[0].clientY - e.target.offsetTop
+        : e.clientY - e.target.offsetTop;
     let x = Math.round((inputX * width) / Layer.preview.offsetWidth);
     let y = Math.round((inputY * height) / Layer.preview.offsetHeight);
     return { x, y };
@@ -44,6 +50,7 @@ class Page {
         this.touchLayer.ctx.lineWidth = page_.lineWidth;
         this.state = type;
 
+        //TODO
         switch (type) {
             case "crop":
                 const imageLayer = page_.getLayer("image");
@@ -54,54 +61,69 @@ class Page {
                 this.touchLayer.lineLength = page_.lineWidth * 10;
                 this.drawCropBox();
 
-                this.touchLayer.canvas.ontouchstart = (e) => {
-                    page_.handleCropTouchStart(e);
-                };
-                this.touchLayer.canvas.ontouchmove = (e) => {
-                    page_.handleCropTouchMove(e);
+                this.touchLayer.canvas.onmousedown =
+                    this.touchLayer.canvas.ontouchstart = (e) => {
+                        page_.handleCropTouchStart(e);
+                    };
+                this.touchLayer.canvas.ontouchmove =
+                    this.touchLayer.canvas.onmousemove = (e) => {
+                        page_.handleCropTouchMove(e);
+                    };
+                this.touchLayer.canvas.onmouseup = (e) => {
+                    page_.handleCropTouchEnd(e);
                 };
                 break;
 
             case "pen" || "eraser" || "bucket":
-                this.touchLayer.canvas.ontouchstart = (e) => {
-                    page_.handleDrawTouchStart(e);
-                };
-                this.touchLayer.canvas.ontouchmove = (e) => {
-                    page_.handleDrawTouchMove(e);
-                };
-                this.touchLayer.canvas.ontouchend = () => {
-                    page_.handleDrawTouchEnd();
-                };
+                this.touchLayer.canvas.onmousedown =
+                    this.touchLayer.canvas.ontouchstart = (e) => {
+                        page_.handleDrawTouchStart(e);
+                    };
+                this.touchLayer.canvas.onmousemove =
+                    this.touchLayer.canvas.ontouchmove = (e) => {
+                        page_.handleDrawTouchMove(e);
+                    };
+                this.touchLayer.canvas.onmouseup =
+                    this.touchLayer.canvas.ontouchend = () => {
+                        page_.handleDrawTouchEnd();
+                    };
                 break;
 
             case "sticker":
-                this.touchLayer.canvas.ontouchstart = (e) => {
-                    page_.handleStickerTouchStart(e);
-                };
-                this.touchLayer.canvas.ontouchmove = (e) => {
-                    page_.handleStickerTouchMove(e);
-                };
-                this.touchLayer.canvas.ontouchend = () => {
-                    page_.handleStickerTouchEnd();
-                };
+                this.touchLayer.canvas.onmousedown =
+                    this.touchLayer.canvas.ontouchstart = (e) => {
+                        page_.handleStickerTouchStart(e);
+                    };
+                this.touchLayer.canvas.onmousemove =
+                    this.touchLayer.canvas.ontouchmove = (e) => {
+                        page_.handleStickerTouchMove(e);
+                    };
+                this.touchLayer.canvas.onmouseup =
+                    this.touchLayer.canvas.ontouchend = () => {
+                        page_.handleStickerTouchEnd();
+                    };
                 break;
 
             case "text":
-                this.touchLayer.canvas.ontouchstart = (e) => {
-                    page_.handleTextTouchStart(e);
-                };
-                this.touchLayer.canvas.ontouchmove = (e) => {
-                    page_.handleTextTouchMove(e);
-                };
-                this.touchLayer.canvas.ontouchend = () => {
-                    page_.handleTextTouchEnd();
-                };
+                this.touchLayer.canvas.onmousedown =
+                    this.touchLayer.canvas.ontouchstart = (e) => {
+                        page_.handleTextTouchStart(e);
+                    };
+                this.touchLayer.canvas.onmousemove =
+                    this.touchLayer.canvas.ontouchmove = (e) => {
+                        page_.handleTextTouchMove(e);
+                    };
+                this.touchLayer.canvas.onmouseup =
+                    this.touchLayer.canvas.ontouchend = () => {
+                        page_.handleTextTouchEnd();
+                    };
                 break;
 
             case "object":
-                this.touchLayer.canvas.ontouchstart = (e) => {
-                    page_.handleObjectTouchStart(e);
-                };
+                this.touchLayer.canvas.onmousedown =
+                    this.touchLayer.canvas.ontouchstart = (e) => {
+                        page_.handleObjectTouchStart(e);
+                    };
                 page_.setObjectEditting = setObjectEditting;
                 page_.setLoading = setLoading;
             default:
@@ -457,12 +479,9 @@ class Page {
 
     handleCropTouchStart(e) {
         console.log("CropTouch");
-        const { x, y } = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        console.log(e);
+        this.dragging = true;
+        const { x, y } = convertXY(this.width, this.height, e);
         this.touched.x = x;
         this.touched.y = y;
         this.state = "";
@@ -512,12 +531,12 @@ class Page {
     }
 
     handleCropTouchMove(e) {
-        const { x, y } = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        if (!this.dragging) {
+            return;
+        }
+        const { x, y } = convertXY(this.width, this.height, e);
+
+        console.log(x, y);
 
         switch (this.state) {
             case "resize":
@@ -562,13 +581,13 @@ class Page {
         Page.drawCropBox();
     }
 
+    handleCropTouchEnd(e) {
+        this.dragging = false;
+    }
+
     handleDrawTouchStart(e) {
-        this.touched = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        this.dragging = true;
+        this.touched = convertXY(this.width, this.height, e);
 
         let drawLayer = this.getLayer("draw");
         if (!drawLayer) {
@@ -606,13 +625,9 @@ class Page {
     }
 
     handleDrawTouchMove(e) {
+        if (!this.dragging) return;
         // draw layer xy에 그림.
-        const { x, y } = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        const { x, y } = convertXY(this.width, this.height, e);
         const drawLayer = this.getLayer("draw");
         drawLayer.ctx.beginPath();
 
@@ -625,6 +640,7 @@ class Page {
     }
 
     handleDrawTouchEnd() {
+        this.dragging = false;
         const drawLayer = this.getLayer("draw");
         if (!drawLayer) return;
         drawLayer.ctx.globalCompositeOperation = "source-over";
@@ -633,13 +649,9 @@ class Page {
     }
 
     handleStickerTouchStart(e) {
+        this.dragging = true;
         console.log("sticker touch");
-        this.touched = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        this.touched = convertXY(this.width, this.height, e);
         const { x, y } = this.touched;
         const hitBoxSize = this.width * HITBOX_SIZE;
         const stickerLayers = this.getLayers("sticker");
@@ -698,13 +710,9 @@ class Page {
     }
 
     handleStickerTouchMove(e) {
+        if (!this.dragging) return;
         if (!this.selectedSticker) return;
-        const { x, y } = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        const { x, y } = convertXY(this.width, this.height, e);
 
         switch (this.state) {
             case "resize":
@@ -756,16 +764,14 @@ class Page {
         this.touched = { x, y };
     }
 
-    handleStickerTouchEnd() {}
+    handleStickerTouchEnd() {
+        this.dragging = false;
+    }
 
     handleTextTouchStart(e) {
+        this.dragging = true;
         console.log("text touch");
-        this.touched = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        this.touched = convertXY(this.width, this.height, e);
         const { x, y } = this.touched;
         const textLayers = this.getLayers("text");
         let exitFunction = false;
@@ -808,52 +814,12 @@ class Page {
     }
 
     handleTextTouchMove(e) {
+        if (!this.dragging) return;
         if (!this.selectedText) return;
-        const { x, y } = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        const { x, y } = convertXY(this.width, this.height, e);
 
-        // switch (this.state) {
-        //     case "resize":
-        //         switch (this.edge) {
-        //             case 0:
-        //                 this.selectedText.x += x - this.touched.x;
-        //                 this.selectedText.y += y - this.touched.y;
-        //                 this.selectedText.width -= x - this.touched.x;
-        //                 this.selectedText.height -= y - this.touched.y;
-        //                 break;
-        //             case 1:
-        //                 this.selectedText.x = this.selectedText.x + x - this.touched.x;
-        //                 this.selectedText.width -= x - this.touched.x;
-        //                 this.selectedText.height += y - this.touched.y;
-        //                 break;
-        //             case 2:
-        //                 this.selectedText.y = this.selectedText.y + y - this.touched.y;
-        //                 this.selectedText.width += x - this.touched.x;
-        //                 this.selectedText.height -= y - this.touched.y;
-        //                 break;
-        //             case 3:
-        //                 this.selectedText.width += x - this.touched.x;
-        //                 this.selectedText.height += y - this.touched.y;
-        //                 break;
-
-        //             default:
-        //                 break;
-        //         }
-        //         break;
-
-        // case "move":
         this.selectedText.x += x - this.touched.x;
         this.selectedText.y += y - this.touched.y;
-        //         break;
-
-        //     default:
-        //         break;
-        // }
-
         // draw sticker
         this.selectedText.clear();
         this.selectedText.draw();
@@ -864,19 +830,16 @@ class Page {
         this.touched = { x, y };
     }
 
-    handleTextTouchEnd() {}
+    handleTextTouchEnd() {
+        this.dragging = false;
+    }
 
     async handleObjectTouchStart(e) {
         console.log("object touch");
         this.setObjectEditting(false);
         this.setLoading(true);
         Page.disableTouchLayer();
-        this.touched = convertXY(
-            this.width,
-            this.height,
-            e.touches[0].clientX,
-            e.touches[0].clientY - e.target.offsetTop
-        );
+        this.touched = convertXY(this.width, this.height, e);
         const { x, y } = this.touched;
         console.log(x, y);
 

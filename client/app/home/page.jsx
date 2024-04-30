@@ -277,7 +277,6 @@ function BigBtn({ enabled, href, src, children }) {
                         backgroundColor: `${enabled ? "#FFD56A" : "#FEFBF6"}`,
                         border: "none",
                         boxShadow: "1px 1px 10px 1px rgba(0, 0, 0, 0.10)",
-                        // todo
                         width: "100%",
                         height: "100%",
                         lineHeight: "normal",

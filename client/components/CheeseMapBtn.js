@@ -24,7 +24,6 @@ function CheeseMapBtn() {
                         backgroundColor: "#FFD56A",
                         border: "none",
                         boxShadow: "1px 1px 10px 1px rgba(0, 0, 0, 0.10)",
-                        //todo
                         width: "100%",
                         height: "100%",
                         margin: 0,

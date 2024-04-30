@@ -202,21 +202,12 @@ export default function Ai({ page, setLoading }) {
     }
 
     return (
-        <div
-            style={{
-                paddingTop: "4vh",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-        >
+        <div>
             <div className={editStyles.editWrapper}>
                 <span>자동 편집</span>
                 <div
                     style={{
                         display: "flex",
-                        width: "100%",
                         margin: "2.1vh 0px 1vh 0px",
                         justifyContent: "space-around",
                     }}

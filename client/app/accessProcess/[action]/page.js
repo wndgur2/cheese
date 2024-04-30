@@ -17,7 +17,7 @@ export default function Action() {
         if (!isMapLoaded) return;
         let branch_ = JSON.parse(localStorage.getItem("branch"));
         if (!branch_) {
-            router.push("/home/cheeseMap");
+            router.replace("/home/cheeseMap");
             return;
         }
 
