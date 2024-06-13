@@ -1,17 +1,9 @@
-<p>
-  <h1 align="center"><a href="https://cheesee.vercel.app/">🧀 치즈한장</a></h1>
-  <p align="center"><a href="https://cheesee.vercel.app/">https://cheesee.vercel.app/</a> </p>
-  <p align="center">
-    * 서버 배포가 중단되었습니다. (api 작동하지 않음)
-  </p>
-  <h3 align="center"> 모바일 웹을 활용한 야외 포토 부스 서비스 </h3>
-  <p align="center">
-    Nextjs, Java Spring, FastAPI, MySQL, Redis, Tensorflow, WebRTC
-  </p>
-</p>
-<p align="center">
-  <img width="673" alt="치즈한장 패널" src="https://github.com/wndgur2/cheese/assets/65120311/614beae2-f2bb-4e31-8ae4-9e786b37f6a9">
-</p>
+[🧀 치즈한장](https://cheesee.vercel.app/)
+* 서버 배포가 중단되었습니다. (api 작동하지 않음)
+### 모바일 웹을 활용한 야외 포토 부스 서비스
+Nextjs, Java Spring, FastAPI, MySQL, Redis, Tensorflow, WebRTC  
+
+<img width="673" alt="치즈한장 패널" src="https://github.com/wndgur2/cheese/assets/65120311/614beae2-f2bb-4e31-8ae4-9e786b37f6a9">
 
 ## 서비스 개요도
 
