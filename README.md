@@ -1,6 +1,6 @@
-# [🧀 치즈한장](https://cheesee.vercel.app/)
-* 서버 배포가 중단되었습니다. (api 작동하지 않음)
-### 모바일 웹을 활용한 야외 포토 부스 서비스
+# [🧀 치즈한장](https://cheesee.vercel.app/)  
+* 서버 배포가 중단되었습니다. (api 작동하지 않음)  
+### 모바일 웹을 활용한 야외 포토 부스 서비스  
 Nextjs, Java Spring, FastAPI, MySQL, Redis, Tensorflow, WebRTC  
 
 <img width="673" alt="치즈한장 패널" src="https://github.com/wndgur2/cheese/assets/65120311/614beae2-f2bb-4e31-8ae4-9e786b37f6a9">
