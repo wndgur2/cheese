@@ -1,4 +1,10 @@
-# [🧀 치즈한장](https://cheesee.vercel.app/)  
+---
+date_started: 2023.01.01
+date_finished: 2023.11.13
+head_count: 3
+role: FE
+---
+# 🧀 치즈한장
 
 ### 모바일 웹을 활용한 야외 포토 부스 서비스  
 Nextjs, Java Spring, FastAPI, MySQL, Redis, Tensorflow, WebRTC  
